@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "client",
-    "slug": "client",
+    "name": "sahkarseva",
+    "slug": "sahkarseva",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,11 +19,13 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
-      ]
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.sahkarseva.in"
     },
     "web": {
       "output": "static",
@@ -69,7 +71,7 @@
       "apiUrl": "http://192.168.0.104:8000",
       "router": {},
       "eas": {
-        "projectId": "293e1caf-adc6-49ee-a85b-6ecbf963ebfc"
+        "projectId": "199e550c-4ea2-4da7-80d1-753c09a9e4e5"
       }
     }
   }
