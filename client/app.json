@@ -17,7 +17,13 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "web": {
       "output": "static",
@@ -39,11 +45,32 @@
       "expo-localization",
       "expo-secure-store",
       "expo-sharing",
-      "expo-video"
+      "expo-video",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "SahkarSeva uses your location to show nearby verified workers and set your service address."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "SahkarSeva needs access to your photos to set your profile picture.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "apiUrl": "http://192.168.0.104:8000",
+      "router": {},
+      "eas": {
+        "projectId": "293e1caf-adc6-49ee-a85b-6ecbf963ebfc"
+      }
     }
   }
 }
