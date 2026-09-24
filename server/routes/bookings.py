@@ -29,6 +29,10 @@ class CancelBookingRequest(BaseModel):
     reason: str | None = None
 
 
+class DeclineBookingRequest(BaseModel):
+    reason: str | None = None
+
+
 class SendMessageRequest(BaseModel):
     message: str
 
@@ -66,6 +70,19 @@ def create_emergency_booking(body: CreateEmergencyBookingRequest, user_id: str =
     return {"booking": booking}
 
 
+@router.get("/worker")
+def get_worker_bookings(group: str | None = None, user_id: str = Depends(get_current_user_id)):
+    return {"bookings": booking_service.list_worker_bookings(user_id, group)}
+
+
+@router.get("/worker/{booking_id}")
+def get_worker_booking(booking_id: str, user_id: str = Depends(get_current_user_id)):
+    booking = booking_service.get_worker_booking(booking_id, user_id)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return {"booking": booking}
+
+
 @router.get("/{booking_id}")
 def get_booking(booking_id: str, user_id: str = Depends(get_current_user_id)):
     booking = booking_service.get_booking(booking_id, user_id)
@@ -79,6 +96,22 @@ def cancel_booking(booking_id: str, body: CancelBookingRequest, user_id: str = D
     booking = booking_service.cancel_booking(booking_id, user_id, body.reason)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found or can't be cancelled")
+    return {"booking": booking}
+
+
+@router.post("/{booking_id}/accept")
+def accept_booking(booking_id: str, user_id: str = Depends(get_current_user_id)):
+    booking = booking_service.accept_booking(booking_id, user_id)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found or can't be accepted")
+    return {"booking": booking}
+
+
+@router.post("/{booking_id}/decline")
+def decline_booking(booking_id: str, body: DeclineBookingRequest, user_id: str = Depends(get_current_user_id)):
+    booking = booking_service.decline_booking(booking_id, user_id, body.reason)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found or can't be declined")
     return {"booking": booking}
 
 

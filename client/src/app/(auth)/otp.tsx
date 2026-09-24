@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, OTPInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useCountdown } from '@/hooks/useCountdown'
+import { resolveWorkerRoute } from '@/utils/workerRouting'
 import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function OTPScreen() {
@@ -32,7 +33,7 @@ export default function OTPScreen() {
       if (user.role === 'customer') {
         router.replace('/(customer)/(tabs)/home')
       } else if (user.role === 'worker') {
-        router.replace('/(worker)/(tabs)/home')
+        router.replace(await resolveWorkerRoute())
       } else {
         // No role/profile yet — this is a first-time registration, not a login.
         router.push('/role')

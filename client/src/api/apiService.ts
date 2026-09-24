@@ -18,12 +18,25 @@ import type {
   CreateBookingRequest,
   CreateEmergencyBookingRequest,
   EmergencyBookingResult,
+  WorkerBookingGroup,
+  WorkerBookingSummary,
+  WorkerBookingDetail,
 } from '@/types/booking'
 import type { Category, WorkerDetail, WorkerSearchParams, WorkerSummary } from '@/types/catalog'
 import type { Address, CreateAddressRequest } from '@/types/address'
 import type { Payment, PaymentHistoryItem, PaymentMethod, PaymentMethodType, VerifyPaymentParams } from '@/types/payment'
 import type { CreateReviewRequest } from '@/types/review'
 import type { CreateTicketRequest, SupportTicket } from '@/types/support'
+import type {
+  Cooperative,
+  RegisterWorkerDocumentInput,
+  RegisterWorkerRequest,
+  UpdateWorkerRequest,
+  WorkerAvailabilitySlot,
+  WorkerDashboardSummary,
+  WorkerDocument,
+  WorkerProfile,
+} from '@/types/worker'
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -71,6 +84,93 @@ export async function getWorkers(params: WorkerSearchParams = {}): Promise<{ wor
 
 export async function getWorkerDetail(id: string): Promise<{ worker: WorkerDetail }> {
   const { data } = await apiClient.get(`/workers/${id}`)
+  return data
+}
+
+export async function getCooperatives(): Promise<{ cooperatives: Cooperative[] }> {
+  const { data } = await apiClient.get('/cooperatives')
+  return data
+}
+
+export async function getWorkerMe(): Promise<{ worker: WorkerProfile }> {
+  const { data } = await apiClient.get('/worker/me')
+  return data
+}
+
+export async function registerWorker(body: RegisterWorkerRequest): Promise<{ worker: WorkerProfile }> {
+  const { data } = await apiClient.post('/worker/register', body)
+  return data
+}
+
+export async function updateWorkerProfile(body: UpdateWorkerRequest): Promise<{ worker: WorkerProfile }> {
+  const { data } = await apiClient.patch('/worker/me', body)
+  return data
+}
+
+export async function submitWorkerDocuments(
+  documents: RegisterWorkerDocumentInput[]
+): Promise<{ documents: WorkerDocument[] }> {
+  const { data } = await apiClient.post('/worker/me/documents', { documents })
+  return data
+}
+
+export async function getWorkerDocuments(): Promise<{ documents: WorkerDocument[] }> {
+  const { data } = await apiClient.get('/worker/me/documents')
+  return data
+}
+
+export async function getWorkerDashboard(): Promise<{ dashboard: WorkerDashboardSummary }> {
+  const { data } = await apiClient.get('/worker/me/dashboard')
+  return data
+}
+
+export async function setWorkerOnline(body: {
+  is_online: boolean
+  lat?: number
+  lng?: number
+}): Promise<{ worker: WorkerProfile }> {
+  const { data } = await apiClient.post('/worker/me/online', body)
+  return data
+}
+
+export async function getWorkerAvailability(
+  params: { from_date?: string; to_date?: string } = {}
+): Promise<{ slots: WorkerAvailabilitySlot[] }> {
+  const { data } = await apiClient.get('/worker/me/availability', { params })
+  return data
+}
+
+export async function addAvailabilitySlot(body: {
+  slot_date: string
+  start_time: string
+  end_time: string
+}): Promise<{ slot: WorkerAvailabilitySlot }> {
+  const { data } = await apiClient.post('/worker/me/availability', body)
+  return data
+}
+
+export async function removeAvailabilitySlot(id: string): Promise<{ deleted: boolean }> {
+  const { data } = await apiClient.delete(`/worker/me/availability/${id}`)
+  return data
+}
+
+export async function getWorkerBookings(group?: WorkerBookingGroup): Promise<{ bookings: WorkerBookingSummary[] }> {
+  const { data } = await apiClient.get('/bookings/worker', { params: { group } })
+  return data
+}
+
+export async function getWorkerBookingDetail(id: string): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.get(`/bookings/worker/${id}`)
+  return data
+}
+
+export async function acceptBooking(id: string): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.post(`/bookings/${id}/accept`)
+  return data
+}
+
+export async function declineBooking(id: string, reason?: string): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.post(`/bookings/${id}/decline`, { reason })
   return data
 }
 

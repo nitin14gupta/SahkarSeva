@@ -155,3 +155,59 @@ CREATE TABLE IF NOT EXISTS support_tickets (
     status         VARCHAR(20) NOT NULL DEFAULT 'open' CHECK (status IN ('open','resolved')),
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Worker app: registration/documents, job execution loop, earnings, payout, welfare.
+
+ALTER TABLE workers ADD COLUMN IF NOT EXISTS id_number VARCHAR(50);
+ALTER TABLE workers ADD COLUMN IF NOT EXISTS payout_schedule VARCHAR(10) NOT NULL DEFAULT 'weekly'
+    CHECK (payout_schedule IN ('daily','weekly','monthly'));
+
+CREATE TABLE IF NOT EXISTS worker_documents (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_id      UUID NOT NULL REFERENCES workers(id) ON DELETE CASCADE,
+    doc_type       VARCHAR(30) NOT NULL CHECK (doc_type IN ('id_proof','skill_certificate')),
+    url            TEXT NOT NULL,
+    label          VARCHAR(100),
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE cooperatives ADD COLUMN IF NOT EXISTS commission_pct NUMERIC(5,2) NOT NULL DEFAULT 5.00;
+
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS before_photo_url TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS after_photo_url TEXT;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS final_amount NUMERIC(10,2);
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS completion_confirmed_at TIMESTAMPTZ;
+
+CREATE TABLE IF NOT EXISTS worker_payout_accounts (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_id       UUID NOT NULL REFERENCES workers(id) ON DELETE CASCADE,
+    method          VARCHAR(10) NOT NULL CHECK (method IN ('bank','upi')),
+    account_holder  VARCHAR(150),
+    account_number  VARCHAR(34),
+    ifsc            VARCHAR(11),
+    upi_id          VARCHAR(100),
+    is_default      BOOLEAN NOT NULL DEFAULT false,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS worker_welfare_enrollments (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_id      UUID UNIQUE NOT NULL REFERENCES workers(id) ON DELETE CASCADE,
+    status         VARCHAR(10) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','active')),
+    eshram_uan     VARCHAR(20),
+    scheme_name    VARCHAR(150),
+    enrolled_at    TIMESTAMPTZ,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS worker_welfare_claims (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    worker_id       UUID NOT NULL REFERENCES workers(id) ON DELETE CASCADE,
+    reason          TEXT NOT NULL,
+    amount_claimed  NUMERIC(10,2),
+    status          VARCHAR(20) NOT NULL DEFAULT 'submitted'
+                        CHECK (status IN ('submitted','under_review','approved','rejected')),
+    submitted_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    reviewed_at     TIMESTAMPTZ,
+    resolved_at     TIMESTAMPTZ
+);

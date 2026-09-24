@@ -41,7 +41,9 @@ export default function ProfileSetupScreen() {
       await Location.requestForegroundPermissionsAsync()
       const language = (await SecureStore.getItemAsync(CacheKeys.language)) ?? 'en'
       await handleCompleteProfile({ name: name.trim(), role, language, photo_url: photoUrl ?? undefined })
-      router.replace(role === 'worker' ? '/(worker)/(tabs)/home' : '/(customer)/(tabs)/home')
+      // A freshly-profiled worker can't have a `workers` row yet, so skip the
+      // GET /worker/me check that resolveWorkerRoute would otherwise do.
+      router.replace(role === 'worker' ? '/(worker)/register/personal' : '/(customer)/(tabs)/home')
     } finally {
       setLoading(false)
     }

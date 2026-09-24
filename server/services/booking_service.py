@@ -1,10 +1,17 @@
 from db.config import get_db
+from services.worker_service import get_worker_id_for_user
 
 
 GROUP_STATUSES = {
     "upcoming": ["requested", "accepted", "en_route", "in_progress"],
     "past": ["completed"],
     "cancelled": ["cancelled"],
+}
+
+WORKER_GROUP_STATUSES = {
+    "incoming": ["requested"],
+    "active": ["accepted", "en_route", "in_progress"],
+    "history": ["completed", "cancelled"],
 }
 
 
@@ -164,6 +171,110 @@ def get_booking(booking_id: str, customer_id: str) -> dict | None:
         )
         row = cur.fetchone()
         return dict(row) if row else None
+
+
+def list_worker_bookings(user_id: str, group: str | None) -> list[dict]:
+    statuses = WORKER_GROUP_STATUSES.get(group) if group else None
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return []
+        cur.execute(
+            """
+            SELECT b.id, b.status, b.scheduled_date, b.scheduled_time, b.is_emergency,
+                   b.price_estimate, b.notes, b.created_at,
+                   u.name AS customer_name, u.photo_url AS customer_photo_url,
+                   cat.name AS category,
+                   CASE WHEN b.status = 'requested' THEN NULL ELSE a.line1 END AS address_line1,
+                   a.city AS address_city
+            FROM bookings b
+            JOIN users u ON u.id = b.customer_id
+            JOIN categories cat ON cat.id = b.category_id
+            LEFT JOIN addresses a ON a.id = b.address_id
+            WHERE b.worker_id = %(worker_id)s
+              AND (%(statuses)s IS NULL OR b.status = ANY(%(statuses)s))
+            ORDER BY b.created_at DESC
+            """,
+            {"worker_id": worker_id, "statuses": statuses},
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+def accept_booking(booking_id: str, user_id: str) -> dict | None:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return None
+        cur.execute(
+            """
+            UPDATE bookings
+            SET status = 'accepted', updated_at = now()
+            WHERE id = %s AND worker_id = %s AND status = 'requested'
+            RETURNING *
+            """,
+            (booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def decline_booking(booking_id: str, user_id: str, reason: str | None) -> dict | None:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return None
+        cur.execute(
+            """
+            UPDATE bookings
+            SET status = 'cancelled', cancelled_reason = %s, updated_at = now()
+            WHERE id = %s AND worker_id = %s AND status = 'requested'
+            RETURNING *
+            """,
+            (reason or 'Declined by worker', booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        booking = dict(row)
+
+        if booking["scheduled_date"] and booking["scheduled_time"]:
+            cur.execute(
+                """
+                UPDATE worker_availability_slots
+                SET is_booked = false
+                WHERE worker_id = %s AND slot_date = %s AND start_time = %s
+                """,
+                (worker_id, booking["scheduled_date"], booking["scheduled_time"]),
+            )
+        return booking
+
+
+def get_worker_booking(booking_id: str, user_id: str) -> dict | None:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return None
+        cur.execute(
+            """
+            SELECT b.*, u.name AS customer_name, u.photo_url AS customer_photo_url, u.phone AS customer_phone,
+                   cat.name AS category, a.line1 AS address_line1, a.city AS address_city,
+                   a.lat AS address_lat, a.lng AS address_lng
+            FROM bookings b
+            JOIN users u ON u.id = b.customer_id
+            JOIN categories cat ON cat.id = b.category_id
+            LEFT JOIN addresses a ON a.id = b.address_id
+            WHERE b.id = %s AND b.worker_id = %s
+            """,
+            (booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        booking = dict(row)
+        if booking["status"] == "requested":
+            booking["address_line1"] = None
+            booking["customer_phone"] = None
+        return booking
 
 
 def list_messages(booking_id: str, user_id: str) -> list[dict]:

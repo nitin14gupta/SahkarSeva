@@ -4,6 +4,7 @@ import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
+import { resolveWorkerRoute } from '@/utils/workerRouting'
 import { CacheKeys, Colors } from '@/constants'
 
 const MIN_DISPLAY_MS = 1000
@@ -23,7 +24,7 @@ export default function SplashScreen() {
 
       if (user) {
         if (user.role === 'customer') return router.replace('/(customer)/(tabs)/home')
-        if (user.role === 'worker') return router.replace('/(worker)/(tabs)/home')
+        if (user.role === 'worker') return router.replace(await resolveWorkerRoute())
         return router.replace('/role')
       }
 

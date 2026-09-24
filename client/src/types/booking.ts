@@ -57,3 +57,35 @@ export interface ChatMessage {
   message: string
   created_at: string
 }
+
+export type WorkerBookingGroup = 'incoming' | 'active' | 'history'
+
+export interface WorkerBookingSummary {
+  id: string
+  status: BookingStatus
+  scheduled_date: string | null
+  scheduled_time: string | null
+  is_emergency: boolean
+  price_estimate: number | null
+  notes: string | null
+  created_at: string
+  customer_name: string
+  customer_photo_url: string | null
+  category: string
+  address_line1: string | null
+  address_city: string | null
+}
+
+export interface WorkerBookingDetail extends WorkerBookingSummary {
+  customer_id: string
+  customer_phone: string | null
+  address_id: string | null
+  address_lat: number | null
+  address_lng: number | null
+  cancelled_reason: string | null
+  before_photo_url: string | null
+  after_photo_url: string | null
+  final_amount: number | null
+  completion_confirmed_at: string | null
+  updated_at: string
+}

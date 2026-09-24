@@ -4,7 +4,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import { Avatar } from './Avatar'
 import type { BookingSummary } from '@/types/booking'
 
-const STATUS_LABEL: Record<string, string> = {
+export const STATUS_LABEL: Record<string, string> = {
   requested: 'Requested',
   accepted: 'Accepted',
   en_route: 'On the way',
@@ -13,7 +13,7 @@ const STATUS_LABEL: Record<string, string> = {
   cancelled: 'Cancelled',
 }
 
-const STATUS_COLOR: Record<string, string> = {
+export const STATUS_COLOR: Record<string, string> = {
   requested: Colors.warning,
   accepted: Colors.brandGreen,
   en_route: Colors.brandGreen,

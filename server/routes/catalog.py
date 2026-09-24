@@ -10,6 +10,11 @@ def get_categories():
     return {"categories": catalog_service.list_categories()}
 
 
+@router.get("/cooperatives")
+def get_cooperatives():
+    return {"cooperatives": catalog_service.list_cooperatives()}
+
+
 @router.get("/workers")
 def get_workers(
     q: str | None = None,

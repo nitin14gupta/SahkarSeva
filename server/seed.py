@@ -1,7 +1,9 @@
-"""Seeds categories, cooperatives, and ~25 realistic workers so the app has
-something to browse. Idempotent — safe to re-run (checks before inserting)."""
+"""Seeds categories, cooperatives, ~25 realistic workers, a handful of test
+customers, and sample bookings (every status, incl. completed w/ payments +
+reviews) so both the customer and worker apps have something real to render
+against. Idempotent — safe to re-run (checks before inserting)."""
 import random
-from datetime import date, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 
 from db.config import get_db
 
@@ -174,12 +176,115 @@ def seed_workers(cur, category_ids, coop_ids, count=25):
     return worker_ids
 
 
+def seed_customers(cur, count=5):
+    customer_ids = []
+    for i in range(count):
+        phone = f"9{700000000 + i:09d}"[:10]
+        cur.execute("SELECT id FROM users WHERE phone = %s", (phone,))
+        existing = cur.fetchone()
+        if existing:
+            customer_ids.append(existing["id"])
+            continue
+        name = f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}"
+        cur.execute(
+            """
+            INSERT INTO users (phone, role, name, photo_url, language)
+            VALUES (%s, 'customer', %s, %s, 'en')
+            RETURNING id
+            """,
+            (phone, name, f"https://i.pravatar.cc/150?img={60 + i}"),
+        )
+        customer_ids.append(cur.fetchone()["id"])
+    return customer_ids
+
+
+BOOKING_INFLIGHT_STATUSES = ["requested", "accepted", "en_route", "in_progress"]
+
+
+def seed_bookings(cur, customer_ids, worker_rows, category_ids):
+    """One booking per in-flight status (scheduled today) plus a couple of
+    completed jobs (with payments + reviews) per worker, for the first 8
+    verified seeded workers — gives the worker dashboard/earnings/reviews
+    screens something real to render. Skips workers that already have
+    seeded bookings, so this stays idempotent."""
+    created = 0
+    for worker_id, cat_names in worker_rows[:8]:
+        cur.execute("SELECT id FROM bookings WHERE worker_id = %s LIMIT 1", (worker_id,))
+        if cur.fetchone():
+            continue
+
+        cat_id = category_ids[cat_names[0]]
+        customer_id = random.choice(customer_ids)
+
+        for status in BOOKING_INFLIGHT_STATUSES:
+            cur.execute(
+                """
+                INSERT INTO bookings (customer_id, worker_id, category_id, scheduled_date, scheduled_time, status, price_estimate)
+                VALUES (%s, %s, %s, CURRENT_DATE, %s, %s, %s)
+                """,
+                (customer_id, worker_id, cat_id, time(random.choice([9, 11, 13, 15, 17]), 0), status, random.choice([200, 300, 400])),
+            )
+            created += 1
+
+        for d in (3, 9):
+            price = random.choice([200, 300, 400, 500])
+            completed_at = datetime.now(timezone.utc) - timedelta(days=d)
+            cur.execute(
+                """
+                INSERT INTO bookings (
+                    customer_id, worker_id, category_id, scheduled_date, scheduled_time,
+                    status, price_estimate, final_amount, completion_confirmed_at
+                )
+                VALUES (%s, %s, %s, %s, %s, 'completed', %s, %s, %s)
+                RETURNING id
+                """,
+                (customer_id, worker_id, cat_id, completed_at.date(), time(11, 0), price, price, completed_at),
+            )
+            booking_id = cur.fetchone()["id"]
+            created += 1
+
+            cur.execute(
+                """
+                INSERT INTO payments (booking_id, amount, method, status)
+                VALUES (%s, %s, 'upi', 'success')
+                """,
+                (booking_id, price),
+            )
+            cur.execute(
+                """
+                INSERT INTO reviews (booking_id, customer_id, worker_id, rating, comment, tags)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    booking_id, customer_id, worker_id,
+                    random.randint(4, 5), random.choice(COMMENTS),
+                    random.sample(TAGS_POOL, k=2),
+                ),
+            )
+
+        cur.execute(
+            """
+            INSERT INTO bookings (customer_id, worker_id, category_id, status, cancelled_reason)
+            VALUES (%s, %s, %s, 'cancelled', %s)
+            """,
+            (customer_id, worker_id, cat_id, "Declined by worker — schedule conflict"),
+        )
+        created += 1
+
+    return created
+
+
 def main():
     with get_db() as (cur, conn):
         category_ids = seed_categories(cur)
         coop_ids = seed_cooperatives(cur)
         workers = seed_workers(cur, category_ids, coop_ids)
-        print(f"Seeded {len(category_ids)} categories, {len(coop_ids)} cooperatives, {len(workers)} workers.")
+        customer_ids = seed_customers(cur)
+        bookings_created = seed_bookings(cur, customer_ids, workers, category_ids)
+        print(
+            f"Seeded {len(category_ids)} categories, {len(coop_ids)} cooperatives, "
+            f"{len(workers)} workers, {len(customer_ids)} test customers, {bookings_created} bookings."
+        )
 
 
 if __name__ == "__main__":

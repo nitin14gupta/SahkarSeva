@@ -7,6 +7,12 @@ def list_categories() -> list[dict]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def list_cooperatives() -> list[dict]:
+    with get_db() as (cur, conn):
+        cur.execute("SELECT id, name, description, logo_url, verified_since FROM cooperatives ORDER BY name")
+        return [dict(row) for row in cur.fetchall()]
+
+
 def list_workers(
     q: str | None = None,
     category: str | None = None,
