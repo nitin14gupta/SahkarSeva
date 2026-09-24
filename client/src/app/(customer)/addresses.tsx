@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
-import { router } from 'expo-router'
 import * as Location from 'expo-location'
 import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react-native'
 import { AppHeader, EmptyState, Input, MapPinPicker, PrimaryButton, SecondaryButton } from '@/components/ui'

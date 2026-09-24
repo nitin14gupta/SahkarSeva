@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import { Camera, X } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, PrimaryButton, SecondaryButton } from '@/components/ui'
+import { AppHeader, PrimaryButton, SecondaryButton } from '@/components/ui'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 
@@ -35,11 +35,8 @@ export default function AddNotesScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>What needs fixing?</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="What needs fixing?" showBack />
 
       <View style={s.content}>
         <TextInput
@@ -77,18 +74,6 @@ export default function AddNotesScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     flex: 1,
     paddingHorizontal: Spacing.screenPadding,

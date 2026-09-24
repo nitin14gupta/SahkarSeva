@@ -13,7 +13,7 @@ export default function RoleScreen() {
 
   function handleContinue() {
     if (!role) return
-    router.push({ pathname: '/phone', params: { role } })
+    router.push({ pathname: '/profile-setup', params: { role } })
   }
 
   return (

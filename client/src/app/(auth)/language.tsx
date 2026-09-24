@@ -44,7 +44,7 @@ export default function LanguageScreen() {
       return
     }
 
-    router.push('/role')
+    router.push('/phone')
   }
 
   return (

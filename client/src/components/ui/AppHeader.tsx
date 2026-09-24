@@ -113,7 +113,9 @@ export function HeaderIconBtn({
       onPress={onPress}
       hitSlop={10}
       style={[s.iconBtn, pressStyle]}
+      // eslint-disable-next-line react-hooks/immutability -- Reanimated SharedValue.value assignment is the sanctioned mutation API, not a purity violation
       onPressIn={() => { pressScale.value = withSpring(0.9, { duration: 120 }) }}
+      // eslint-disable-next-line react-hooks/immutability -- see above
       onPressOut={() => { pressScale.value = withSpring(1, { duration: 120 }) }}
     >
       {children}

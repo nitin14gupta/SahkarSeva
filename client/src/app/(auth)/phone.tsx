@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { View, Text, StyleSheet, Keyboard } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
-import { BackButton, PhoneInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
+import { router } from 'expo-router'
+import { AppHeader, PhoneInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function PhoneScreen() {
-  const { role } = useLocalSearchParams<{ role: string }>()
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -22,7 +21,7 @@ export default function PhoneScreen() {
     setError('')
     try {
       await handleSendOTP(phone)
-      router.push({ pathname: '/otp', params: { phone, role } })
+      router.push({ pathname: '/otp', params: { phone } })
     } catch (e: any) {
       setError(e?.message || 'Failed to send OTP. Please try again.')
     } finally {
@@ -31,11 +30,8 @@ export default function PhoneScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.topRow}>
-        <BackButton transparent onPress={() => router.back()} />
-        <LogoMark size={20} opacity={0.7} style={styles.topLogo} />
-      </View>
+    <View style={styles.container}>
+      <AppHeader showBack rightAction={<LogoMark size={20} opacity={0.7} />} />
       <KeyboardAvoidingWrapper transparent>
         <View style={styles.inner}>
           <View style={styles.header}>
@@ -69,14 +65,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  topLogo: {
-    marginRight: Spacing.screenPadding,
   },
   inner: {
     flex: 1,

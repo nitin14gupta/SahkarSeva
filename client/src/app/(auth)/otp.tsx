@@ -3,13 +3,13 @@ import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Pencil } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, OTPInput, PrimaryButton, Screen, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
+import { AppHeader, OTPInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useCountdown } from '@/hooks/useCountdown'
 import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function OTPScreen() {
-  const { phone, role } = useLocalSearchParams<{ phone: string; role: string }>()
+  const { phone } = useLocalSearchParams<{ phone: string }>()
   const insets = useSafeAreaInsets()
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,8 +28,15 @@ export default function OTPScreen() {
     setError(false)
     setErrorMsg('')
     try {
-      await handleVerifyOTP(phone, codeToVerify)
-      router.push({ pathname: '/profile-setup', params: { role } })
+      const user = await handleVerifyOTP(phone, codeToVerify)
+      if (user.role === 'customer') {
+        router.replace('/(customer)/(tabs)/home')
+      } else if (user.role === 'worker') {
+        router.replace('/(worker)/(tabs)/home')
+      } else {
+        // No role/profile yet — this is a first-time registration, not a login.
+        router.push('/role')
+      }
     } catch (e: any) {
       const next = attempts + 1
       setAttempts(next)
@@ -60,11 +67,11 @@ export default function OTPScreen() {
   }
 
   return (
-    <Screen>
-      <View style={styles.topRow}>
-        <BackButton transparent onPress={() => router.back()} />
-        <LogoMark size={20} opacity={0.7} style={styles.topLogo} />
-      </View>
+    <View style={styles.screen}>
+      <AppHeader
+        showBack
+        rightAction={<LogoMark size={20} opacity={0.7} />}
+      />
       <KeyboardAvoidingWrapper transparent>
         <View style={styles.inner}>
           <Text style={styles.title}>Enter the code</Text>
@@ -111,18 +118,14 @@ export default function OTPScreen() {
           />
         </View>
       </KeyboardAvoidingWrapper>
-    </Screen>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  topLogo: {
-    marginRight: Spacing.screenPadding,
+  screen: {
+    flex: 1,
+    backgroundColor: Colors.background,
   },
   inner: {
     flex: 1,

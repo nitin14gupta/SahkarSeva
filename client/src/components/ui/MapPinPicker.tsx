@@ -19,9 +19,11 @@ export function MapPinPicker({ initialCoords, onPick, height = 220 }: MapPinPick
   // only if the caller didn't already pass one and the user hasn't tapped yet.
   useEffect(() => {
     if (coords || initialCoords || lat == null || lng == null) return
-    const next = { lat, lng }
-    setCoords(next)
-    onPick(next)
+    ;(async () => {
+      const next = { lat, lng }
+      setCoords(next)
+      onPick(next)
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-run when the live fix itself changes
   }, [lat, lng])
 
