@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native'
 import { Colors, ComponentSize, FontFamily, Radius } from '@/constants'
 
@@ -11,12 +11,15 @@ interface SecondaryButtonProps {
 
 export function SecondaryButton({ label, onPress, disabled, loading }: SecondaryButtonProps) {
   const isDisabled = disabled || loading
+  const [pressed, setPressed] = useState(false)
 
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={[
         s.btn,
         isDisabled && s.btnDisabled,
         pressed && !isDisabled && s.btnPressed,

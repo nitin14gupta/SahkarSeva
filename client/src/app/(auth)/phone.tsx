@@ -22,7 +22,7 @@ export default function PhoneScreen() {
     setError('')
     try {
       await handleSendOTP(phone)
-      router.push({ pathname: '/(auth)/otp', params: { phone, role } })
+      router.push({ pathname: '/otp', params: { phone, role } })
     } catch (e: any) {
       setError(e?.message || 'Failed to send OTP. Please try again.')
     } finally {
@@ -49,7 +49,7 @@ export default function PhoneScreen() {
             autoFocus
           />
         </View>
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
             label="Send Code"
             onPress={handleContinue}
@@ -100,7 +100,6 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: 16,
   },
   legal: {
     textAlign: 'center',

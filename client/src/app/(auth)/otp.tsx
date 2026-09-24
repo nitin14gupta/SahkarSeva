@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Pencil } from 'lucide-react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BackButton, OTPInput, PrimaryButton, Screen, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useCountdown } from '@/hooks/useCountdown'
@@ -9,6 +10,7 @@ import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function OTPScreen() {
   const { phone, role } = useLocalSearchParams<{ phone: string; role: string }>()
+  const insets = useSafeAreaInsets()
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
@@ -27,7 +29,7 @@ export default function OTPScreen() {
     setErrorMsg('')
     try {
       await handleVerifyOTP(phone, codeToVerify)
-      router.push({ pathname: '/(auth)/profile-setup', params: { role } })
+      router.push({ pathname: '/profile-setup', params: { role } })
     } catch (e: any) {
       const next = attempts + 1
       setAttempts(next)
@@ -100,7 +102,7 @@ export default function OTPScreen() {
           </View>
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
             label="Continue"
             onPress={() => handleVerify(code)}
@@ -170,6 +172,5 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: 16,
   },
 })

@@ -1,4 +1,5 @@
 export * from './BackButton'
+export * from './Input'
 export * from './KeyboardAvoidingWrapper'
 export * from './LanguageChip'
 export * from './LogoMark'

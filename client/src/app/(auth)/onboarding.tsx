@@ -19,7 +19,7 @@ const SLIDES = [
 
 async function finishOnboarding() {
   await SecureStore.setItemAsync(CacheKeys.onboardingSeen, '1')
-  router.replace('/(auth)/language')
+  router.replace('/language')
 }
 
 export default function OnboardingScreen() {

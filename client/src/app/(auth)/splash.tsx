@@ -24,11 +24,11 @@ export default function SplashScreen() {
       if (user) {
         if (user.role === 'customer') return router.replace('/(customer)/(tabs)/home')
         if (user.role === 'worker') return router.replace('/(worker)/(tabs)/home')
-        return router.replace('/(auth)/role')
+        return router.replace('/role')
       }
 
       const onboardingSeen = await SecureStore.getItemAsync(CacheKeys.onboardingSeen)
-      router.replace(onboardingSeen ? '/(auth)/language' : '/(auth)/onboarding')
+      router.replace(onboardingSeen ? '/language' : '/onboarding')
     }
 
     boot()

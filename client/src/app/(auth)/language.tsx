@@ -21,7 +21,7 @@ export default function LanguageScreen() {
 
   async function handleContinue() {
     await SecureStore.setItemAsync(CacheKeys.language, selected)
-    router.push('/(auth)/role')
+    router.push('/role')
   }
 
   return (
@@ -42,7 +42,7 @@ export default function LanguageScreen() {
         ))}
       </View>
 
-      <View style={s.footer}>
+      <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
         <PrimaryButton label="Continue" onPress={handleContinue} />
         <Text style={s.poweredBy}>Powered by Bhashini · Made in India</Text>
       </View>
@@ -77,7 +77,6 @@ const s = StyleSheet.create({
   },
   footer: {
     marginTop: 'auto',
-    paddingBottom: Spacing.lg,
   },
   poweredBy: {
     textAlign: 'center',

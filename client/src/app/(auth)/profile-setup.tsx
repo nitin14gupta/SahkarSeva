@@ -1,17 +1,19 @@
 import { useState } from 'react'
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
 import * as SecureStore from 'expo-secure-store'
 import { Camera } from 'lucide-react-native'
-import { KeyboardAvoidingWrapper, PrimaryButton, Screen } from '@/components/ui'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Input, KeyboardAvoidingWrapper, PrimaryButton, Screen } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
-import { CacheKeys, Colors, FontFamily, Radius, Spacing } from '@/constants'
+import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
 import type { Role } from '@/types/auth'
 
 export default function ProfileSetupScreen() {
   const { role } = useLocalSearchParams<{ role: Role }>()
+  const insets = useSafeAreaInsets()
   const [name, setName] = useState('')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -55,16 +57,14 @@ export default function ProfileSetupScreen() {
             )}
           </Pressable>
 
-          <TextInput
+          <Input
             value={name}
             onChangeText={setName}
             placeholder="Full name"
-            placeholderTextColor={Colors.inkDisabled}
-            style={s.input}
           />
         </View>
 
-        <View style={s.footer}>
+        <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
             label="Finish"
             onPress={handleSubmit}
@@ -112,19 +112,7 @@ const s = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  input: {
-    height: 52,
-    borderRadius: Radius.input,
-    borderWidth: 1,
-    borderColor: Colors.divider,
-    backgroundColor: Colors.surface,
-    paddingHorizontal: Spacing.md,
-    fontFamily: FontFamily.bodyRegular,
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
   footer: {
     paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: 16,
   },
 })

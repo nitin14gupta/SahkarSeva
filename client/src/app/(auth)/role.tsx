@@ -13,7 +13,7 @@ export default function RoleScreen() {
 
   function handleContinue() {
     if (!role) return
-    router.push({ pathname: '/(auth)/phone', params: { role } })
+    router.push({ pathname: '/phone', params: { role } })
   }
 
   return (
@@ -40,7 +40,7 @@ export default function RoleScreen() {
         />
       </View>
 
-      <View style={s.footer}>
+      <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
         <PrimaryButton label="Continue" onPress={handleContinue} disabled={!role} />
       </View>
     </View>
@@ -73,6 +73,5 @@ const s = StyleSheet.create({
   },
   footer: {
     marginTop: 'auto',
-    paddingBottom: Spacing.lg,
   },
 })
