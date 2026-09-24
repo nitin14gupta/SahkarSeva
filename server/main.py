@@ -2,6 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.auth import router as auth_router
+from routes.catalog import router as catalog_router
+from routes.bookings import router as bookings_router
+from routes.addresses import router as addresses_router
+from routes.payments import router as payments_router
+from routes.reviews import router as reviews_router
 
 app = FastAPI(title="SahkarSeva API")
 
@@ -13,6 +18,11 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(catalog_router)
+app.include_router(bookings_router)
+app.include_router(addresses_router)
+app.include_router(payments_router)
+app.include_router(reviews_router)
 
 
 @app.get("/health")

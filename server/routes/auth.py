@@ -1,13 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
-import jwt
 
 from utils.twilio_client import send_otp, verify_otp
 from services import auth_service
+from deps import get_current_user_id
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-bearer_scheme = HTTPBearer()
 
 
 class SendOtpRequest(BaseModel):
@@ -24,13 +22,6 @@ class ProfileRequest(BaseModel):
     role: str
     language: str = "en"
     photo_url: str | None = None
-
-
-def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)) -> str:
-    try:
-        return auth_service.decode_token(credentials.credentials)
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 @router.post("/otp/send")
