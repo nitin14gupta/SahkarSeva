@@ -9,11 +9,21 @@ import type {
   SendOtpResponse,
   VerifyOtpResponse,
 } from '@/types/auth'
-import type { BookingSummary, BookingStatus, BookingDetail, CreateBookingRequest } from '@/types/booking'
+import type {
+  BookingSummary,
+  BookingStatus,
+  BookingGroup,
+  BookingDetail,
+  ChatMessage,
+  CreateBookingRequest,
+  CreateEmergencyBookingRequest,
+  EmergencyBookingResult,
+} from '@/types/booking'
 import type { Category, WorkerDetail, WorkerSearchParams, WorkerSummary } from '@/types/catalog'
 import type { Address, CreateAddressRequest } from '@/types/address'
-import type { Payment, PaymentMethod, PaymentMethodType, VerifyPaymentParams } from '@/types/payment'
+import type { Payment, PaymentHistoryItem, PaymentMethod, PaymentMethodType, VerifyPaymentParams } from '@/types/payment'
 import type { CreateReviewRequest } from '@/types/review'
+import type { CreateTicketRequest, SupportTicket } from '@/types/support'
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -64,8 +74,8 @@ export async function getWorkerDetail(id: string): Promise<{ worker: WorkerDetai
   return data
 }
 
-export async function getBookings(status?: BookingStatus): Promise<{ bookings: BookingSummary[] }> {
-  const { data } = await apiClient.get('/bookings', { params: status ? { status } : {} })
+export async function getBookings(opts: { status?: BookingStatus; group?: BookingGroup } = {}): Promise<{ bookings: BookingSummary[] }> {
+  const { data } = await apiClient.get('/bookings', { params: opts })
   return data
 }
 
@@ -76,6 +86,13 @@ export async function getBookingDetail(id: string): Promise<{ booking: BookingDe
 
 export async function createBooking(body: CreateBookingRequest): Promise<{ booking: BookingDetail }> {
   const { data } = await apiClient.post('/bookings', body)
+  return data
+}
+
+export async function createEmergencyBooking(
+  body: CreateEmergencyBookingRequest
+): Promise<{ booking: EmergencyBookingResult }> {
+  const { data } = await apiClient.post('/bookings/emergency', body)
   return data
 }
 
@@ -104,6 +121,17 @@ export async function getPaymentMethods(): Promise<{ methods: PaymentMethod[] }>
   return data
 }
 
+export async function addPaymentMethod(body: {
+  type: PaymentMethodType
+  upi_id?: string
+  card_last4?: string
+  card_brand?: string
+  is_default?: boolean
+}): Promise<{ method: PaymentMethod }> {
+  const { data } = await apiClient.post('/payments/methods', body)
+  return data
+}
+
 export async function createPayment(bookingId: string, method: PaymentMethodType): Promise<{ payment: Payment }> {
   const { data } = await apiClient.post('/payments/create', { booking_id: bookingId, method })
   return data
@@ -121,5 +149,40 @@ export async function getPaymentForBooking(bookingId: string): Promise<{ payment
 
 export async function createReview(body: CreateReviewRequest) {
   const { data } = await apiClient.post('/reviews', body)
+  return data
+}
+
+export async function getMessages(bookingId: string): Promise<{ messages: ChatMessage[] }> {
+  const { data } = await apiClient.get(`/bookings/${bookingId}/messages`)
+  return data
+}
+
+export async function sendMessage(bookingId: string, message: string): Promise<{ message: ChatMessage }> {
+  const { data } = await apiClient.post(`/bookings/${bookingId}/messages`, { message })
+  return data
+}
+
+export async function getFavorites(): Promise<{ favorites: WorkerSummary[] }> {
+  const { data } = await apiClient.get('/favorites')
+  return data
+}
+
+export async function addFavorite(workerId: string): Promise<{ favorited: boolean }> {
+  const { data } = await apiClient.post(`/favorites/${workerId}`)
+  return data
+}
+
+export async function removeFavorite(workerId: string): Promise<{ favorited: boolean }> {
+  const { data } = await apiClient.delete(`/favorites/${workerId}`)
+  return data
+}
+
+export async function getPayments(): Promise<{ payments: PaymentHistoryItem[] }> {
+  const { data } = await apiClient.get('/payments')
+  return data
+}
+
+export async function createTicket(body: CreateTicketRequest): Promise<{ ticket: SupportTicket }> {
+  const { data } = await apiClient.post('/support-tickets', body)
   return data
 }

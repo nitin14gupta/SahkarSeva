@@ -5,7 +5,6 @@ import { Siren } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { BookingCard, CategoryTile, LogoMark, SearchBar } from '@/components/ui'
 import * as apiService from '@/api/apiService'
-import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { Category } from '@/types/catalog'
 import type { BookingSummary } from '@/types/booking'
@@ -18,7 +17,6 @@ export default function CustomerHomeScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
-  const show = usePillStore((s) => s.show)
 
   useEffect(() => {
     let cancelled = false
@@ -77,7 +75,7 @@ export default function CustomerHomeScreen() {
 
       <Pressable
         style={s.emergencyBanner}
-        onPress={() => show('Emergency booking is coming soon', 'default')}
+        onPress={() => router.push('/emergency')}
       >
         <Siren size={22} color={Colors.inkOnAccent} strokeWidth={2} />
         <View style={s.emergencyText}>

@@ -23,6 +23,11 @@ export interface Payment {
   checkout_url?: string
 }
 
+export interface PaymentHistoryItem extends Payment {
+  category: string
+  worker_name: string
+}
+
 export interface VerifyPaymentParams {
   razorpay_payment_link_id: string
   razorpay_payment_link_reference_id: string

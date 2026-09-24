@@ -18,13 +18,28 @@ class CreateBookingRequest(BaseModel):
     is_emergency: bool = False
 
 
+class CreateEmergencyBookingRequest(BaseModel):
+    category: str
+    lat: float
+    lng: float
+    address_id: str | None = None
+
+
 class CancelBookingRequest(BaseModel):
     reason: str | None = None
 
 
+class SendMessageRequest(BaseModel):
+    message: str
+
+
 @router.get("")
-def get_bookings(status: str | None = None, user_id: str = Depends(get_current_user_id)):
-    return {"bookings": booking_service.list_bookings(user_id, status=status)}
+def get_bookings(
+    status: str | None = None,
+    group: str | None = None,
+    user_id: str = Depends(get_current_user_id),
+):
+    return {"bookings": booking_service.list_bookings(user_id, status=status, group=group)}
 
 
 @router.post("")
@@ -34,6 +49,17 @@ def create_booking(body: CreateBookingRequest, user_id: str = Depends(get_curren
             user_id, body.worker_id, body.category, body.address_id,
             body.scheduled_date, body.scheduled_time, body.notes,
             body.photo_url, body.is_emergency,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"booking": booking}
+
+
+@router.post("/emergency")
+def create_emergency_booking(body: CreateEmergencyBookingRequest, user_id: str = Depends(get_current_user_id)):
+    try:
+        booking = booking_service.create_emergency_booking(
+            user_id, body.category, body.address_id, body.lat, body.lng
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -54,3 +80,14 @@ def cancel_booking(booking_id: str, body: CancelBookingRequest, user_id: str = D
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found or can't be cancelled")
     return {"booking": booking}
+
+
+@router.get("/{booking_id}/messages")
+def get_messages(booking_id: str, user_id: str = Depends(get_current_user_id)):
+    return {"messages": booking_service.list_messages(booking_id, user_id)}
+
+
+@router.post("/{booking_id}/messages")
+def post_message(booking_id: str, body: SendMessageRequest, user_id: str = Depends(get_current_user_id)):
+    message = booking_service.send_message(booking_id, user_id, body.message)
+    return {"message": message}

@@ -105,6 +105,24 @@ def verify_and_complete_payment(
         return dict(cur.fetchone())
 
 
+def list_payments(customer_id: str) -> list[dict]:
+    with get_db() as (cur, conn):
+        cur.execute(
+            """
+            SELECT p.*, cat.name AS category, u.name AS worker_name
+            FROM payments p
+            JOIN bookings b ON b.id = p.booking_id
+            JOIN categories cat ON cat.id = b.category_id
+            JOIN workers w ON w.id = b.worker_id
+            JOIN users u ON u.id = w.user_id
+            WHERE b.customer_id = %s
+            ORDER BY p.created_at DESC
+            """,
+            (customer_id,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
 def get_payment_for_booking(booking_id: str, customer_id: str) -> dict | None:
     with get_db() as (cur, conn):
         cur.execute(

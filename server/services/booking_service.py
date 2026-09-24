@@ -1,7 +1,15 @@
 from db.config import get_db
 
 
-def list_bookings(customer_id: str, status: str | None = None) -> list[dict]:
+GROUP_STATUSES = {
+    "upcoming": ["requested", "accepted", "en_route", "in_progress"],
+    "past": ["completed"],
+    "cancelled": ["cancelled"],
+}
+
+
+def list_bookings(customer_id: str, status: str | None = None, group: str | None = None) -> list[dict]:
+    statuses = GROUP_STATUSES.get(group) if group else ([status] if status else None)
     with get_db() as (cur, conn):
         cur.execute(
             """
@@ -14,10 +22,10 @@ def list_bookings(customer_id: str, status: str | None = None) -> list[dict]:
             JOIN users u ON u.id = w.user_id
             JOIN categories cat ON cat.id = b.category_id
             WHERE b.customer_id = %(customer_id)s
-              AND (%(status)s IS NULL OR b.status = %(status)s)
+              AND (%(statuses)s IS NULL OR b.status = ANY(%(statuses)s))
             ORDER BY b.created_at DESC
             """,
-            {"customer_id": customer_id, "status": status},
+            {"customer_id": customer_id, "statuses": statuses},
         )
         return [dict(row) for row in cur.fetchall()]
 
@@ -75,6 +83,53 @@ def create_booking(
         return booking
 
 
+def create_emergency_booking(
+    customer_id: str, category_name: str, address_id: str | None, lat: float, lng: float
+) -> dict:
+    with get_db() as (cur, conn):
+        cur.execute("SELECT id FROM categories WHERE name = %s", (category_name,))
+        category = cur.fetchone()
+        if not category:
+            raise ValueError(f"Unknown category '{category_name}'")
+
+        cur.execute(
+            """
+            SELECT w.id, w.price_min,
+                   (6371 * acos(least(1, greatest(-1,
+                        cos(radians(%(lat)s)) * cos(radians(w.lat)) * cos(radians(w.lng) - radians(%(lng)s))
+                        + sin(radians(%(lat)s)) * sin(radians(w.lat))
+                   )))) AS distance_km
+            FROM workers w
+            JOIN worker_categories wc ON wc.worker_id = w.id
+            WHERE wc.category_id = %(category_id)s
+              AND w.verification_status = 'verified'
+              AND w.is_online = true
+              AND w.lat IS NOT NULL AND w.lng IS NOT NULL
+            ORDER BY distance_km ASC
+            LIMIT 1
+            """,
+            {"lat": lat, "lng": lng, "category_id": category["id"]},
+        )
+        nearest = cur.fetchone()
+        if not nearest:
+            raise ValueError("No available workers nearby for this service right now")
+
+        cur.execute(
+            """
+            INSERT INTO bookings (
+                customer_id, worker_id, category_id, address_id,
+                is_emergency, price_estimate, status
+            )
+            VALUES (%s, %s, %s, %s, true, %s, 'requested')
+            RETURNING *
+            """,
+            (customer_id, nearest["id"], category["id"], address_id, nearest["price_min"]),
+        )
+        booking = dict(cur.fetchone())
+        booking["distance_km"] = nearest["distance_km"]
+        return booking
+
+
 def cancel_booking(booking_id: str, customer_id: str, reason: str | None) -> dict | None:
     with get_db() as (cur, conn):
         cur.execute(
@@ -95,10 +150,12 @@ def get_booking(booking_id: str, customer_id: str) -> dict | None:
         cur.execute(
             """
             SELECT b.*, w.id AS worker_id, u.name AS worker_name, u.photo_url AS worker_photo_url,
+                   u.phone AS worker_phone, c.name AS cooperative_name,
                    cat.name AS category, a.line1 AS address_line1, a.city AS address_city
             FROM bookings b
             JOIN workers w ON w.id = b.worker_id
             JOIN users u ON u.id = w.user_id
+            LEFT JOIN cooperatives c ON c.id = w.cooperative_id
             JOIN categories cat ON cat.id = b.category_id
             LEFT JOIN addresses a ON a.id = b.address_id
             WHERE b.id = %s AND b.customer_id = %s
@@ -107,3 +164,32 @@ def get_booking(booking_id: str, customer_id: str) -> dict | None:
         )
         row = cur.fetchone()
         return dict(row) if row else None
+
+
+def list_messages(booking_id: str, user_id: str) -> list[dict]:
+    with get_db() as (cur, conn):
+        cur.execute(
+            """
+            SELECT m.id, m.sender_id, m.message, m.created_at
+            FROM chat_messages m
+            JOIN bookings b ON b.id = m.booking_id
+            JOIN workers w ON w.id = b.worker_id
+            WHERE m.booking_id = %s AND (b.customer_id = %s OR w.user_id = %s)
+            ORDER BY m.created_at ASC
+            """,
+            (booking_id, user_id, user_id),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+def send_message(booking_id: str, sender_id: str, message: str) -> dict:
+    with get_db() as (cur, conn):
+        cur.execute(
+            """
+            INSERT INTO chat_messages (booking_id, sender_id, message)
+            VALUES (%s, %s, %s)
+            RETURNING id, sender_id, message, created_at
+            """,
+            (booking_id, sender_id, message),
+        )
+        return dict(cur.fetchone())

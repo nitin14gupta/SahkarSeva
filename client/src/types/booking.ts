@@ -1,4 +1,5 @@
 export type BookingStatus = 'requested' | 'accepted' | 'en_route' | 'in_progress' | 'completed' | 'cancelled'
+export type BookingGroup = 'upcoming' | 'past' | 'cancelled'
 
 export interface CreateBookingRequest {
   worker_id: string
@@ -27,10 +28,32 @@ export interface BookingSummary {
   category: string
 }
 
+export interface CreateEmergencyBookingRequest {
+  category: string
+  lat: number
+  lng: number
+  address_id?: string
+}
+
 export interface BookingDetail extends BookingSummary {
   customer_id: string
   address_id: string | null
   address_line1: string | null
   address_city: string | null
+  cooperative_name: string | null
+  worker_phone: string
   updated_at: string
+}
+
+export interface EmergencyBookingResult {
+  id: string
+  worker_id: string
+  distance_km: number
+}
+
+export interface ChatMessage {
+  id: string
+  sender_id: string
+  message: string
+  created_at: string
 }

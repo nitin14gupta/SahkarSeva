@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import { ShieldCheck, Star } from 'lucide-react-native'
+import { Heart, ShieldCheck, Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Avatar, BackButton, CategoryIcon, EmptyState, PrimaryButton, RatingStars } from '@/components/ui'
 import * as apiService from '@/api/apiService'
@@ -15,6 +15,7 @@ export default function WorkerProfileScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -22,9 +23,13 @@ export default function WorkerProfileScreen() {
       setLoading(true)
       setError(false)
       try {
-        const { worker } = await apiService.getWorkerDetail(id)
+        const [{ worker }, { favorites }] = await Promise.all([
+          apiService.getWorkerDetail(id),
+          apiService.getFavorites(),
+        ])
         if (cancelled) return
         setWorker(worker)
+        setIsFavorite(favorites.some((f) => f.id === id))
       } catch {
         if (!cancelled) setError(true)
       } finally {
@@ -33,6 +38,16 @@ export default function WorkerProfileScreen() {
     })()
     return () => { cancelled = true }
   }, [id, refreshKey])
+
+  async function toggleFavorite() {
+    setIsFavorite((prev) => !prev)
+    try {
+      if (isFavorite) await apiService.removeFavorite(id)
+      else await apiService.addFavorite(id)
+    } catch {
+      setIsFavorite((prev) => !prev)
+    }
+  }
 
   const availableDates = worker
     ? Array.from(new Set(worker.availability.map((slot) => slot.slot_date))).slice(0, 4)
@@ -56,6 +71,14 @@ export default function WorkerProfileScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         <View style={[s.topRow, { paddingTop: insets.top }]}>
           <BackButton onPress={() => router.back()} />
+          <Pressable style={s.favoriteBtn} onPress={toggleFavorite} hitSlop={8}>
+            <Heart
+              size={20}
+              color={isFavorite ? Colors.terracotta : Colors.textSecondary}
+              fill={isFavorite ? Colors.terracotta : 'transparent'}
+              strokeWidth={2}
+            />
+          </Pressable>
         </View>
 
         <View style={s.headerCard}>
@@ -171,8 +194,21 @@ const s = StyleSheet.create({
     color: Colors.brandGreen,
   },
   topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.sm,
+  },
+  favoriteBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.divider,
   },
   headerCard: {
     alignItems: 'center',

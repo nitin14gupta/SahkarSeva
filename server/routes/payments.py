@@ -40,6 +40,11 @@ class VerifyPaymentRequest(BaseModel):
     razorpay_signature: str
 
 
+@router.get("")
+def get_payments(user_id: str = Depends(get_current_user_id)):
+    return {"payments": payment_service.list_payments(user_id)}
+
+
 @router.get("/methods")
 def get_methods(user_id: str = Depends(get_current_user_id)):
     return {"methods": payment_service.list_payment_methods(user_id)}
