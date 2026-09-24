@@ -1,4 +1,5 @@
 import os
+from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 from dotenv import load_dotenv
 
@@ -35,12 +36,18 @@ def send_otp(phone: str) -> bool:
 
 def verify_otp(phone: str, code: str) -> bool:
     """Check OTP code via Twilio Verify. Returns True if approved."""
-    if _DEV_OTP_BYPASS and code == _DEV_MAGIC_CODE:
-        return True
-    check = _client.verify.v2.services(_verify_sid).verification_checks.create(
-        to=phone,
-        code=code,
-    )
+    if _DEV_OTP_BYPASS:
+        # send_otp() short-circuits in dev bypass mode, so no real Twilio
+        # verification was ever created — any code other than the magic one
+        # is simply wrong, not something to check against the live API.
+        return code == _DEV_MAGIC_CODE
+    try:
+        check = _client.verify.v2.services(_verify_sid).verification_checks.create(
+            to=phone,
+            code=code,
+        )
+    except TwilioRestException:
+        return False
     return check.status == "approved"
 
 

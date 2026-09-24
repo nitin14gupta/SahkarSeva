@@ -1,5 +1,6 @@
 from db.config import get_db
 from services.worker_service import get_worker_id_for_user
+from utils.twilio_client import send_otp, verify_otp
 
 
 GROUP_STATUSES = {
@@ -12,6 +13,14 @@ WORKER_GROUP_STATUSES = {
     "incoming": ["requested"],
     "active": ["accepted", "en_route", "in_progress"],
     "history": ["completed", "cancelled"],
+}
+
+# Forward-only job execution loop: accepted -> en_route -> in_progress.
+# "Mark Started"/"Mark Completed" inside in_progress are UI-only states —
+# completion is its own OTP-gated transition (see complete_booking).
+VALID_FORWARD_TRANSITIONS = {
+    "accepted": "en_route",
+    "en_route": "in_progress",
 }
 
 
@@ -246,6 +255,109 @@ def decline_booking(booking_id: str, user_id: str, reason: str | None) -> dict |
                 """,
                 (worker_id, booking["scheduled_date"], booking["scheduled_time"]),
             )
+        return booking
+
+
+def update_status(booking_id: str, user_id: str, new_status: str) -> dict | None:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return None
+        cur.execute(
+            "SELECT status FROM bookings WHERE id = %s AND worker_id = %s",
+            (booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        if VALID_FORWARD_TRANSITIONS.get(row["status"]) != new_status:
+            raise ValueError(f"Can't move from '{row['status']}' to '{new_status}'")
+
+        cur.execute(
+            "UPDATE bookings SET status = %s, updated_at = now() WHERE id = %s RETURNING *",
+            (new_status, booking_id),
+        )
+        return dict(cur.fetchone())
+
+
+def attach_photos(booking_id: str, user_id: str, before_photo_url: str | None, after_photo_url: str | None) -> dict | None:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return None
+        cur.execute(
+            """
+            UPDATE bookings
+            SET before_photo_url = COALESCE(%s, before_photo_url),
+                after_photo_url = COALESCE(%s, after_photo_url),
+                updated_at = now()
+            WHERE id = %s AND worker_id = %s
+            RETURNING *
+            """,
+            (before_photo_url, after_photo_url, booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def send_completion_otp(booking_id: str, user_id: str) -> bool:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return False
+        cur.execute(
+            """
+            SELECT u.phone FROM bookings b
+            JOIN users u ON u.id = b.customer_id
+            WHERE b.id = %s AND b.worker_id = %s AND b.status = 'in_progress'
+            """,
+            (booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            return False
+    return send_otp(row["phone"])
+
+
+def complete_booking(
+    booking_id: str, user_id: str, otp_code: str, final_amount: float, after_photo_url: str | None
+) -> dict:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            raise ValueError("Worker profile not found")
+        cur.execute(
+            """
+            SELECT u.phone FROM bookings b
+            JOIN users u ON u.id = b.customer_id
+            WHERE b.id = %s AND b.worker_id = %s AND b.status = 'in_progress'
+            """,
+            (booking_id, worker_id),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise ValueError("Booking not found or not in progress")
+
+        if not verify_otp(row["phone"], otp_code):
+            raise ValueError("Invalid or expired code")
+
+        cur.execute(
+            """
+            UPDATE bookings
+            SET status = 'completed', final_amount = %s, after_photo_url = COALESCE(%s, after_photo_url),
+                completion_confirmed_at = now(), updated_at = now()
+            WHERE id = %s
+            RETURNING *
+            """,
+            (final_amount, after_photo_url, booking_id),
+        )
+        booking = dict(cur.fetchone())
+
+        cur.execute(
+            "INSERT INTO payments (booking_id, amount, method, status) VALUES (%s, %s, 'upi', 'success')",
+            (booking_id, final_amount),
+        )
+
         return booking
 
 

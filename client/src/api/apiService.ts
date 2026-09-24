@@ -28,10 +28,16 @@ import type { Payment, PaymentHistoryItem, PaymentMethod, PaymentMethodType, Ver
 import type { CreateReviewRequest } from '@/types/review'
 import type { CreateTicketRequest, SupportTicket } from '@/types/support'
 import type {
+  AddPayoutAccountRequest,
   Cooperative,
+  EarningsRange,
+  EarningsSummary,
+  PayoutAccount,
   RegisterWorkerDocumentInput,
   RegisterWorkerRequest,
   UpdateWorkerRequest,
+  WelfareClaim,
+  WelfareEnrollment,
   WorkerAvailabilitySlot,
   WorkerDashboardSummary,
   WorkerDocument,
@@ -171,6 +177,76 @@ export async function acceptBooking(id: string): Promise<{ booking: WorkerBookin
 
 export async function declineBooking(id: string, reason?: string): Promise<{ booking: WorkerBookingDetail }> {
   const { data } = await apiClient.post(`/bookings/${id}/decline`, { reason })
+  return data
+}
+
+export async function updateBookingStatus(
+  id: string,
+  status: 'en_route' | 'in_progress'
+): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.post(`/bookings/${id}/status`, { status })
+  return data
+}
+
+export async function attachBookingPhotos(
+  id: string,
+  body: { before_photo_url?: string; after_photo_url?: string }
+): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.post(`/bookings/${id}/photos`, body)
+  return data
+}
+
+export async function sendCompletionOtp(id: string): Promise<{ sent: boolean }> {
+  const { data } = await apiClient.post(`/bookings/${id}/complete/send-otp`)
+  return data
+}
+
+export async function getEarningsSummary(range: EarningsRange): Promise<{ summary: EarningsSummary }> {
+  const { data } = await apiClient.get('/earnings/summary', { params: { range } })
+  return data
+}
+
+export async function getPayoutAccounts(): Promise<{ accounts: PayoutAccount[] }> {
+  const { data } = await apiClient.get('/worker/payout-accounts')
+  return data
+}
+
+export async function addPayoutAccount(body: AddPayoutAccountRequest): Promise<{ account: PayoutAccount }> {
+  const { data } = await apiClient.post('/worker/payout-accounts', body)
+  return data
+}
+
+export async function getWelfareEnrollment(): Promise<{ enrollment: WelfareEnrollment | null }> {
+  const { data } = await apiClient.get('/welfare/me')
+  return data
+}
+
+export async function enrollWelfare(body: {
+  eshram_uan?: string
+  scheme_name?: string
+}): Promise<{ enrollment: WelfareEnrollment }> {
+  const { data } = await apiClient.post('/welfare/enroll', body)
+  return data
+}
+
+export async function getWelfareClaims(): Promise<{ claims: WelfareClaim[] }> {
+  const { data } = await apiClient.get('/welfare/claims')
+  return data
+}
+
+export async function createWelfareClaim(body: {
+  reason: string
+  amount_claimed?: number
+}): Promise<{ claim: WelfareClaim }> {
+  const { data } = await apiClient.post('/welfare/claims', body)
+  return data
+}
+
+export async function completeBooking(
+  id: string,
+  body: { otp_code: string; final_amount: number; after_photo_url?: string }
+): Promise<{ booking: WorkerBookingDetail }> {
+  const { data } = await apiClient.post(`/bookings/${id}/complete`, body)
   return data
 }
 

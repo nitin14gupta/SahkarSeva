@@ -11,13 +11,13 @@ import { Colors, FontFamily, Radius, Spacing, withOpacity } from '@/constants'
 import type { WorkerBookingSummary } from '@/types/booking'
 import type { WorkerDashboardSummary } from '@/types/worker'
 
-function jobRoute(booking: WorkerBookingSummary): string {
+function jobHref(booking: WorkerBookingSummary) {
+  const id = booking.id
   switch (booking.status) {
-    case 'requested': return `/job-request/${booking.id}`
-    case 'accepted': return `/job/${booking.id}/details`
-    case 'en_route': return `/job/${booking.id}/navigate`
-    case 'in_progress': return `/job/${booking.id}/in-progress`
-    default: return `/job/${booking.id}/details`
+    case 'requested': return { pathname: '/job-request/[id]' as const, params: { id } }
+    case 'en_route': return { pathname: '/job/[id]/navigate' as const, params: { id } }
+    case 'in_progress': return { pathname: '/job/[id]/in-progress' as const, params: { id } }
+    default: return { pathname: '/job/[id]/details' as const, params: { id } }
   }
 }
 
@@ -134,7 +134,7 @@ export default function WorkerHomeScreen() {
       ) : (
         <View style={s.jobList}>
           {jobs.map((job) => (
-            <JobCard key={job.id} booking={job} onPress={() => router.push(jobRoute(job) as never)} />
+            <JobCard key={job.id} booking={job} onPress={() => router.push(jobHref(job))} />
           ))}
         </View>
       )}

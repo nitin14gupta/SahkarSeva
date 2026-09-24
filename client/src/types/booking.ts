@@ -82,6 +82,7 @@ export interface WorkerBookingDetail extends WorkerBookingSummary {
   address_id: string | null
   address_lat: number | null
   address_lng: number | null
+  photo_url: string | null
   cancelled_reason: string | null
   before_photo_url: string | null
   after_photo_url: string | null

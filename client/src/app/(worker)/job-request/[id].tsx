@@ -47,17 +47,17 @@ export default function JobRequestScreen() {
     setResponding('accept')
     try {
       await apiService.acceptBooking(id)
-      router.replace(`/job/${id}/details`)
+      router.replace({ pathname: '/job/[id]/details', params: { id } })
     } catch {
       show('Could not accept this job — it may have already been taken', 'error')
       setResponding(null)
     }
   }
 
-  async function handleDecline() {
+  async function handleDecline(reason = 'Declined by worker') {
     setResponding('decline')
     try {
-      await apiService.declineBooking(id, 'Declined by worker')
+      await apiService.declineBooking(id, reason)
       router.back()
     } catch {
       show('Could not decline this job', 'error')
@@ -65,9 +65,24 @@ export default function JobRequestScreen() {
     }
   }
 
-  if (isEmergency && isExpired && !responding) {
-    void handleDecline()
-  }
+  useEffect(() => {
+    if (!isEmergency || !isExpired || responding) return
+    let cancelled = false
+    ;(async () => {
+      setResponding('decline')
+      try {
+        await apiService.declineBooking(id, 'Emergency request timed out')
+        if (!cancelled) router.back()
+      } catch {
+        if (!cancelled) {
+          show('Could not decline this job', 'error')
+          setResponding(null)
+        }
+      }
+    })()
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once when the countdown hits zero; `responding` is read, not a trigger
+  }, [isEmergency, isExpired])
 
   if (loading || !booking) {
     return (

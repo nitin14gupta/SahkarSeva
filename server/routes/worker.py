@@ -50,6 +50,15 @@ class AddAvailabilityRequest(BaseModel):
     end_time: str
 
 
+class AddPayoutAccountRequest(BaseModel):
+    method: str
+    account_holder: str | None = None
+    account_number: str | None = None
+    ifsc: str | None = None
+    upi_id: str | None = None
+    is_default: bool = False
+
+
 @router.get("/me")
 def get_my_profile(user_id: str = Depends(get_current_user_id)):
     worker = worker_service.get_my_profile(user_id)
@@ -139,3 +148,21 @@ def delete_availability(slot_id: str, user_id: str = Depends(get_current_user_id
     if not deleted:
         raise HTTPException(status_code=404, detail="Slot not found or already booked")
     return {"deleted": True}
+
+
+@router.get("/payout-accounts")
+def get_payout_accounts(user_id: str = Depends(get_current_user_id)):
+    return {"accounts": worker_service.list_payout_accounts(user_id)}
+
+
+@router.post("/payout-accounts")
+def add_payout_account(body: AddPayoutAccountRequest, user_id: str = Depends(get_current_user_id)):
+    if body.method not in ("bank", "upi"):
+        raise HTTPException(status_code=400, detail="method must be 'bank' or 'upi'")
+    try:
+        account = worker_service.add_payout_account(
+            user_id, body.method, body.account_holder, body.account_number, body.ifsc, body.upi_id, body.is_default
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return {"account": account}

@@ -33,6 +33,21 @@ class DeclineBookingRequest(BaseModel):
     reason: str | None = None
 
 
+class UpdateStatusRequest(BaseModel):
+    status: str
+
+
+class AttachPhotosRequest(BaseModel):
+    before_photo_url: str | None = None
+    after_photo_url: str | None = None
+
+
+class CompleteBookingRequest(BaseModel):
+    otp_code: str
+    final_amount: float
+    after_photo_url: str | None = None
+
+
 class SendMessageRequest(BaseModel):
     message: str
 
@@ -112,6 +127,46 @@ def decline_booking(booking_id: str, body: DeclineBookingRequest, user_id: str =
     booking = booking_service.decline_booking(booking_id, user_id, body.reason)
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found or can't be declined")
+    return {"booking": booking}
+
+
+@router.post("/{booking_id}/status")
+def update_status(booking_id: str, body: UpdateStatusRequest, user_id: str = Depends(get_current_user_id)):
+    if body.status not in ("en_route", "in_progress"):
+        raise HTTPException(status_code=400, detail="status must be 'en_route' or 'in_progress'")
+    try:
+        booking = booking_service.update_status(booking_id, user_id, body.status)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return {"booking": booking}
+
+
+@router.post("/{booking_id}/photos")
+def attach_photos(booking_id: str, body: AttachPhotosRequest, user_id: str = Depends(get_current_user_id)):
+    booking = booking_service.attach_photos(booking_id, user_id, body.before_photo_url, body.after_photo_url)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return {"booking": booking}
+
+
+@router.post("/{booking_id}/complete/send-otp")
+def send_completion_otp(booking_id: str, user_id: str = Depends(get_current_user_id)):
+    sent = booking_service.send_completion_otp(booking_id, user_id)
+    if not sent:
+        raise HTTPException(status_code=404, detail="Booking not found or not in progress")
+    return {"sent": True}
+
+
+@router.post("/{booking_id}/complete")
+def complete_booking(booking_id: str, body: CompleteBookingRequest, user_id: str = Depends(get_current_user_id)):
+    try:
+        booking = booking_service.complete_booking(
+            booking_id, user_id, body.otp_code, body.final_amount, body.after_photo_url
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return {"booking": booking}
 
 

@@ -84,3 +84,72 @@ export interface WorkerAvailabilitySlot {
   end_time: string
   is_booked: boolean
 }
+
+export type EarningsRange = 'daily' | 'weekly' | 'monthly'
+
+export interface EarningsBucket {
+  period: string
+  jobs: number
+  gross: number
+  commission: number
+  net: number
+}
+
+export interface EarningsSummary {
+  range: EarningsRange
+  commission_pct: number
+  today_earnings: number
+  total_jobs: number
+  total_gross: number
+  total_commission: number
+  total_net: number
+  buckets: EarningsBucket[]
+}
+
+export type PayoutMethod = 'bank' | 'upi'
+
+export interface PayoutAccount {
+  id: string
+  worker_id: string
+  method: PayoutMethod
+  account_holder: string | null
+  account_number: string | null
+  ifsc: string | null
+  upi_id: string | null
+  is_default: boolean
+  created_at: string
+}
+
+export interface AddPayoutAccountRequest {
+  method: PayoutMethod
+  account_holder?: string
+  account_number?: string
+  ifsc?: string
+  upi_id?: string
+  is_default?: boolean
+}
+
+export type WelfareEnrollmentStatus = 'pending' | 'active'
+
+export interface WelfareEnrollment {
+  id: string
+  worker_id: string
+  status: WelfareEnrollmentStatus
+  eshram_uan: string | null
+  scheme_name: string | null
+  enrolled_at: string | null
+  created_at: string
+}
+
+export type WelfareClaimStatus = 'submitted' | 'under_review' | 'approved' | 'rejected'
+
+export interface WelfareClaim {
+  id: string
+  worker_id: string
+  reason: string
+  amount_claimed: number | null
+  status: WelfareClaimStatus
+  submitted_at: string
+  reviewed_at: string | null
+  resolved_at: string | null
+}

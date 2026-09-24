@@ -217,6 +217,46 @@ def remove_availability_slot(user_id: str, slot_id: str) -> bool:
         return cur.fetchone() is not None
 
 
+def list_payout_accounts(user_id: str) -> list[dict]:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return []
+        cur.execute(
+            "SELECT * FROM worker_payout_accounts WHERE worker_id = %s ORDER BY is_default DESC, created_at DESC",
+            (worker_id,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
+def add_payout_account(
+    user_id: str,
+    method: str,
+    account_holder: str | None,
+    account_number: str | None,
+    ifsc: str | None,
+    upi_id: str | None,
+    is_default: bool,
+) -> dict:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            raise ValueError("Worker profile not found")
+
+        if is_default:
+            cur.execute("UPDATE worker_payout_accounts SET is_default = false WHERE worker_id = %s", (worker_id,))
+
+        cur.execute(
+            """
+            INSERT INTO worker_payout_accounts (worker_id, method, account_holder, account_number, ifsc, upi_id, is_default)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING *
+            """,
+            (worker_id, method, account_holder, account_number, ifsc, upi_id, is_default),
+        )
+        return dict(cur.fetchone())
+
+
 def get_dashboard_summary(user_id: str) -> dict | None:
     with get_db() as (cur, conn):
         worker_id = get_worker_id_for_user(cur, user_id)
@@ -239,14 +279,9 @@ def get_dashboard_summary(user_id: str) -> dict | None:
         )
         summary["today_job_count"] = cur.fetchone()["job_count"]
 
-        cur.execute(
-            """
-            SELECT COALESCE(SUM(final_amount), 0) AS earnings
-            FROM bookings
-            WHERE worker_id = %s AND status = 'completed' AND completion_confirmed_at::date = CURRENT_DATE
-            """,
-            (worker_id,),
-        )
-        summary["today_earnings"] = cur.fetchone()["earnings"]
+        # Deferred import: avoids a circular import (earnings_service itself
+        # imports get_worker_id_for_user from this module).
+        from services.earnings_service import get_today_earnings
+        summary["today_earnings"] = get_today_earnings(cur, worker_id)
 
         return summary
