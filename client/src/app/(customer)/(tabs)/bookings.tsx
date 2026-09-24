@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { CalendarX } from 'lucide-react-native'
@@ -21,6 +21,7 @@ export default function BookingHistoryScreen() {
   const [bookings, setBookings] = useState<BookingSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -39,6 +40,18 @@ export default function BookingHistoryScreen() {
     })()
     return () => { cancelled = true }
   }, [tab])
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { bookings } = await apiService.getBookings({ group: tab })
+      setBookings(bookings)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
@@ -63,6 +76,7 @@ export default function BookingHistoryScreen() {
           data={bookings}
           keyExtractor={(b) => b.id}
           contentContainerStyle={s.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
           renderItem={({ item }) => (
             <View style={s.cardWrap}>
               <BookingCard booking={item} onPress={() => router.push({ pathname: '/booking-detail/[id]', params: { id: item.id } })} />

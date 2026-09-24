@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { CheckCircle2, Landmark, XCircle } from 'lucide-react-native'
 import { AppHeader, EmptyState, Input, KeyboardAvoidingWrapper, LanguageChip, PrimaryButton } from '@/components/ui'
@@ -27,6 +27,7 @@ export default function WorkerPayoutScreen() {
 
   const [accounts, setAccounts] = useState<PayoutAccount[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [schedule, setSchedule] = useState<PayoutSchedule>('weekly')
   const [savingSchedule, setSavingSchedule] = useState(false)
   const [rzpKey, setRzpKey] = useState<string | null>(null)
@@ -70,6 +71,22 @@ export default function WorkerPayoutScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- `show` is a stable zustand setter
     }, [])
   )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const [{ accounts }, { worker }] = await Promise.all([
+        apiService.getPayoutAccounts(),
+        apiService.getWorkerMe(),
+      ])
+      setAccounts(accounts)
+      setSchedule(worker.payout_schedule)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   async function handleChangeSchedule(next: PayoutSchedule) {
     setSchedule(next)
@@ -121,7 +138,11 @@ export default function WorkerPayoutScreen() {
     <View style={s.container}>
       <AppHeader title="Payout & bank linking" showBack />
       <KeyboardAvoidingWrapper transparent>
-        <ScrollView style={s.inner} contentContainerStyle={s.innerContent}>
+        <ScrollView
+          style={s.inner}
+          contentContainerStyle={s.innerContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+        >
           <Text style={s.sectionLabel}>Payout schedule</Text>
           <View style={s.chipRow}>
             {SCHEDULES.map((sch) => (

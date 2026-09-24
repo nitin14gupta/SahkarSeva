@@ -1,12 +1,10 @@
-export type PaymentMethodType = 'upi' | 'card' | 'wallet'
+export type PaymentMethodType = 'upi' | 'wallet'
 
 export interface PaymentMethod {
   id: string
   user_id: string
   type: PaymentMethodType
   upi_id: string | null
-  card_last4: string | null
-  card_brand: string | null
   is_default: boolean
   created_at: string
 }

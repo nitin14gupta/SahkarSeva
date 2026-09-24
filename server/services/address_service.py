@@ -16,6 +16,7 @@ def create_address(
     user_id: str,
     label: str,
     line1: str,
+    line2: str | None,
     city: str | None,
     state: str | None,
     pincode: str | None,
@@ -29,11 +30,11 @@ def create_address(
 
         cur.execute(
             """
-            INSERT INTO addresses (user_id, label, line1, city, state, pincode, lat, lng, is_default)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO addresses (user_id, label, line1, line2, city, state, pincode, lat, lng, is_default)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
             """,
-            (user_id, label, line1, city, state, pincode, lat, lng, is_default),
+            (user_id, label, line1, line2, city, state, pincode, lat, lng, is_default),
         )
         return dict(cur.fetchone())
 
@@ -43,6 +44,7 @@ def update_address(
     user_id: str,
     label: str,
     line1: str,
+    line2: str | None,
     city: str | None,
     state: str | None,
     pincode: str | None,
@@ -57,12 +59,12 @@ def update_address(
         cur.execute(
             """
             UPDATE addresses
-            SET label = %s, line1 = %s, city = %s, state = %s, pincode = %s,
+            SET label = %s, line1 = %s, line2 = %s, city = %s, state = %s, pincode = %s,
                 lat = %s, lng = %s, is_default = %s
             WHERE id = %s AND user_id = %s
             RETURNING *
             """,
-            (label, line1, city, state, pincode, lat, lng, is_default, address_id, user_id),
+            (label, line1, line2, city, state, pincode, lat, lng, is_default, address_id, user_id),
         )
         row = cur.fetchone()
         return dict(row) if row else None

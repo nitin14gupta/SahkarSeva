@@ -1,46 +1,94 @@
-import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
-import { router } from 'expo-router'
-import { CreditCard, Plus, Receipt, Smartphone, Wallet as WalletIcon } from 'lucide-react-native'
+import { useCallback, useState } from 'react'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { router, useFocusEffect } from 'expo-router'
+import { Plus, Receipt, Smartphone, Trash2, Wallet as WalletIcon } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { EmptyState, Screen } from '@/components/ui'
 import * as apiService from '@/api/apiService'
+import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { PaymentHistoryItem, PaymentMethod } from '@/types/payment'
 
-const METHOD_ICON = { upi: Smartphone, card: CreditCard, wallet: WalletIcon }
+const METHOD_ICON = { upi: Smartphone, wallet: WalletIcon }
 
 export default function WalletScreen() {
   const insets = useSafeAreaInsets()
+  const show = usePillStore((s) => s.show)
   const [methods, setMethods] = useState<PaymentMethod[]>([])
   const [payments, setPayments] = useState<PaymentHistoryItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      setLoading(true)
-      try {
-        const [{ methods }, { payments }] = await Promise.all([
-          apiService.getPaymentMethods(),
-          apiService.getPayments(),
-        ])
-        if (cancelled) return
-        setMethods(methods)
-        setPayments(payments)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false
+      ;(async () => {
+        setLoading(true)
+        try {
+          const [{ methods }, { payments }] = await Promise.all([
+            apiService.getPaymentMethods(),
+            apiService.getPayments(),
+          ])
+          if (!cancelled) {
+            setMethods(methods)
+            setPayments(payments)
+          }
+        } finally {
+          if (!cancelled) setLoading(false)
+        }
+      })()
+      return () => { cancelled = true }
+    }, [])
+  )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const [{ methods }, { payments }] = await Promise.all([
+        apiService.getPaymentMethods(),
+        apiService.getPayments(),
+      ])
+      setMethods(methods)
+      setPayments(payments)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   if (loading) {
     return <Screen><View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View></Screen>
   }
 
+  async function handleSetDefault(id: string) {
+    const previous = methods
+    setMethods((prev) => prev.map((m) => ({ ...m, is_default: m.id === id })))
+    try {
+      await apiService.setDefaultPaymentMethod(id)
+    } catch {
+      setMethods(previous)
+      show('Could not update default payment method', 'error')
+    }
+  }
+
+  async function handleDeleteMethod(id: string) {
+    const previous = methods
+    setMethods((prev) => prev.filter((m) => m.id !== id))
+    try {
+      await apiService.deletePaymentMethod(id)
+    } catch {
+      setMethods(previous)
+      show('Could not delete payment method', 'error')
+    }
+  }
+
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
+    <ScrollView
+      style={s.container}
+      contentContainerStyle={{ paddingTop: insets.top, paddingBottom: Spacing.xl }}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+    >
       <Text style={s.title}>Wallet</Text>
 
       <View style={s.section}>
@@ -59,9 +107,18 @@ export default function WalletScreen() {
               <View key={m.id} style={s.methodCard}>
                 <Icon size={18} color={Colors.brandGreen} strokeWidth={2} />
                 <Text style={s.methodLabel}>
-                  {m.type === 'upi' ? m.upi_id : m.type === 'card' ? `${m.card_brand ?? 'Card'} •••• ${m.card_last4}` : 'Wallet'}
+                  {m.type === 'upi' ? m.upi_id : 'Wallet'}
                 </Text>
-                {m.is_default && <View style={s.defaultBadge}><Text style={s.defaultText}>Default</Text></View>}
+                {m.is_default ? (
+                  <View style={s.defaultBadge}><Text style={s.defaultText}>Default</Text></View>
+                ) : (
+                  <Pressable onPress={() => handleSetDefault(m.id)} hitSlop={8}>
+                    <Text style={s.setDefaultText}>Set default</Text>
+                  </Pressable>
+                )}
+                <Pressable onPress={() => handleDeleteMethod(m.id)} hitSlop={8} style={s.deleteMethodBtn}>
+                  <Trash2 size={16} color={Colors.destructive} strokeWidth={2} />
+                </Pressable>
               </View>
             )
           })
@@ -86,7 +143,7 @@ export default function WalletScreen() {
           ))
         )}
       </View>
-    </View>
+    </ScrollView>
   )
 }
 
@@ -148,6 +205,14 @@ const s = StyleSheet.create({
     fontFamily: FontFamily.bodyMedium,
     fontSize: 10,
     color: Colors.brandGreen,
+  },
+  setDefaultText: {
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 11,
+    color: Colors.textSecondary,
+  },
+  deleteMethodBtn: {
+    marginLeft: Spacing.sm,
   },
   txnRow: {
     flexDirection: 'row',

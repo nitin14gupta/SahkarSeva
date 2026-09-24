@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapPin, MessageCircle, Phone } from 'lucide-react-native'
@@ -16,6 +16,7 @@ export default function JobDetailsScreen() {
 
   const [booking, setBooking] = useState<WorkerBookingDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [starting, setStarting] = useState(false)
 
   useFocusEffect(
@@ -36,6 +37,18 @@ export default function JobDetailsScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch when the route id changes, `show` is a stable zustand setter
     }, [id])
   )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { booking } = await apiService.getWorkerBookingDetail(id)
+      setBooking(booking)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   async function handleStartNavigation() {
     setStarting(true)
@@ -59,7 +72,11 @@ export default function JobDetailsScreen() {
   return (
     <View style={s.container}>
       <AppHeader title="Job details" showBack />
-      <ScrollView style={s.inner} contentContainerStyle={s.innerContent}>
+      <ScrollView
+        style={s.inner}
+        contentContainerStyle={s.innerContent}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <View style={s.customerRow}>
           <Avatar uri={booking.customer_photo_url} size={52} />
           <View style={{ flex: 1 }}>

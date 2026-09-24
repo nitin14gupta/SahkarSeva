@@ -3,6 +3,7 @@ export interface Address {
   user_id: string
   label: string
   line1: string
+  line2: string | null
   city: string | null
   state: string | null
   pincode: string | null
@@ -15,6 +16,7 @@ export interface Address {
 export interface CreateAddressRequest {
   label: string
   line1: string
+  line2?: string
   city?: string
   state?: string
   pincode?: string

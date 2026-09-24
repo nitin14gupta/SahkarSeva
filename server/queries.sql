@@ -216,6 +216,10 @@ ALTER TABLE payment_methods ADD CONSTRAINT payment_methods_type_check CHECK (typ
 ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_method_check;
 ALTER TABLE payments ADD CONSTRAINT payments_method_check CHECK (method IN ('upi','wallet'));
 
+-- Fuller address form: line1 becomes "House/Flat/Building", line2 is the
+-- road/area/landmark — matches how most delivery apps structure an address.
+ALTER TABLE addresses ADD COLUMN IF NOT EXISTS line2 TEXT;
+
 CREATE TABLE IF NOT EXISTS notifications (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id        UUID NOT NULL REFERENCES users(id),

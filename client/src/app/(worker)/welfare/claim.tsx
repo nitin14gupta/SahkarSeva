@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { AppHeader, Input, KeyboardAvoidingWrapper, PrimaryButton, StatusStepper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
@@ -16,6 +16,7 @@ export default function WorkerClaimScreen() {
 
   const [claims, setClaims] = useState<WelfareClaim[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [reason, setReason] = useState('')
   const [amount, setAmount] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -38,6 +39,18 @@ export default function WorkerClaimScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- `show` is a stable zustand setter
     }, [])
   )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { claims } = await apiService.getWelfareClaims()
+      setClaims(claims)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   const activeClaim = claims.find((c) => ACTIVE_STATUSES.has(c.status))
   const pastClaims = claims.filter((c) => c.id !== activeClaim?.id)
@@ -71,7 +84,11 @@ export default function WorkerClaimScreen() {
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : (
         <KeyboardAvoidingWrapper transparent>
-          <ScrollView style={s.inner} contentContainerStyle={s.innerContent}>
+          <ScrollView
+            style={s.inner}
+            contentContainerStyle={s.innerContent}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+          >
             {activeClaim ? (
               <View style={s.card}>
                 <Text style={s.cardTitle}>Your claim</Text>

@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
-import { CreditCard, Smartphone, Wallet } from 'lucide-react-native'
+import { Smartphone, Wallet } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
@@ -13,7 +13,6 @@ import type { PaymentMethodType } from '@/types/payment'
 
 const METHODS: { type: PaymentMethodType; label: string; icon: typeof Smartphone }[] = [
   { type: 'upi', label: 'UPI', icon: Smartphone },
-  { type: 'card', label: 'Card', icon: CreditCard },
   { type: 'wallet', label: 'Wallet', icon: Wallet },
 ]
 

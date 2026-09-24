@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { router, useLocalSearchParams } from 'expo-router'
 import { SearchX } from 'lucide-react-native'
@@ -14,6 +14,7 @@ export default function SearchResultsScreen() {
   const [results, setResults] = useState<WorkerSummary[]>([])
   const [loading, setLoading] = useState(false)
   const [searched, setSearched] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   const runSearch = useCallback(async (text: string) => {
     if (!text.trim()) {
@@ -53,6 +54,20 @@ export default function SearchResultsScreen() {
     return () => { cancelled = true }
   }, [initialQuery])
 
+  async function handleRefresh() {
+    const text = query.trim()
+    if (!text) return
+    setRefreshing(true)
+    try {
+      const { workers } = await apiService.getWorkers({ q: text })
+      setResults(workers)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   return (
     <View style={s.container}>
       <AppHeader
@@ -84,6 +99,7 @@ export default function SearchResultsScreen() {
           data={results}
           keyExtractor={(w) => w.id}
           contentContainerStyle={s.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
           renderItem={({ item }) => (
             <View style={s.cardWrap}>
               <WorkerCard worker={item} onPress={() => router.push({ pathname: '/worker/[id]', params: { id: item.id } })} />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { MessageCircle, Phone } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -24,6 +24,7 @@ export default function BookingDetailScreen() {
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -39,6 +40,18 @@ export default function BookingDetailScreen() {
     return () => { cancelled = true }
   }, [id])
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { booking } = await apiService.getBookingDetail(id)
+      setBooking(booking)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   if (loading || !booking) {
     return <View style={[s.container, s.center]}><ActivityIndicator color={Colors.brandGreen} /></View>
   }
@@ -49,7 +62,10 @@ export default function BookingDetailScreen() {
     <View style={s.container}>
       <AppHeader title="Booking details" showBack />
 
-      <ScrollView contentContainerStyle={s.content}>
+      <ScrollView
+        contentContainerStyle={s.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <View style={s.workerRow}>
           <Avatar uri={booking.worker_photo_url} size={56} />
           <View style={{ flex: 1 }}>

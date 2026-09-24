@@ -10,6 +10,7 @@ router = APIRouter(prefix="/addresses", tags=["addresses"])
 class CreateAddressRequest(BaseModel):
     label: str = "Home"
     line1: str
+    line2: str | None = None
     city: str | None = None
     state: str | None = None
     pincode: str | None = None
@@ -26,7 +27,7 @@ def get_addresses(user_id: str = Depends(get_current_user_id)):
 @router.post("")
 def create_address(body: CreateAddressRequest, user_id: str = Depends(get_current_user_id)):
     address = address_service.create_address(
-        user_id, body.label, body.line1, body.city, body.state,
+        user_id, body.label, body.line1, body.line2, body.city, body.state,
         body.pincode, body.lat, body.lng, body.is_default,
     )
     return {"address": address}
@@ -35,7 +36,7 @@ def create_address(body: CreateAddressRequest, user_id: str = Depends(get_curren
 @router.put("/{address_id}")
 def update_address(address_id: str, body: CreateAddressRequest, user_id: str = Depends(get_current_user_id)):
     address = address_service.update_address(
-        address_id, user_id, body.label, body.line1, body.city, body.state,
+        address_id, user_id, body.label, body.line1, body.line2, body.city, body.state,
         body.pincode, body.lat, body.lng, body.is_default,
     )
     if not address:

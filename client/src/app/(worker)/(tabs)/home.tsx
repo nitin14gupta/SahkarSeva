@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { CalendarClock, ClipboardCheck, Power } from 'lucide-react-native'
 import { AppHeader, EmptyState, JobCard, NotificationBell, PrimaryButton, RatingStars, StatusBadge } from '@/components/ui'
@@ -29,6 +29,7 @@ export default function WorkerHomeScreen() {
   const [dashboard, setDashboard] = useState<WorkerDashboardSummary | null>(null)
   const [jobs, setJobs] = useState<WorkerBookingSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [togglingOnline, setTogglingOnline] = useState(false)
 
   useFocusEffect(
@@ -66,6 +67,28 @@ export default function WorkerHomeScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- refetch on focus only, not on every render
     }, [])
   )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { worker } = await apiService.getWorkerMe()
+      setVerificationStatus(worker.verification_status)
+      setVerificationReason(worker.verification_reason)
+      if (worker.verification_status === 'verified') {
+        const [{ dashboard }, { bookings }, { bookings: incoming }] = await Promise.all([
+          apiService.getWorkerDashboard(),
+          apiService.getWorkerBookings('active'),
+          apiService.getWorkerBookings('incoming'),
+        ])
+        setDashboard(dashboard)
+        setJobs([...incoming, ...bookings])
+      }
+    } catch {
+      show('Could not refresh your dashboard', 'error')
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   async function handleToggleOnline() {
     if (!dashboard) return
@@ -129,7 +152,10 @@ export default function WorkerHomeScreen() {
   return (
     <View style={s.container}>
       <AppHeader showLogo rightAction={<NotificationBell />} />
-      <ScrollView contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
       <Pressable
         style={[s.onlineCard, dashboard?.is_online ? s.onlineCardActive : s.onlineCardInactive]}
         onPress={handleToggleOnline}

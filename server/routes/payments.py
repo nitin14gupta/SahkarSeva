@@ -58,11 +58,24 @@ def get_methods(user_id: str = Depends(get_current_user_id)):
 
 @router.post("/methods")
 def add_method(body: AddPaymentMethodRequest, user_id: str = Depends(get_current_user_id)):
-    if body.type not in ("upi", "card", "wallet"):
+    if body.type not in ("upi", "wallet"):
         raise HTTPException(status_code=400, detail="Invalid payment method type")
-    method = payment_service.add_payment_method(
-        user_id, body.type, body.upi_id, body.card_last4, body.card_brand, body.is_default
-    )
+    method = payment_service.add_payment_method(user_id, body.type, body.upi_id, body.is_default)
+    return {"method": method}
+
+
+@router.delete("/methods/{method_id}")
+def delete_method(method_id: str, user_id: str = Depends(get_current_user_id)):
+    if not payment_service.delete_payment_method(method_id, user_id):
+        raise HTTPException(status_code=404, detail="Payment method not found")
+    return {"deleted": True}
+
+
+@router.post("/methods/{method_id}/default")
+def set_default_method(method_id: str, user_id: str = Depends(get_current_user_id)):
+    method = payment_service.set_default_payment_method(method_id, user_id)
+    if not method:
+        raise HTTPException(status_code=404, detail="Payment method not found")
     return {"method": method}
 
 

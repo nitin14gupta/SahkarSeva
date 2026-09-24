@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { Siren } from 'lucide-react-native'
 import { AppHeader, BookingCard, CategoryTile, NotificationBell, SearchBar } from '@/components/ui'
@@ -15,6 +15,7 @@ export default function CustomerHomeScreen() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -37,6 +38,22 @@ export default function CustomerHomeScreen() {
     })()
     return () => { cancelled = true }
   }, [refreshKey])
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const [{ categories }, { bookings }] = await Promise.all([
+        apiService.getCategories(),
+        apiService.getBookings(),
+      ])
+      setCategories(categories)
+      setRecentBookings(bookings.slice(0, 5))
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   function handleSearchSubmit() {
     if (!query.trim()) return
@@ -63,7 +80,10 @@ export default function CustomerHomeScreen() {
   return (
     <View style={s.container}>
       <AppHeader showLogo rightAction={<NotificationBell />} />
-      <ScrollView contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
       <View style={s.searchWrap}>
         <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearchSubmit} />
       </View>

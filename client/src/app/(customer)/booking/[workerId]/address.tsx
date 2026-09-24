@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
-import * as Location from 'expo-location'
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { MapPin, Plus } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { AppHeader, EmptyState, Input, MapPinPicker, PrimaryButton } from '@/components/ui'
+import { AppHeader, EmptyState, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -18,65 +17,24 @@ export default function AddressLocationScreen() {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [showForm, setShowForm] = useState(false)
-  const [line1, setLine1] = useState('')
-  const [city, setCity] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [pinCoords, setPinCoords] = useState<{ lat: number; lng: number } | null>(null)
 
-  async function handlePinPicked(coords: { lat: number; lng: number }) {
-    setPinCoords(coords)
-    try {
-      const [place] = await Location.reverseGeocodeAsync({ latitude: coords.lat, longitude: coords.lng })
-      if (place) {
-        setLine1([place.name, place.street].filter(Boolean).join(', '))
-        setCity(place.city ?? '')
-      }
-    } catch {
-      // reverse geocoding is best-effort — user can still type the address manually
-    }
-  }
-
-  useEffect(() => {
-    let cancelled = false
-    ;(async () => {
-      setLoading(true)
-      try {
-        const { addresses } = await apiService.getAddresses()
-        if (cancelled) return
-        setAddresses(addresses)
-        const defaultAddr = addresses.find((a) => a.is_default) ?? addresses[0]
-        if (defaultAddr) setSelectedId(defaultAddr.id)
-        if (addresses.length === 0) setShowForm(true)
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    })()
-    return () => { cancelled = true }
-  }, [])
-
-  async function handleSaveAddress() {
-    if (!line1.trim()) return
-    setSaving(true)
-    try {
-      const { address } = await apiService.createAddress({
-        label: 'Home',
-        line1: line1.trim(),
-        city: city.trim() || undefined,
-        lat: pinCoords?.lat,
-        lng: pinCoords?.lng,
-        is_default: addresses.length === 0,
-      })
-      setAddresses((prev) => [address, ...prev])
-      setSelectedId(address.id)
-      setShowForm(false)
-      setLine1('')
-      setCity('')
-      setPinCoords(null)
-    } finally {
-      setSaving(false)
-    }
-  }
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false
+      ;(async () => {
+        setLoading(true)
+        try {
+          const { addresses } = await apiService.getAddresses()
+          if (cancelled) return
+          setAddresses(addresses)
+          setSelectedId((prev) => prev ?? addresses.find((a) => a.is_default)?.id ?? addresses[0]?.id ?? null)
+        } finally {
+          if (!cancelled) setLoading(false)
+        }
+      })()
+      return () => { cancelled = true }
+    }, [])
+  )
 
   function handleContinue() {
     if (!selectedId) return
@@ -93,7 +51,7 @@ export default function AddressLocationScreen() {
       <AppHeader title="Service address" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
-        {addresses.length === 0 && !showForm ? (
+        {addresses.length === 0 ? (
           <EmptyState icon={MapPin} title="No saved addresses" subtitle="Add one to continue" />
         ) : (
           addresses.map((addr) => (
@@ -106,30 +64,17 @@ export default function AddressLocationScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={s.addressLabel}>{addr.label}</Text>
                 <Text style={s.addressLine} numberOfLines={2}>
-                  {addr.line1}{addr.city ? `, ${addr.city}` : ''}
+                  {[addr.line1, addr.line2, addr.city, addr.state].filter(Boolean).join(', ')}
                 </Text>
               </View>
             </Pressable>
           ))
         )}
 
-        {showForm ? (
-          <View style={s.form}>
-            <MapPinPicker initialCoords={pinCoords ?? undefined} onPick={handlePinPicked} />
-            <Text style={s.mapHint}>Tap the map to drop a pin at the service address</Text>
-            <View style={{ height: Spacing.sm }} />
-            <Input placeholder="House / street / landmark" value={line1} onChangeText={setLine1} />
-            <View style={{ height: Spacing.sm }} />
-            <Input placeholder="City (optional)" value={city} onChangeText={setCity} />
-            <View style={{ height: Spacing.md }} />
-            <PrimaryButton label="Save address" onPress={handleSaveAddress} loading={saving} disabled={!line1.trim()} />
-          </View>
-        ) : (
-          <Pressable style={s.addNew} onPress={() => setShowForm(true)}>
-            <Plus size={16} color={Colors.brandGreen} strokeWidth={2} />
-            <Text style={s.addNewText}>Add new address</Text>
-          </Pressable>
-        )}
+        <Pressable style={s.addNew} onPress={() => router.push('/addresses/form')}>
+          <Plus size={16} color={Colors.brandGreen} strokeWidth={2} />
+          <Text style={s.addNewText}>Add new address</Text>
+        </Pressable>
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
@@ -181,16 +126,6 @@ const s = StyleSheet.create({
     fontFamily: FontFamily.bodySemiBold,
     fontSize: 13,
     color: Colors.brandGreen,
-  },
-  form: {
-    marginTop: Spacing.sm,
-  },
-  mapHint: {
-    fontFamily: FontFamily.bodyRegular,
-    fontSize: 11,
-    color: Colors.textSecondary,
-    marginTop: 6,
-    textAlign: 'center',
   },
   footer: {
     paddingHorizontal: Spacing.screenPadding,

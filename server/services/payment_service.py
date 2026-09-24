@@ -26,6 +26,26 @@ def add_payment_method(user_id: str, type_: str, upi_id: str | None, is_default:
         return dict(cur.fetchone())
 
 
+def delete_payment_method(method_id: str, user_id: str) -> bool:
+    with get_db() as (cur, conn):
+        cur.execute(
+            "DELETE FROM payment_methods WHERE id = %s AND user_id = %s RETURNING id",
+            (method_id, user_id),
+        )
+        return cur.fetchone() is not None
+
+
+def set_default_payment_method(method_id: str, user_id: str) -> dict | None:
+    with get_db() as (cur, conn):
+        cur.execute("UPDATE payment_methods SET is_default = false WHERE user_id = %s", (user_id,))
+        cur.execute(
+            "UPDATE payment_methods SET is_default = true WHERE id = %s AND user_id = %s RETURNING *",
+            (method_id, user_id),
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
 def create_payment_for_booking(booking_id: str, customer_id: str, method: str) -> dict:
     with get_db() as (cur, conn):
         cur.execute(

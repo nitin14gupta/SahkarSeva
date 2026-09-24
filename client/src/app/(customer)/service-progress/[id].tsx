@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Clock } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -30,6 +30,7 @@ export default function ServiceInProgressScreen() {
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -51,6 +52,18 @@ export default function ServiceInProgressScreen() {
     return () => clearInterval(interval)
   }, [])
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { booking } = await apiService.getBookingDetail(id)
+      setBooking(booking)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   if (loading || !booking) {
     return <View style={[s.container, s.center]}><ActivityIndicator color={Colors.brandGreen} /></View>
   }
@@ -59,7 +72,10 @@ export default function ServiceInProgressScreen() {
     <View style={s.container}>
       <AppHeader title="Service status" showBack />
 
-      <View style={s.content}>
+      <ScrollView
+        contentContainerStyle={s.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <Avatar uri={booking.worker_photo_url} size={72} />
         <Text style={s.workerName}>{booking.worker_name}</Text>
         <Text style={s.status}>{STATUS_LABEL[booking.status]}</Text>
@@ -68,7 +84,7 @@ export default function ServiceInProgressScreen() {
           <Clock size={18} color={Colors.brandGreen} strokeWidth={2} />
           <Text key={now} style={s.timerText}>{formatElapsed(booking.created_at)} since booked</Text>
         </View>
-      </View>
+      </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <PrimaryButton label="Contact Worker" onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })} />

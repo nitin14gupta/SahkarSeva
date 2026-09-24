@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { Star } from 'lucide-react-native'
 import { AppHeader, Avatar, EmptyState, RatingStars } from '@/components/ui'
@@ -13,6 +13,7 @@ export default function WorkerReviewsScreen() {
   const [reviews, setReviews] = useState<WorkerReview[]>([])
   const [ratingAvg, setRatingAvg] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useFocusEffect(
     useCallback(() => {
@@ -38,13 +39,32 @@ export default function WorkerReviewsScreen() {
     }, [])
   )
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const [{ reviews }, { worker }] = await Promise.all([
+        apiService.getWorkerReviews(),
+        apiService.getWorkerMe(),
+      ])
+      setReviews(reviews)
+      setRatingAvg(worker.rating_avg)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   return (
     <View style={s.container}>
       <AppHeader title="Reviews received" showBack />
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : (
-        <ScrollView contentContainerStyle={s.content}>
+        <ScrollView
+          contentContainerStyle={s.content}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+        >
           <View style={s.summary}>
             <RatingStars rating={ratingAvg} count={reviews.length} size={20} />
           </View>

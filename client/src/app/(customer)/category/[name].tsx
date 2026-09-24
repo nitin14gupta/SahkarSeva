@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import BottomSheet, { BottomSheetView } from '@expo/ui/community/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
@@ -28,6 +28,7 @@ export default function CategoryBrowseScreen() {
   const [workers, setWorkers] = useState<WorkerSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const [minRating, setMinRating] = useState<number | undefined>(undefined)
@@ -77,6 +78,20 @@ export default function CategoryBrowseScreen() {
     return () => { cancelled = true }
   }, [name])
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { workers } = await apiService.getWorkers({
+        category: name, min_rating: minRating, max_price: maxPrice, available_today: availableToday, ...coords,
+      })
+      setWorkers(workers)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   function applyFilters() {
     load({ min_rating: minRating, max_price: maxPrice, available_today: availableToday, ...coords })
     sheetRef.current?.close()
@@ -116,6 +131,7 @@ export default function CategoryBrowseScreen() {
           data={workers}
           keyExtractor={(w) => w.id}
           contentContainerStyle={s.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
           renderItem={({ item }) => (
             <View style={s.cardWrap}>
               <WorkerCard worker={item} onPress={() => router.push({ pathname: '/worker/[id]', params: { id: item.id } })} />

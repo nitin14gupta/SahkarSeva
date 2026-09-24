@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { Bell } from 'lucide-react-native'
 import { AppHeader, EmptyState } from '@/components/ui'
@@ -12,6 +12,7 @@ export default function CustomerNotificationsScreen() {
   const show = usePillStore((s) => s.show)
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useFocusEffect(
     useCallback(() => {
@@ -32,6 +33,18 @@ export default function CustomerNotificationsScreen() {
     }, [])
   )
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { notifications } = await apiService.getNotifications()
+      setNotifications(notifications)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   async function handlePress(notification: AppNotification) {
     if (notification.is_read) return
     setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, is_read: true } : n)))
@@ -50,7 +63,10 @@ export default function CustomerNotificationsScreen() {
       ) : notifications.length === 0 ? (
         <EmptyState icon={Bell} title="No notifications yet" />
       ) : (
-        <ScrollView contentContainerStyle={s.content}>
+        <ScrollView
+          contentContainerStyle={s.content}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+        >
           {notifications.map((n) => (
             <Pressable key={n.id} style={[s.item, !n.is_read && s.itemUnread]} onPress={() => handlePress(n)}>
               {!n.is_read && <View style={s.dot} />}

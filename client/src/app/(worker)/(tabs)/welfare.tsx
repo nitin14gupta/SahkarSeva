@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { HeartHandshake } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -15,6 +15,7 @@ export default function WorkerWelfareScreen() {
 
   const [enrollment, setEnrollment] = useState<WelfareEnrollment | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [eshramUan, setEshramUan] = useState('')
   const [schemeName, setSchemeName] = useState('')
   const [enrolling, setEnrolling] = useState(false)
@@ -38,6 +39,18 @@ export default function WorkerWelfareScreen() {
     }, [])
   )
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { enrollment } = await apiService.getWelfareEnrollment()
+      setEnrollment(enrollment)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   async function handleEnroll() {
     setEnrolling(true)
     try {
@@ -56,7 +69,10 @@ export default function WorkerWelfareScreen() {
 
   return (
     <View style={s.container}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <Text style={s.title}>Welfare & Insurance</Text>
 
         {loading ? (

@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Landmark } from 'lucide-react-native'
@@ -21,6 +21,7 @@ export default function WorkerEarningsScreen() {
   const [range, setRange] = useState<EarningsRange>('weekly')
   const [summary, setSummary] = useState<EarningsSummary | null>(null)
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useFocusEffect(
     useCallback(() => {
@@ -41,9 +42,24 @@ export default function WorkerEarningsScreen() {
     }, [range])
   )
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { summary } = await apiService.getEarningsSummary(range)
+      setSummary(summary)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   return (
     <View style={s.container}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}>
+      <ScrollView
+        contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <Text style={s.title}>Earnings</Text>
 
         <View style={s.rangeRow}>

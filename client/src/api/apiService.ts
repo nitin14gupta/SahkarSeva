@@ -317,11 +317,19 @@ export async function getPaymentMethods(): Promise<{ methods: PaymentMethod[] }>
 export async function addPaymentMethod(body: {
   type: PaymentMethodType
   upi_id?: string
-  card_last4?: string
-  card_brand?: string
   is_default?: boolean
 }): Promise<{ method: PaymentMethod }> {
   const { data } = await apiClient.post('/payments/methods', body)
+  return data
+}
+
+export async function deletePaymentMethod(id: string): Promise<{ deleted: boolean }> {
+  const { data } = await apiClient.delete(`/payments/methods/${id}`)
+  return data
+}
+
+export async function setDefaultPaymentMethod(id: string): Promise<{ method: PaymentMethod }> {
+  const { data } = await apiClient.post(`/payments/methods/${id}/default`)
   return data
 }
 

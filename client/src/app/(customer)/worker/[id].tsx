@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Heart, ShieldCheck, Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -16,6 +16,7 @@ export default function WorkerProfileScreen() {
   const [error, setError] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -38,6 +39,22 @@ export default function WorkerProfileScreen() {
     })()
     return () => { cancelled = true }
   }, [id, refreshKey])
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const [{ worker }, { favorites }] = await Promise.all([
+        apiService.getWorkerDetail(id),
+        apiService.getFavorites(),
+      ])
+      setWorker(worker)
+      setIsFavorite(favorites.some((f) => f.id === id))
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   async function toggleFavorite() {
     setIsFavorite((prev) => !prev)
@@ -68,7 +85,10 @@ export default function WorkerProfileScreen() {
 
   return (
     <View style={s.container}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 120 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+      >
         <AppHeader
           showBack
           rightAction={(

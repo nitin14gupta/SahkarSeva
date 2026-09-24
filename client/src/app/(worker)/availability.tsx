@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { AppHeader, WeeklyAvailabilityEditor, type SlotStatus } from '@/components/ui'
 import * as apiService from '@/api/apiService'
@@ -27,6 +27,7 @@ export default function WorkerAvailabilityScreen() {
   const [days] = useState(buildDays)
   const [slots, setSlots] = useState<WorkerAvailabilitySlot[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [pendingKey, setPendingKey] = useState<string | null>(null)
 
   useFocusEffect(
@@ -50,6 +51,21 @@ export default function WorkerAvailabilityScreen() {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- `days` is stable state, `show` is a stable zustand setter
     }, [])
   )
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { slots } = await apiService.getWorkerAvailability({
+        from_date: days[0].date,
+        to_date: days[days.length - 1].date,
+      })
+      setSlots(slots)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   function findSlot(date: string, hour: number): WorkerAvailabilitySlot | undefined {
     const hh = String(hour).padStart(2, '0')
@@ -89,7 +105,11 @@ export default function WorkerAvailabilityScreen() {
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : (
-        <ScrollView style={s.inner} contentContainerStyle={s.innerContent}>
+        <ScrollView
+          style={s.inner}
+          contentContainerStyle={s.innerContent}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
+        >
           <Text style={s.hint}>Tap a time slot to open or block it off. Booked slots can&apos;t be removed.</Text>
           <WeeklyAvailabilityEditor
             days={days}

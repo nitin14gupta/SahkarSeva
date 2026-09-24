@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { HeartOff } from 'lucide-react-native'
@@ -11,6 +11,7 @@ import type { WorkerSummary } from '@/types/catalog'
 export default function FavoritesScreen() {
   const [favorites, setFavorites] = useState<WorkerSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -26,6 +27,18 @@ export default function FavoritesScreen() {
     return () => { cancelled = true }
   }, [])
 
+  async function handleRefresh() {
+    setRefreshing(true)
+    try {
+      const { favorites } = await apiService.getFavorites()
+      setFavorites(favorites)
+    } catch {
+      // keep whatever was already showing — the pull gesture retrying silently is fine
+    } finally {
+      setRefreshing(false)
+    }
+  }
+
   return (
     <View style={s.container}>
       <AppHeader title="Favorites" showBack />
@@ -39,6 +52,7 @@ export default function FavoritesScreen() {
           data={favorites}
           keyExtractor={(w) => w.id}
           contentContainerStyle={s.list}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
           renderItem={({ item }) => (
             <View style={s.cardWrap}>
               <WorkerCard worker={item} onPress={() => router.push({ pathname: '/worker/[id]', params: { id: item.id } })} />
