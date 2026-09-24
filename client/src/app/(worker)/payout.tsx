@@ -1,11 +1,13 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
-import { Landmark } from 'lucide-react-native'
+import { CheckCircle2, Landmark, XCircle } from 'lucide-react-native'
 import { AppHeader, EmptyState, Input, KeyboardAvoidingWrapper, LanguageChip, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
+import { useVpaValidation } from '@/hooks/useVpaValidation'
+import { useIfscLookup } from '@/hooks/useIfscLookup'
 import { usePillStore } from '@/store/pillStore'
-import { Colors, FontFamily, Radius, Spacing } from '@/constants'
+import { Colors, FontFamily, Radius, Spacing, withOpacity } from '@/constants'
 import type { PayoutAccount, PayoutMethod, PayoutSchedule } from '@/types/worker'
 
 function maskAccountNumber(accountNumber: string | null): string {
@@ -27,13 +29,23 @@ export default function WorkerPayoutScreen() {
   const [loading, setLoading] = useState(true)
   const [schedule, setSchedule] = useState<PayoutSchedule>('weekly')
   const [savingSchedule, setSavingSchedule] = useState(false)
+  const [rzpKey, setRzpKey] = useState<string | null>(null)
 
   const [method, setMethod] = useState<PayoutMethod>('upi')
   const [upiId, setUpiId] = useState('')
   const [accountHolder, setAccountHolder] = useState('')
   const [accountNumber, setAccountNumber] = useState('')
+  const [confirmAccountNumber, setConfirmAccountNumber] = useState('')
   const [ifsc, setIfsc] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const { checking: vpaChecking, vpaResult, vpaError } = useVpaValidation(upiId, rzpKey)
+  const { loading: bankLookupLoading, bankInfo, error: ifscError } = useIfscLookup(ifsc)
+  const accountNumberMismatch = confirmAccountNumber.length > 0 && accountNumber !== confirmAccountNumber
+
+  useEffect(() => {
+    apiService.getPaymentPublicKey().then((r) => setRzpKey(r.key)).catch(() => {})
+  }, [])
 
   useFocusEffect(
     useCallback(() => {
@@ -71,7 +83,13 @@ export default function WorkerPayoutScreen() {
     }
   }
 
-  const isValid = method === 'upi' ? upiId.trim().length > 0 : accountHolder.trim().length > 0 && accountNumber.trim().length > 0 && ifsc.trim().length > 0
+  const canSubmitUpi = !!vpaResult && !vpaError
+  const canSubmitBank =
+    accountHolder.trim().length >= 2 &&
+    accountNumber.trim().length > 0 &&
+    accountNumber === confirmAccountNumber &&
+    !!bankInfo
+  const isValid = method === 'upi' ? canSubmitUpi : canSubmitBank
 
   async function handleAddAccount() {
     if (!isValid) return
@@ -89,6 +107,7 @@ export default function WorkerPayoutScreen() {
       setUpiId('')
       setAccountHolder('')
       setAccountNumber('')
+      setConfirmAccountNumber('')
       setIfsc('')
       show('Payout account added', 'success')
     } catch {
@@ -143,12 +162,72 @@ export default function WorkerPayoutScreen() {
 
           <View style={s.form}>
             {method === 'upi' ? (
-              <Input value={upiId} onChangeText={setUpiId} placeholder="yourname@upi" autoCapitalize="none" />
+              <>
+                <Input
+                  value={upiId}
+                  onChangeText={(v) => setUpiId(v.toLowerCase().trim())}
+                  placeholder="yourname@upi"
+                  autoCapitalize="none"
+                />
+
+                {vpaChecking && (
+                  <View style={s.statusRow}>
+                    <ActivityIndicator size="small" color={Colors.textSecondary} />
+                    <Text style={s.statusText}>Verifying UPI ID…</Text>
+                  </View>
+                )}
+                {!vpaChecking && vpaResult && (
+                  <View style={[s.statusRow, s.statusRowSuccess]}>
+                    <CheckCircle2 size={16} color={Colors.brandGreen} strokeWidth={2} />
+                    <Text style={s.statusTextSuccess}>{vpaResult.name}</Text>
+                  </View>
+                )}
+                {!vpaChecking && vpaError && (
+                  <View style={[s.statusRow, s.statusRowError]}>
+                    <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
+                    <Text style={s.statusTextError}>Couldn&apos;t verify this UPI ID</Text>
+                  </View>
+                )}
+              </>
             ) : (
               <>
                 <Input value={accountHolder} onChangeText={setAccountHolder} placeholder="Account holder name" style={s.fieldGap} />
-                <Input value={accountNumber} onChangeText={setAccountNumber} placeholder="Account number" keyboardType="number-pad" style={s.fieldGap} />
-                <Input value={ifsc} onChangeText={setIfsc} placeholder="IFSC code" autoCapitalize="characters" />
+                <Input
+                  value={accountNumber}
+                  onChangeText={(v) => setAccountNumber(v.replace(/[^0-9]/g, ''))}
+                  placeholder="Account number"
+                  keyboardType="number-pad"
+                  secureTextEntry
+                  style={s.fieldGap}
+                />
+                <Input
+                  value={confirmAccountNumber}
+                  onChangeText={(v) => setConfirmAccountNumber(v.replace(/[^0-9]/g, ''))}
+                  placeholder="Confirm account number"
+                  keyboardType="number-pad"
+                  error={accountNumberMismatch ? "Account numbers don't match" : undefined}
+                  style={s.fieldGap}
+                />
+                <Input value={ifsc} onChangeText={(v) => setIfsc(v.toUpperCase())} placeholder="IFSC code" autoCapitalize="characters" />
+
+                {bankLookupLoading && (
+                  <View style={s.statusRow}>
+                    <ActivityIndicator size="small" color={Colors.textSecondary} />
+                    <Text style={s.statusText}>Looking up bank…</Text>
+                  </View>
+                )}
+                {!bankLookupLoading && bankInfo && (
+                  <View style={[s.statusRow, s.statusRowSuccess]}>
+                    <CheckCircle2 size={16} color={Colors.brandGreen} strokeWidth={2} />
+                    <Text style={s.statusTextSuccess}>{bankInfo.bank} — {bankInfo.branch}</Text>
+                  </View>
+                )}
+                {!bankLookupLoading && ifscError && (
+                  <View style={[s.statusRow, s.statusRowError]}>
+                    <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
+                    <Text style={s.statusTextError}>Could not verify this IFSC code</Text>
+                  </View>
+                )}
               </>
             )}
           </View>
@@ -202,4 +281,39 @@ const s = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   fieldGap: { marginBottom: Spacing.sm },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  statusText: {
+    fontFamily: FontFamily.bodyRegular,
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  statusRowSuccess: {
+    backgroundColor: withOpacity(Colors.brandGreen, 0.08),
+    borderRadius: Radius.card,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  statusTextSuccess: {
+    flex: 1,
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 13,
+    color: Colors.brandGreen,
+  },
+  statusRowError: {
+    backgroundColor: withOpacity(Colors.destructive, 0.08),
+    borderRadius: Radius.card,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  statusTextError: {
+    flex: 1,
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 13,
+    color: Colors.destructive,
+  },
 })

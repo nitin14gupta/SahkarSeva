@@ -454,7 +454,7 @@ def list_messages(booking_id: str, user_id: str) -> list[dict]:
     with get_db() as (cur, conn):
         cur.execute(
             """
-            SELECT m.id, m.sender_id, m.message, m.created_at
+            SELECT m.id, m.sender_id, m.message, m.read_at, m.created_at
             FROM chat_messages m
             JOIN bookings b ON b.id = m.booking_id
             JOIN workers w ON w.id = b.worker_id
@@ -472,7 +472,7 @@ def send_message(booking_id: str, sender_id: str, message: str) -> dict:
             """
             INSERT INTO chat_messages (booking_id, sender_id, message)
             VALUES (%s, %s, %s)
-            RETURNING id, sender_id, message, created_at
+            RETURNING id, sender_id, message, read_at, created_at
             """,
             (booking_id, sender_id, message),
         )

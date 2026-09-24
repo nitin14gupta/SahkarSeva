@@ -8,16 +8,16 @@ import * as apiService from '@/api/apiService'
 import { useAuthStore } from '@/store/authStore'
 import { useChatSocket } from '@/hooks/useChatSocket'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
-import type { BookingDetail } from '@/types/booking'
+import type { WorkerBookingDetail } from '@/types/booking'
 
-const QUICK_REPLIES = ['Thanks!', 'How long will it take?', "I'm at the address", 'Please call me']
+const QUICK_REPLIES = ["I'm on my way", 'Running a few minutes late', 'Job is done', 'Please confirm the address']
 const TYPING_DEBOUNCE_MS = 1500
 
-export default function ChatScreen() {
+export default function WorkerChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const myUserId = useAuthStore((s) => s.user?.id)
-  const [booking, setBooking] = useState<BookingDetail | null>(null)
+  const [booking, setBooking] = useState<WorkerBookingDetail | null>(null)
   const [draft, setDraft] = useState('')
   const listRef = useRef<FlatList>(null)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -25,7 +25,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     let cancelled = false
-    apiService.getBookingDetail(id).then(({ booking }) => { if (!cancelled) setBooking(booking) })
+    apiService.getWorkerBookingDetail(id).then(({ booking }) => { if (!cancelled) setBooking(booking) })
     return () => { cancelled = true }
   }, [id])
 
@@ -46,10 +46,10 @@ export default function ChatScreen() {
   return (
     <View style={s.container}>
       <AppHeader
-        title={booking?.worker_name ?? 'Chat'}
+        title={booking?.customer_name ?? 'Chat'}
         showBack
-        rightAction={booking && (
-          <HeaderIconBtn onPress={() => Linking.openURL(`tel:${booking.worker_phone}`)}>
+        rightAction={booking?.customer_phone && (
+          <HeaderIconBtn onPress={() => Linking.openURL(`tel:${booking.customer_phone}`)}>
             <Phone size={18} color={Colors.brandGreen} strokeWidth={2} />
           </HeaderIconBtn>
         )}
@@ -76,7 +76,7 @@ export default function ChatScreen() {
 
         {partnerTyping && (
           <View style={s.typingRow}>
-            <Text style={s.typingText}>{booking?.worker_name ?? 'They'} is typing…</Text>
+            <Text style={s.typingText}>{booking?.customer_name ?? 'They'} is typing…</Text>
           </View>
         )}
 

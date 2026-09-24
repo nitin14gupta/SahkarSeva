@@ -11,20 +11,17 @@ def list_payment_methods(user_id: str) -> list[dict]:
         return [dict(row) for row in cur.fetchall()]
 
 
-def add_payment_method(
-    user_id: str, type_: str, upi_id: str | None, card_last4: str | None,
-    card_brand: str | None, is_default: bool,
-) -> dict:
+def add_payment_method(user_id: str, type_: str, upi_id: str | None, is_default: bool) -> dict:
     with get_db() as (cur, conn):
         if is_default:
             cur.execute("UPDATE payment_methods SET is_default = false WHERE user_id = %s", (user_id,))
         cur.execute(
             """
-            INSERT INTO payment_methods (user_id, type, upi_id, card_last4, card_brand, is_default)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO payment_methods (user_id, type, upi_id, is_default)
+            VALUES (%s, %s, %s, %s)
             RETURNING *
             """,
-            (user_id, type_, upi_id, card_last4, card_brand, is_default),
+            (user_id, type_, upi_id, is_default),
         )
         return dict(cur.fetchone())
 

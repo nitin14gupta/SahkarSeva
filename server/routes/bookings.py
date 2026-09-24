@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from deps import get_current_user_id
 from services import booking_service
+from services.chat_ws import broadcast, serialize_message
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
@@ -193,6 +194,9 @@ def get_messages(booking_id: str, user_id: str = Depends(get_current_user_id)):
 
 
 @router.post("/{booking_id}/messages")
-def post_message(booking_id: str, body: SendMessageRequest, user_id: str = Depends(get_current_user_id)):
+async def post_message(booking_id: str, body: SendMessageRequest, user_id: str = Depends(get_current_user_id)):
     message = booking_service.send_message(booking_id, user_id, body.message)
+    # REST is a fallback for when the sender's own socket isn't open — still
+    # broadcast so anyone else already connected via /ws/chat/{id} gets it live.
+    await broadcast(booking_id, serialize_message(message))
     return {"message": message}

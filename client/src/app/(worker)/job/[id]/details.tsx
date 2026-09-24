@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MapPin, Phone } from 'lucide-react-native'
+import { MapPin, MessageCircle, Phone } from 'lucide-react-native'
 import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -66,6 +66,9 @@ export default function JobDetailsScreen() {
             <Text style={s.customerName}>{booking.customer_name}</Text>
             <Text style={s.category}>{booking.category}</Text>
           </View>
+          <Pressable style={s.callBtn} onPress={() => router.push({ pathname: '/chat/[id]', params: { id } })}>
+            <MessageCircle size={18} color={Colors.brandGreen} strokeWidth={2} />
+          </Pressable>
           {!!booking.customer_phone && (
             <Pressable style={s.callBtn} onPress={() => Linking.openURL(`tel:${booking.customer_phone}`)}>
               <Phone size={18} color={Colors.brandGreen} strokeWidth={2} />

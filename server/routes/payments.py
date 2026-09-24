@@ -1,3 +1,4 @@
+import os
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -8,6 +9,13 @@ from deps import get_current_user_id
 from services import payment_service
 
 router = APIRouter(prefix="/payments", tags=["payments"])
+
+
+@router.get("/public-key")
+def get_public_key(user_id: str = Depends(get_current_user_id)):
+    """The Razorpay key id (never the secret) — safe to ship to the client so
+    it can init the on-device SDK for VPA validation (see hooks/useVpaValidation)."""
+    return {"key": os.getenv("RAZORPAY_KEY_ID")}
 
 
 @router.get("/callback")
@@ -22,8 +30,6 @@ def payment_callback(request: Request):
 class AddPaymentMethodRequest(BaseModel):
     type: str
     upi_id: str | None = None
-    card_last4: str | None = None
-    card_brand: str | None = None
     is_default: bool = False
 
 

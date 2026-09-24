@@ -304,6 +304,11 @@ export async function deleteAddress(id: string): Promise<{ deleted: boolean }> {
   return data
 }
 
+export async function getPaymentPublicKey(): Promise<{ key: string }> {
+  const { data } = await apiClient.get('/payments/public-key')
+  return data
+}
+
 export async function getPaymentMethods(): Promise<{ methods: PaymentMethod[] }> {
   const { data } = await apiClient.get('/payments/methods')
   return data

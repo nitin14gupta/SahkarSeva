@@ -1,11 +1,13 @@
-import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
+import { CheckCircle2, XCircle } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, Input, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
+import { useVpaValidation } from '@/hooks/useVpaValidation'
 import { usePillStore } from '@/store/pillStore'
-import { Colors, FontFamily, Radius, Spacing } from '@/constants'
+import { Colors, FontFamily, Radius, Spacing, withOpacity } from '@/constants'
 import type { PaymentMethodType } from '@/types/payment'
 
 export default function AddPaymentMethodScreen() {
@@ -16,8 +18,15 @@ export default function AddPaymentMethodScreen() {
   const [cardLast4, setCardLast4] = useState('')
   const [cardBrand, setCardBrand] = useState('')
   const [saving, setSaving] = useState(false)
+  const [rzpKey, setRzpKey] = useState<string | null>(null)
 
-  const isValid = type === 'upi' ? upiId.trim().includes('@') : cardLast4.trim().length === 4
+  const { checking: vpaChecking, vpaResult, vpaError } = useVpaValidation(upiId, rzpKey)
+
+  useEffect(() => {
+    apiService.getPaymentPublicKey().then((r) => setRzpKey(r.key)).catch(() => {})
+  }, [])
+
+  const isValid = type === 'upi' ? !!vpaResult && !vpaError : cardLast4.trim().length === 4
 
   async function handleSave() {
     if (!isValid) return
@@ -53,7 +62,33 @@ export default function AddPaymentMethodScreen() {
         </View>
 
         {type === 'upi' ? (
-          <Input placeholder="yourname@upi" value={upiId} onChangeText={setUpiId} autoCapitalize="none" />
+          <>
+            <Input
+              placeholder="yourname@upi"
+              value={upiId}
+              onChangeText={(v) => setUpiId(v.toLowerCase().trim())}
+              autoCapitalize="none"
+            />
+
+            {vpaChecking && (
+              <View style={s.statusRow}>
+                <ActivityIndicator size="small" color={Colors.textSecondary} />
+                <Text style={s.statusText}>Verifying UPI ID…</Text>
+              </View>
+            )}
+            {!vpaChecking && vpaResult && (
+              <View style={[s.statusRow, s.statusRowSuccess]}>
+                <CheckCircle2 size={16} color={Colors.brandGreen} strokeWidth={2} />
+                <Text style={s.statusTextSuccess}>{vpaResult.name}</Text>
+              </View>
+            )}
+            {!vpaChecking && vpaError && (
+              <View style={[s.statusRow, s.statusRowError]}>
+                <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
+                <Text style={s.statusTextError}>Couldn&apos;t verify this UPI ID</Text>
+              </View>
+            )}
+          </>
         ) : (
           <>
             <Input placeholder="Card brand (e.g. Visa)" value={cardBrand} onChangeText={setCardBrand} />
@@ -100,6 +135,41 @@ const s = StyleSheet.create({
   },
   typeTextSelected: {
     color: Colors.inkOnAccent,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  statusText: {
+    fontFamily: FontFamily.bodyRegular,
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+  statusRowSuccess: {
+    backgroundColor: withOpacity(Colors.brandGreen, 0.08),
+    borderRadius: Radius.card,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  statusTextSuccess: {
+    flex: 1,
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 13,
+    color: Colors.brandGreen,
+  },
+  statusRowError: {
+    backgroundColor: withOpacity(Colors.destructive, 0.08),
+    borderRadius: Radius.card,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+  },
+  statusTextError: {
+    flex: 1,
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 13,
+    color: Colors.destructive,
   },
   footer: {
     paddingHorizontal: Spacing.screenPadding,

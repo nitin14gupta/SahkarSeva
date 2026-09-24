@@ -205,6 +205,17 @@ CREATE TABLE IF NOT EXISTS worker_welfare_enrollments (
 ALTER TABLE bookings DROP COLUMN IF EXISTS photo_url;
 ALTER TABLE bookings ADD COLUMN IF NOT EXISTS photo_urls TEXT[] NOT NULL DEFAULT '{}';
 
+-- Read receipts for the realtime booking chat.
+ALTER TABLE chat_messages ADD COLUMN IF NOT EXISTS read_at TIMESTAMPTZ;
+
+-- Card payments dropped — UPI/wallet only.
+ALTER TABLE payment_methods DROP COLUMN IF EXISTS card_last4;
+ALTER TABLE payment_methods DROP COLUMN IF EXISTS card_brand;
+ALTER TABLE payment_methods DROP CONSTRAINT IF EXISTS payment_methods_type_check;
+ALTER TABLE payment_methods ADD CONSTRAINT payment_methods_type_check CHECK (type IN ('upi','wallet'));
+ALTER TABLE payments DROP CONSTRAINT IF EXISTS payments_method_check;
+ALTER TABLE payments ADD CONSTRAINT payments_method_check CHECK (method IN ('upi','wallet'));
+
 CREATE TABLE IF NOT EXISTS notifications (
     id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id        UUID NOT NULL REFERENCES users(id),
