@@ -257,6 +257,25 @@ def add_payout_account(
         return dict(cur.fetchone())
 
 
+def list_reviews(user_id: str) -> list[dict]:
+    with get_db() as (cur, conn):
+        worker_id = get_worker_id_for_user(cur, user_id)
+        if not worker_id:
+            return []
+        cur.execute(
+            """
+            SELECT r.rating, r.comment, r.tags, r.created_at,
+                   u.name AS customer_name, u.photo_url AS customer_photo_url
+            FROM reviews r
+            JOIN users u ON u.id = r.customer_id
+            WHERE r.worker_id = %s
+            ORDER BY r.created_at DESC
+            """,
+            (worker_id,),
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+
 def get_dashboard_summary(user_id: str) -> dict | None:
     with get_db() as (cur, conn):
         worker_id = get_worker_id_for_user(cur, user_id)

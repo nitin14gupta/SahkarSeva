@@ -25,6 +25,7 @@ import type {
 import type { Category, WorkerDetail, WorkerSearchParams, WorkerSummary } from '@/types/catalog'
 import type { Address, CreateAddressRequest } from '@/types/address'
 import type { Payment, PaymentHistoryItem, PaymentMethod, PaymentMethodType, VerifyPaymentParams } from '@/types/payment'
+import type { AppNotification } from '@/types/notification'
 import type { CreateReviewRequest } from '@/types/review'
 import type { CreateTicketRequest, SupportTicket } from '@/types/support'
 import type {
@@ -42,6 +43,7 @@ import type {
   WorkerDashboardSummary,
   WorkerDocument,
   WorkerProfile,
+  WorkerReview,
 } from '@/types/worker'
 
 export const apiClient = axios.create({
@@ -122,6 +124,11 @@ export async function submitWorkerDocuments(
 
 export async function getWorkerDocuments(): Promise<{ documents: WorkerDocument[] }> {
   const { data } = await apiClient.get('/worker/me/documents')
+  return data
+}
+
+export async function getWorkerReviews(): Promise<{ reviews: WorkerReview[] }> {
+  const { data } = await apiClient.get('/worker/me/reviews')
   return data
 }
 
@@ -365,6 +372,26 @@ export async function getPayments(): Promise<{ payments: PaymentHistoryItem[] }>
 
 export async function createTicket(body: CreateTicketRequest): Promise<{ ticket: SupportTicket }> {
   const { data } = await apiClient.post('/support-tickets', body)
+  return data
+}
+
+export async function getNotifications(): Promise<{ notifications: AppNotification[] }> {
+  const { data } = await apiClient.get('/notifications')
+  return data
+}
+
+export async function getUnreadNotificationCount(): Promise<{ count: number }> {
+  const { data } = await apiClient.get('/notifications/unread-count')
+  return data
+}
+
+export async function markNotificationRead(id: string): Promise<{ read: boolean }> {
+  const { data } = await apiClient.post(`/notifications/${id}/read`)
+  return data
+}
+
+export async function markAllNotificationsRead(): Promise<{ read: boolean }> {
+  const { data } = await apiClient.post('/notifications/read-all')
   return data
 }
 

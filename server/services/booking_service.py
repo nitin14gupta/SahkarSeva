@@ -1,4 +1,5 @@
 from db.config import get_db
+from services import notification_service
 from services.worker_service import get_worker_id_for_user
 from utils.twilio_client import send_otp, verify_otp
 
@@ -50,11 +51,11 @@ def create_booking(
     customer_id: str,
     worker_id: str,
     category_name: str,
-    address_id: str | None,
+    address_id: str,
     scheduled_date: str | None,
     scheduled_time: str | None,
-    notes: str | None,
-    photo_url: str | None,
+    notes: str,
+    photo_urls: list[str],
     is_emergency: bool,
 ) -> dict:
     with get_db() as (cur, conn):
@@ -73,7 +74,7 @@ def create_booking(
             """
             INSERT INTO bookings (
                 customer_id, worker_id, category_id, address_id,
-                scheduled_date, scheduled_time, notes, photo_url,
+                scheduled_date, scheduled_time, notes, photo_urls,
                 is_emergency, price_estimate
             )
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -81,7 +82,7 @@ def create_booking(
             """,
             (
                 customer_id, worker_id, category["id"], address_id, scheduled_date,
-                scheduled_time, notes, photo_url, is_emergency, price_estimate,
+                scheduled_time, notes, photo_urls, is_emergency, price_estimate,
             ),
         )
         booking = dict(cur.fetchone())
@@ -95,6 +96,13 @@ def create_booking(
                 """,
                 (worker_id, scheduled_date, scheduled_time),
             )
+
+        cur.execute("SELECT user_id FROM workers WHERE id = %s", (worker_id,))
+        worker_user_id = cur.fetchone()["user_id"]
+        notification_service.create_notification(
+            cur, worker_user_id, "New job request",
+            f"New {category_name} request — tap to view", "booking", booking["id"],
+        )
 
         return booking
 
@@ -143,6 +151,14 @@ def create_emergency_booking(
         )
         booking = dict(cur.fetchone())
         booking["distance_km"] = nearest["distance_km"]
+
+        cur.execute("SELECT user_id FROM workers WHERE id = %s", (nearest["id"],))
+        worker_user_id = cur.fetchone()["user_id"]
+        notification_service.create_notification(
+            cur, worker_user_id, "Emergency job request",
+            f"Emergency {category_name} request nearby — respond quickly", "booking", booking["id"],
+        )
+
         return booking
 
 
@@ -158,7 +174,18 @@ def cancel_booking(booking_id: str, customer_id: str, reason: str | None) -> dic
             (reason, booking_id, customer_id),
         )
         row = cur.fetchone()
-        return dict(row) if row else None
+        if not row:
+            return None
+        booking = dict(row)
+
+        cur.execute("SELECT user_id FROM workers WHERE id = %s", (booking["worker_id"],))
+        worker_user_id = cur.fetchone()["user_id"]
+        notification_service.create_notification(
+            cur, worker_user_id, "Booking cancelled",
+            "The customer cancelled a booking with you", "booking", booking_id,
+        )
+
+        return booking
 
 
 def get_booking(booking_id: str, customer_id: str) -> dict | None:
@@ -224,7 +251,18 @@ def accept_booking(booking_id: str, user_id: str) -> dict | None:
             (booking_id, worker_id),
         )
         row = cur.fetchone()
-        return dict(row) if row else None
+        if not row:
+            return None
+        booking = dict(row)
+
+        cur.execute("SELECT name FROM users WHERE id = %s", (user_id,))
+        worker_name = cur.fetchone()["name"]
+        notification_service.create_notification(
+            cur, booking["customer_id"], "Booking accepted",
+            f"{worker_name} accepted your booking", "booking", booking["id"],
+        )
+
+        return booking
 
 
 def decline_booking(booking_id: str, user_id: str, reason: str | None) -> dict | None:
@@ -255,6 +293,14 @@ def decline_booking(booking_id: str, user_id: str, reason: str | None) -> dict |
                 """,
                 (worker_id, booking["scheduled_date"], booking["scheduled_time"]),
             )
+
+        cur.execute("SELECT name FROM users WHERE id = %s", (user_id,))
+        worker_name = cur.fetchone()["name"]
+        notification_service.create_notification(
+            cur, booking["customer_id"], "Booking declined",
+            f"{worker_name} declined your booking request", "booking", booking["id"],
+        )
+
         return booking
 
 
@@ -277,7 +323,17 @@ def update_status(booking_id: str, user_id: str, new_status: str) -> dict | None
             "UPDATE bookings SET status = %s, updated_at = now() WHERE id = %s RETURNING *",
             (new_status, booking_id),
         )
-        return dict(cur.fetchone())
+        booking = dict(cur.fetchone())
+
+        cur.execute("SELECT name FROM users WHERE id = %s", (user_id,))
+        worker_name = cur.fetchone()["name"]
+        status_message = {
+            "en_route": f"{worker_name} is on the way",
+            "in_progress": f"{worker_name} has started the job",
+        }.get(new_status, "Your booking was updated")
+        notification_service.create_notification(cur, booking["customer_id"], "Job update", status_message, "booking", booking["id"])
+
+        return booking
 
 
 def attach_photos(booking_id: str, user_id: str, before_photo_url: str | None, after_photo_url: str | None) -> dict | None:
@@ -356,6 +412,11 @@ def complete_booking(
         cur.execute(
             "INSERT INTO payments (booking_id, amount, method, status) VALUES (%s, %s, 'upi', 'success')",
             (booking_id, final_amount),
+        )
+
+        notification_service.create_notification(
+            cur, booking["customer_id"], "Job completed",
+            f"Your job is complete — ₹{final_amount} charged", "booking", booking["id"],
         )
 
         return booking

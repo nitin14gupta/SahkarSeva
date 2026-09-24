@@ -2,15 +2,13 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { Siren } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BookingCard, CategoryTile, LogoMark, SearchBar } from '@/components/ui'
+import { AppHeader, BookingCard, CategoryTile, NotificationBell, SearchBar } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { Category } from '@/types/catalog'
 import type { BookingSummary } from '@/types/booking'
 
 export default function CustomerHomeScreen() {
-  const insets = useSafeAreaInsets()
   const [query, setQuery] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [recentBookings, setRecentBookings] = useState<BookingSummary[]>([])
@@ -63,12 +61,9 @@ export default function CustomerHomeScreen() {
   }
 
   return (
-    <ScrollView style={s.container} contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}>
-      <View style={s.header}>
-        <LogoMark size={28} />
-        <Text style={s.headerTitle}>SahkarSeva</Text>
-      </View>
-
+    <View style={s.container}>
+      <AppHeader showLogo rightAction={<NotificationBell />} />
+      <ScrollView contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}>
       <View style={s.searchWrap}>
         <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearchSubmit} />
       </View>
@@ -119,7 +114,8 @@ export default function CustomerHomeScreen() {
           />
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   )
 }
 
@@ -141,18 +137,6 @@ const s = StyleSheet.create({
   retry: {
     fontFamily: FontFamily.bodySemiBold,
     fontSize: 14,
-    color: Colors.brandGreen,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    marginBottom: Spacing.md,
-  },
-  headerTitle: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
     color: Colors.brandGreen,
   },
   searchWrap: {

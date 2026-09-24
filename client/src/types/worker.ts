@@ -143,6 +143,15 @@ export interface WelfareEnrollment {
 
 export type WelfareClaimStatus = 'submitted' | 'under_review' | 'approved' | 'rejected'
 
+export interface WorkerReview {
+  rating: number
+  comment: string | null
+  tags: string[] | null
+  created_at: string
+  customer_name: string
+  customer_photo_url: string | null
+}
+
 export interface WelfareClaim {
   id: string
   worker_id: string

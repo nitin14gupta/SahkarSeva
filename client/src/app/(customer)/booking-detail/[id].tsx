@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { MessageCircle, Phone } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -93,6 +93,17 @@ export default function BookingDetailScreen() {
           <View style={s.row}>
             <Text style={s.label}>Notes</Text>
             <Text style={s.value}>{booking.notes}</Text>
+          </View>
+        )}
+
+        {booking.photo_urls.length > 0 && (
+          <View style={s.row}>
+            <Text style={s.label}>Photos ({booking.photo_urls.length})</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.photoRow}>
+              {booking.photo_urls.map((url) => (
+                <Image key={url} source={{ uri: url }} style={s.photoThumb} />
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -194,6 +205,15 @@ const s = StyleSheet.create({
   },
   row: {
     marginBottom: Spacing.md,
+  },
+  photoRow: {
+    marginTop: 6,
+  },
+  photoThumb: {
+    width: 64,
+    height: 64,
+    borderRadius: Radius.sm,
+    marginRight: Spacing.sm,
   },
   label: {
     fontFamily: FontFamily.bodyMedium,

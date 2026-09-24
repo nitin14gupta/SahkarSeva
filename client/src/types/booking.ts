@@ -4,11 +4,11 @@ export type BookingGroup = 'upcoming' | 'past' | 'cancelled'
 export interface CreateBookingRequest {
   worker_id: string
   category: string
-  address_id?: string
+  address_id: string
   scheduled_date?: string
   scheduled_time?: string
-  notes?: string
-  photo_url?: string
+  notes: string
+  photo_urls: string[]
   is_emergency?: boolean
 }
 
@@ -42,6 +42,7 @@ export interface BookingDetail extends BookingSummary {
   address_city: string | null
   cooperative_name: string | null
   worker_phone: string
+  photo_urls: string[]
   updated_at: string
 }
 
@@ -82,7 +83,7 @@ export interface WorkerBookingDetail extends WorkerBookingSummary {
   address_id: string | null
   address_lat: number | null
   address_lng: number | null
-  photo_url: string | null
+  photo_urls: string[]
   cancelled_reason: string | null
   before_photo_url: string | null
   after_photo_url: string | null

@@ -200,6 +200,22 @@ CREATE TABLE IF NOT EXISTS worker_welfare_enrollments (
     created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Booking issue photos: was a single optional photo_url that the client never
+-- actually uploaded — replaced with a required 2-12 photo array.
+ALTER TABLE bookings DROP COLUMN IF EXISTS photo_url;
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS photo_urls TEXT[] NOT NULL DEFAULT '{}';
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id        UUID NOT NULL REFERENCES users(id),
+    title          VARCHAR(150) NOT NULL,
+    body           TEXT,
+    type           VARCHAR(30) NOT NULL DEFAULT 'general',
+    booking_id     UUID REFERENCES bookings(id),
+    is_read        BOOLEAN NOT NULL DEFAULT false,
+    created_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS worker_welfare_claims (
     id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     worker_id       UUID NOT NULL REFERENCES workers(id) ON DELETE CASCADE,

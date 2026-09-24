@@ -6,15 +6,20 @@ from services import booking_service
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
+NOTES_MIN_LENGTH = 15
+NOTES_MAX_LENGTH = 500
+PHOTOS_MIN_COUNT = 2
+PHOTOS_MAX_COUNT = 12
+
 
 class CreateBookingRequest(BaseModel):
     worker_id: str
     category: str
-    address_id: str | None = None
+    address_id: str
     scheduled_date: str | None = None
     scheduled_time: str | None = None
-    notes: str | None = None
-    photo_url: str | None = None
+    notes: str
+    photo_urls: list[str] = []
     is_emergency: bool = False
 
 
@@ -63,11 +68,23 @@ def get_bookings(
 
 @router.post("")
 def create_booking(body: CreateBookingRequest, user_id: str = Depends(get_current_user_id)):
+    notes = body.notes.strip()
+    if not (NOTES_MIN_LENGTH <= len(notes) <= NOTES_MAX_LENGTH):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Notes must be between {NOTES_MIN_LENGTH} and {NOTES_MAX_LENGTH} characters",
+        )
+    if not (PHOTOS_MIN_COUNT <= len(body.photo_urls) <= PHOTOS_MAX_COUNT):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Attach between {PHOTOS_MIN_COUNT} and {PHOTOS_MAX_COUNT} photos",
+        )
+
     try:
         booking = booking_service.create_booking(
             user_id, body.worker_id, body.category, body.address_id,
-            body.scheduled_date, body.scheduled_time, body.notes,
-            body.photo_url, body.is_emergency,
+            body.scheduled_date, body.scheduled_time, notes,
+            body.photo_urls, body.is_emergency,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

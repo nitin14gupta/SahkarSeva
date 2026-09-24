@@ -108,6 +108,11 @@ def get_documents(user_id: str = Depends(get_current_user_id)):
     return {"documents": worker_service.list_documents(user_id)}
 
 
+@router.get("/me/reviews")
+def get_reviews(user_id: str = Depends(get_current_user_id)):
+    return {"reviews": worker_service.list_reviews(user_id)}
+
+
 @router.get("/me/dashboard")
 def get_dashboard(user_id: str = Depends(get_current_user_id)):
     summary = worker_service.get_dashboard_summary(user_id)

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
-import { ChevronRight, Heart, HelpCircle, LogOut, MapPin } from 'lucide-react-native'
+import { Bell, ChevronRight, Heart, HelpCircle, LogOut, MapPin } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Avatar, Input, PrimaryButton } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
@@ -86,6 +86,7 @@ export default function CustomerProfileScreen() {
       <View style={s.menu}>
         <MenuRow icon={MapPin} label="Saved addresses" onPress={() => router.push('/addresses')} />
         <MenuRow icon={Heart} label="Favorites" onPress={() => router.push('/favorites')} />
+        <MenuRow icon={Bell} label="Notifications" onPress={() => router.push('/notifications')} />
         <MenuRow icon={ChevronRight} label={`Language: ${user?.language?.toUpperCase() ?? 'EN'}`} onPress={handleLanguageChange} />
         <MenuRow icon={HelpCircle} label="Help & Support" onPress={() => router.push('/help')} />
         <MenuRow icon={LogOut} label="Log out" onPress={onLogoutPress} destructive />

@@ -1,15 +1,14 @@
 import { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
-import { CalendarClock, Power } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { EmptyState, JobCard, LogoMark, RatingStars } from '@/components/ui'
+import { CalendarClock, ClipboardCheck, Power } from 'lucide-react-native'
+import { AppHeader, EmptyState, JobCard, NotificationBell, PrimaryButton, RatingStars, StatusBadge } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { useCurrentLocation } from '@/hooks/useCurrentLocation'
 import { Colors, FontFamily, Radius, Spacing, withOpacity } from '@/constants'
 import type { WorkerBookingSummary } from '@/types/booking'
-import type { WorkerDashboardSummary } from '@/types/worker'
+import type { VerificationStatus, WorkerDashboardSummary } from '@/types/worker'
 
 function jobHref(booking: WorkerBookingSummary) {
   const id = booking.id
@@ -22,10 +21,11 @@ function jobHref(booking: WorkerBookingSummary) {
 }
 
 export default function WorkerHomeScreen() {
-  const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const { lat, lng } = useCurrentLocation()
 
+  const [verificationStatus, setVerificationStatus] = useState<VerificationStatus | null>(null)
+  const [verificationReason, setVerificationReason] = useState<string | null>(null)
   const [dashboard, setDashboard] = useState<WorkerDashboardSummary | null>(null)
   const [jobs, setJobs] = useState<WorkerBookingSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +37,16 @@ export default function WorkerHomeScreen() {
       ;(async () => {
         setLoading(true)
         try {
+          const { worker } = await apiService.getWorkerMe()
+          if (cancelled) return
+          setVerificationStatus(worker.verification_status)
+          setVerificationReason(worker.verification_reason)
+
+          if (worker.verification_status !== 'verified') {
+            setLoading(false)
+            return
+          }
+
           const [{ dashboard }, { bookings }] = await Promise.all([
             apiService.getWorkerDashboard(),
             apiService.getWorkerBookings('active'),
@@ -71,7 +81,7 @@ export default function WorkerHomeScreen() {
     }
   }
 
-  if (loading && !dashboard) {
+  if (loading && verificationStatus === null) {
     return (
       <View style={[s.container, s.center]}>
         <ActivityIndicator color={Colors.brandGreen} />
@@ -79,13 +89,47 @@ export default function WorkerHomeScreen() {
     )
   }
 
-  return (
-    <ScrollView style={s.container} contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}>
-      <View style={s.header}>
-        <LogoMark size={26} />
-        <Text style={s.headerTitle}>SahkarSeva</Text>
+  if (verificationStatus && verificationStatus !== 'verified') {
+    const isRejected = verificationStatus === 'rejected'
+    return (
+      <View style={s.container}>
+        <AppHeader showLogo rightAction={<NotificationBell />} />
+        <View style={s.gateWrap}>
+          <View style={s.gateIconWrap}>
+            <ClipboardCheck size={32} color={Colors.brandGreen} strokeWidth={1.5} />
+          </View>
+          <StatusBadge tone={isRejected ? 'error' : 'pending'} label={isRejected ? 'Rejected' : 'Pending review'} />
+          <Text style={s.gateTitle}>
+            {isRejected ? 'Verification unsuccessful' : 'Your documents are under review'}
+          </Text>
+          <Text style={s.gateBody}>
+            {isRejected
+              ? 'Your cooperative flagged an issue with your submission. Review the reason below and re-submit your documents.'
+              : "Your cooperative usually reviews new registrations within 1–2 business days. We'll notify you once you're verified."}
+          </Text>
+          {isRejected && !!verificationReason && (
+            <View style={s.reasonBox}>
+              <Text style={s.reasonLabel}>Reason</Text>
+              <Text style={s.reasonText}>{verificationReason}</Text>
+            </View>
+          )}
+          {isRejected && (
+            <View style={s.gateAction}>
+              <PrimaryButton
+                label="Re-submit documents"
+                onPress={() => router.push({ pathname: '/register/documents', params: { mode: 'resubmit' } })}
+              />
+            </View>
+          )}
+        </View>
       </View>
+    )
+  }
 
+  return (
+    <View style={s.container}>
+      <AppHeader showLogo rightAction={<NotificationBell />} />
+      <ScrollView contentContainerStyle={{ paddingTop: Spacing.md, paddingBottom: Spacing.xxl }}>
       <Pressable
         style={[s.onlineCard, dashboard?.is_online ? s.onlineCardActive : s.onlineCardInactive]}
         onPress={handleToggleOnline}
@@ -138,24 +182,68 @@ export default function WorkerHomeScreen() {
           ))}
         </View>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   )
 }
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  center: { alignItems: 'center', justifyContent: 'center' },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  gateWrap: {
+    flex: 1,
     paddingHorizontal: Spacing.screenPadding,
+    paddingTop: Spacing.xxl,
+    alignItems: 'center',
+  },
+  gateIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(31,77,58,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: Spacing.lg,
   },
-  headerTitle: {
+  gateTitle: {
     fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.brandGreen,
+    fontSize: 20,
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    marginTop: Spacing.md,
+    marginBottom: 8,
+  },
+  gateBody: {
+    fontFamily: FontFamily.bodyRegular,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  reasonBox: {
+    width: '100%',
+    marginTop: Spacing.xl,
+    padding: Spacing.md,
+    borderRadius: 14,
+    backgroundColor: 'rgba(214,69,69,0.06)',
+    borderWidth: 1,
+    borderColor: 'rgba(214,69,69,0.2)',
+  },
+  reasonLabel: {
+    fontFamily: FontFamily.bodySemiBold,
+    fontSize: 12,
+    color: Colors.destructive,
+    marginBottom: 4,
+  },
+  reasonText: {
+    fontFamily: FontFamily.bodyRegular,
+    fontSize: 13,
+    color: Colors.textPrimary,
+    lineHeight: 18,
+  },
+  gateAction: {
+    width: '100%',
+    marginTop: Spacing.xl,
   },
   onlineCard: {
     flexDirection: 'row',

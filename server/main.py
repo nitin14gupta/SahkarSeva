@@ -9,6 +9,7 @@ from routes.payments import router as payments_router
 from routes.reviews import router as reviews_router
 from routes.favorites import router as favorites_router
 from routes.earnings import router as earnings_router
+from routes.notifications import router as notifications_router
 from routes.support import router as support_router
 from routes.uploads import router as uploads_router
 from routes.welfare import router as welfare_router
@@ -31,6 +32,7 @@ app.include_router(payments_router)
 app.include_router(reviews_router)
 app.include_router(favorites_router)
 app.include_router(support_router)
+app.include_router(notifications_router)
 app.include_router(uploads_router)
 app.include_router(worker_router)
 app.include_router(earnings_router)

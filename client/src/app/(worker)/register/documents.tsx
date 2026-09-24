@@ -76,7 +76,7 @@ export default function WorkerRegisterDocumentsScreen() {
         })
         draft.reset()
       }
-      router.replace('/verification-status')
+      router.replace('/(worker)/(tabs)/home')
     } catch {
       show('Could not submit your documents. Please try again.', 'error')
     } finally {

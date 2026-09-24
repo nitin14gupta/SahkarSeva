@@ -94,10 +94,14 @@ export default function JobDetailsScreen() {
           </View>
         )}
 
-        {!!booking.photo_url && (
+        {booking.photo_urls.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Reference photo</Text>
-            <Image source={{ uri: booking.photo_url }} style={s.photo} />
+            <Text style={s.sectionLabel}>Photos from customer ({booking.photo_urls.length})</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {booking.photo_urls.map((url) => (
+                <Image key={url} source={{ uri: url }} style={s.photoThumb} />
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -177,10 +181,11 @@ const s = StyleSheet.create({
     marginTop: 6,
     marginLeft: 24,
   },
-  photo: {
-    width: '100%',
-    height: 160,
+  photoThumb: {
+    width: 96,
+    height: 96,
     borderRadius: 12,
+    marginRight: Spacing.sm,
   },
   price: {
     fontFamily: FontFamily.headingBold,

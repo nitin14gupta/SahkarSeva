@@ -1,5 +1,10 @@
 import { create } from 'zustand'
 
+export interface BookingDraftPhoto {
+  localUri: string
+  remoteUrl: string
+}
+
 interface BookingDraft {
   workerId: string | null
   category: string | null
@@ -7,7 +12,7 @@ interface BookingDraft {
   scheduledTime: string | null
   addressId: string | null
   notes: string
-  photoUri: string | null
+  photos: BookingDraftPhoto[]
 }
 
 interface BookingDraftState extends BookingDraft {
@@ -22,7 +27,7 @@ const initial: BookingDraft = {
   scheduledTime: null,
   addressId: null,
   notes: '',
-  photoUri: null,
+  photos: [],
 }
 
 export const useBookingDraftStore = create<BookingDraftState>((set) => ({

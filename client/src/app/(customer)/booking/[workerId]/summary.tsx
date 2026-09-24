@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
@@ -42,16 +42,17 @@ export default function BookingSummaryScreen() {
   }, [workerId, draft.addressId])
 
   async function handleConfirm() {
-    if (!draft.category || !draft.scheduledDate || !draft.scheduledTime) return
+    if (!draft.category || !draft.scheduledDate || !draft.scheduledTime || !draft.addressId) return
     setSubmitting(true)
     try {
       const { booking } = await apiService.createBooking({
         worker_id: workerId,
         category: draft.category,
-        address_id: draft.addressId ?? undefined,
+        address_id: draft.addressId,
         scheduled_date: draft.scheduledDate,
         scheduled_time: draft.scheduledTime,
-        notes: draft.notes || undefined,
+        notes: draft.notes,
+        photo_urls: draft.photos.map((p) => p.remoteUrl),
       })
       reset()
       router.push({ pathname: '/payment/[bookingId]/select', params: { bookingId: booking.id } })
@@ -91,10 +92,19 @@ export default function BookingSummaryScreen() {
           </Text>
         </View>
 
-        {!!draft.notes && (
+        <View style={s.row}>
+          <Text style={s.label}>Notes</Text>
+          <Text style={s.value}>{draft.notes}</Text>
+        </View>
+
+        {draft.photos.length > 0 && (
           <View style={s.row}>
-            <Text style={s.label}>Notes</Text>
-            <Text style={s.value}>{draft.notes}</Text>
+            <Text style={s.label}>Photos ({draft.photos.length})</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.photoRow}>
+              {draft.photos.map((photo) => (
+                <Image key={photo.remoteUrl} source={{ uri: photo.localUri }} style={s.photoThumb} />
+              ))}
+            </ScrollView>
           </View>
         )}
 
@@ -109,7 +119,12 @@ export default function BookingSummaryScreen() {
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Confirm Booking" onPress={handleConfirm} loading={submitting} />
+        <PrimaryButton
+          label="Confirm Booking"
+          onPress={handleConfirm}
+          loading={submitting}
+          disabled={!draft.category || !draft.scheduledDate || !draft.scheduledTime || !draft.addressId}
+        />
       </View>
     </View>
   )
@@ -145,6 +160,15 @@ const s = StyleSheet.create({
   },
   row: {
     marginBottom: Spacing.md,
+  },
+  photoRow: {
+    marginTop: 6,
+  },
+  photoThumb: {
+    width: 56,
+    height: 56,
+    borderRadius: Radius.sm,
+    marginRight: Spacing.sm,
   },
   label: {
     fontFamily: FontFamily.bodyMedium,

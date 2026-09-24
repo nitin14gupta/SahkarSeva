@@ -4,7 +4,7 @@ import { useFocusEffect } from 'expo-router'
 import { AppHeader, Input, KeyboardAvoidingWrapper, PrimaryButton, StatusStepper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
-import { Colors, FontFamily, Radius, Spacing } from '@/constants'
+import { Colors, DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH, FontFamily, Radius, Spacing } from '@/constants'
 import type { WelfareClaim } from '@/types/worker'
 
 const STEPS = ['Submitted', 'Under Review', 'Approved']
@@ -42,8 +42,11 @@ export default function WorkerClaimScreen() {
   const activeClaim = claims.find((c) => ACTIVE_STATUSES.has(c.status))
   const pastClaims = claims.filter((c) => c.id !== activeClaim?.id)
 
+  const reasonLength = reason.trim().length
+  const reasonValid = reasonLength >= DESCRIPTION_MIN_LENGTH && reasonLength <= DESCRIPTION_MAX_LENGTH
+
   async function handleSubmit() {
-    if (!reason.trim()) return
+    if (!reasonValid) return
     setSubmitting(true)
     try {
       const { claim } = await apiService.createWelfareClaim({
@@ -83,12 +86,15 @@ export default function WorkerClaimScreen() {
                 <Text style={s.cardSubtitle}>Tell us what happened — your cooperative will review it.</Text>
                 <Input
                   value={reason}
-                  onChangeText={setReason}
+                  onChangeText={(v) => setReason(v.slice(0, DESCRIPTION_MAX_LENGTH))}
                   placeholder="Reason for claim"
                   multiline
                   numberOfLines={3}
                   style={s.reasonInput}
                 />
+                <Text style={[s.counter, reasonLength > 0 && !reasonValid && s.counterError]}>
+                  {reasonLength}/{DESCRIPTION_MAX_LENGTH} · minimum {DESCRIPTION_MIN_LENGTH} characters
+                </Text>
                 <Input
                   value={amount}
                   onChangeText={setAmount}
@@ -96,7 +102,7 @@ export default function WorkerClaimScreen() {
                   keyboardType="number-pad"
                   style={s.fieldGap}
                 />
-                <PrimaryButton label="Submit claim" onPress={handleSubmit} disabled={!reason.trim()} loading={submitting} />
+                <PrimaryButton label="Submit claim" onPress={handleSubmit} disabled={!reasonValid} loading={submitting} />
               </View>
             )}
 
@@ -156,7 +162,17 @@ const s = StyleSheet.create({
     height: 88,
     textAlignVertical: 'top',
     paddingTop: 12,
+  },
+  counter: {
+    fontFamily: FontFamily.bodyRegular,
+    fontSize: 11,
+    color: Colors.textSecondary,
+    textAlign: 'right',
+    marginTop: 4,
     marginBottom: Spacing.sm,
+  },
+  counterError: {
+    color: Colors.destructive,
   },
   fieldGap: { marginBottom: Spacing.md },
   historyTitle: {
