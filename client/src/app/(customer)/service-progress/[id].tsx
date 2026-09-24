@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Clock } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Avatar, BackButton, PrimaryButton, SecondaryButton } from '@/components/ui'
+import { AppHeader, Avatar, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
@@ -56,11 +56,8 @@ export default function ServiceInProgressScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Service status</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Service status" showBack />
 
       <View style={s.content}>
         <Avatar uri={booking.worker_photo_url} size={72} />
@@ -88,18 +85,6 @@ export default function ServiceInProgressScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     flex: 1,
     alignItems: 'center',

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, Input, PrimaryButton } from '@/components/ui'
+import { AppHeader, Input, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -39,11 +39,8 @@ export default function AddPaymentMethodScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Add payment method</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Add payment method" showBack />
 
       <View style={s.content}>
         <View style={s.typeRow}>
@@ -75,18 +72,6 @@ export default function AddPaymentMethodScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     flex: 1,
     paddingHorizontal: Spacing.screenPadding,

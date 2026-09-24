@@ -5,7 +5,7 @@ import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
 import { CreditCard, Smartphone, Wallet } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, PrimaryButton } from '@/components/ui'
+import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -66,11 +66,8 @@ export default function PaymentMethodSelectScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Payment method</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Payment method" showBack />
 
       <View style={s.content}>
         {METHODS.map(({ type, label, icon: Icon }) => (
@@ -95,18 +92,6 @@ export default function PaymentMethodSelectScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     gap: Spacing.sm,

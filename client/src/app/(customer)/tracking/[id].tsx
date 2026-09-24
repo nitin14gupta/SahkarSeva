@@ -4,7 +4,7 @@ import { Map, Camera, Marker } from '@maplibre/maplibre-react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Check } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Avatar, BackButton, PrimaryButton } from '@/components/ui'
+import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, MAP_STYLE_URL, Radius, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
@@ -56,11 +56,8 @@ export default function LiveTrackingScreen() {
   const workerCoords = worker?.lat && worker?.lng ? { lat: worker.lat, lng: worker.lng } : null
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Live tracking</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Live tracking" showBack />
 
       <View style={s.mapWrap}>
         {workerCoords ? (
@@ -108,18 +105,6 @@ export default function LiveTrackingScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   mapWrap: {
     height: 220,
     marginHorizontal: Spacing.screenPadding,

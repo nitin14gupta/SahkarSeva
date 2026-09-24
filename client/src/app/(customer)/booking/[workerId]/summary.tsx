@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Avatar, BackButton, PrimaryButton } from '@/components/ui'
+import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
 import { usePillStore } from '@/store/pillStore'
@@ -67,11 +67,8 @@ export default function BookingSummaryScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Confirm booking</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Confirm booking" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.workerRow}>
@@ -121,18 +118,6 @@ export default function BookingSummaryScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.xl,

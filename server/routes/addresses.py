@@ -32,9 +32,23 @@ def create_address(body: CreateAddressRequest, user_id: str = Depends(get_curren
     return {"address": address}
 
 
+@router.put("/{address_id}")
+def update_address(address_id: str, body: CreateAddressRequest, user_id: str = Depends(get_current_user_id)):
+    address = address_service.update_address(
+        address_id, user_id, body.label, body.line1, body.city, body.state,
+        body.pincode, body.lat, body.lng, body.is_default,
+    )
+    if not address:
+        raise HTTPException(status_code=404, detail="Address not found")
+    return {"address": address}
+
+
 @router.delete("/{address_id}")
 def delete_address(address_id: str, user_id: str = Depends(get_current_user_id)):
-    deleted = address_service.delete_address(address_id, user_id)
+    try:
+        deleted = address_service.delete_address(address_id, user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     if not deleted:
         raise HTTPException(status_code=404, detail="Address not found")
     return {"deleted": True}

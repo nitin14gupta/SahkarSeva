@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, Text, Vi
 import { router, useLocalSearchParams } from 'expo-router'
 import { MessageCircle, Phone } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Avatar, BackButton, PrimaryButton, SecondaryButton } from '@/components/ui'
+import { AppHeader, Avatar, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
@@ -46,11 +46,8 @@ export default function BookingDetailScreen() {
   const isActive = ACTIVE_STATUSES.includes(booking.status)
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Booking details</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Booking details" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.workerRow}>
@@ -132,18 +129,6 @@ export default function BookingDetailScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.xl,

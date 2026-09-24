@@ -3,15 +3,13 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { router, useLocalSearchParams } from 'expo-router'
 import { SearchX } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, EmptyState, SearchBar, WorkerCard } from '@/components/ui'
+import { AppHeader, EmptyState, SearchBar, WorkerCard } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, Spacing } from '@/constants'
 import type { WorkerSummary } from '@/types/catalog'
 
 export default function SearchResultsScreen() {
   const { q: initialQuery } = useLocalSearchParams<{ q?: string }>()
-  const insets = useSafeAreaInsets()
   const [query, setQuery] = useState(initialQuery ?? '')
   const [results, setResults] = useState<WorkerSummary[]>([])
   const [loading, setLoading] = useState(false)
@@ -56,18 +54,20 @@ export default function SearchResultsScreen() {
   }, [initialQuery])
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <View style={s.searchWrap}>
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            onSubmit={() => runSearch(query)}
-            autoFocus={!initialQuery}
-          />
-        </View>
-      </View>
+    <View style={s.container}>
+      <AppHeader
+        showBack
+        centerContent={(
+          <View style={s.searchWrap}>
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onSubmit={() => runSearch(query)}
+              autoFocus={!initialQuery}
+            />
+          </View>
+        )}
+      />
 
       {loading ? (
         <View style={s.center}>
@@ -100,15 +100,8 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
   searchWrap: {
-    flex: 1,
+    width: '100%',
   },
   center: {
     flex: 1,

@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import { MapPin, Plus } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, EmptyState, Input, MapPinPicker, PrimaryButton } from '@/components/ui'
+import { AppHeader, EmptyState, Input, MapPinPicker, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -36,16 +36,6 @@ export default function AddressLocationScreen() {
       // reverse geocoding is best-effort — user can still type the address manually
     }
   }
-
-  useEffect(() => {
-    if (!showForm || pinCoords) return
-    Location.getForegroundPermissionsAsync().then(({ status }) => {
-      if (status !== 'granted') return
-      Location.getCurrentPositionAsync({}).then((pos) => {
-        setPinCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-      })
-    })
-  }, [showForm])
 
   useEffect(() => {
     let cancelled = false
@@ -99,11 +89,8 @@ export default function AddressLocationScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Service address</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Service address" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         {addresses.length === 0 && !showForm ? (
@@ -155,18 +142,6 @@ export default function AddressLocationScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.xl,

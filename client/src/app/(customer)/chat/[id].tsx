@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { Phone, Send } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, KeyboardAvoidingWrapper } from '@/components/ui'
+import { AppHeader, HeaderIconBtn, KeyboardAvoidingWrapper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useAuthStore } from '@/store/authStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -50,16 +50,16 @@ export default function ChatScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title} numberOfLines={1}>{booking?.worker_name ?? 'Chat'}</Text>
-        {!!booking && (
-          <Pressable style={s.callBtn} onPress={() => Linking.openURL(`tel:${booking.worker_phone}`)}>
+    <View style={s.container}>
+      <AppHeader
+        title={booking?.worker_name ?? 'Chat'}
+        showBack
+        rightAction={booking && (
+          <HeaderIconBtn onPress={() => Linking.openURL(`tel:${booking.worker_phone}`)}>
             <Phone size={18} color={Colors.brandGreen} strokeWidth={2} />
-          </Pressable>
+          </HeaderIconBtn>
         )}
-      </View>
+      />
 
       <KeyboardAvoidingWrapper transparent>
         <FlatList
@@ -115,28 +115,6 @@ export default function ChatScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    flex: 1,
-    fontFamily: FontFamily.headingBold,
-    fontSize: 16,
-    color: Colors.textPrimary,
-  },
-  callBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.brandGreen,
-  },
   messages: {
     paddingHorizontal: Spacing.screenPadding,
     paddingVertical: Spacing.md,

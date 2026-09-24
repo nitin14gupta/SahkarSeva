@@ -4,6 +4,8 @@
 export const Logo = require('../../assets/images/logo.png')
 export const APP_NAME = 'SahkarSeva'
 
-// MapLibre's free public demo style — fine for development; swap for a real
-// tile provider's style URL before shipping to production.
-export const MAP_STYLE_URL = 'https://demotiles.maplibre.org/style.json'
+// OpenFreeMap — free, no API key, no rate limits. Swap for a self-hosted tile
+// server later without touching any component code.
+export const MAP_STYLE_URL = 'https://tiles.openfreemap.org/styles/positron'
+export const MAP_STYLE_URL_DARK = 'https://tiles.openfreemap.org/styles/dark'
+export const DEFAULT_MAP_CENTER = { lat: 12.9716, lng: 77.5946 }

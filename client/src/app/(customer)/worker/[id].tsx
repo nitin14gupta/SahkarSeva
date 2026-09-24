@@ -3,7 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { router, useLocalSearchParams } from 'expo-router'
 import { Heart, ShieldCheck, Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Avatar, BackButton, CategoryIcon, EmptyState, PrimaryButton, RatingStars } from '@/components/ui'
+import { AppHeader, Avatar, CategoryIcon, EmptyState, HeaderIconBtn, PrimaryButton, RatingStars } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerDetail } from '@/types/catalog'
@@ -69,17 +69,19 @@ export default function WorkerProfileScreen() {
   return (
     <View style={s.container}>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
-        <View style={[s.topRow, { paddingTop: insets.top }]}>
-          <BackButton onPress={() => router.back()} />
-          <Pressable style={s.favoriteBtn} onPress={toggleFavorite} hitSlop={8}>
-            <Heart
-              size={20}
-              color={isFavorite ? Colors.terracotta : Colors.textSecondary}
-              fill={isFavorite ? Colors.terracotta : 'transparent'}
-              strokeWidth={2}
-            />
-          </Pressable>
-        </View>
+        <AppHeader
+          showBack
+          rightAction={(
+            <HeaderIconBtn onPress={toggleFavorite}>
+              <Heart
+                size={20}
+                color={isFavorite ? Colors.terracotta : Colors.textSecondary}
+                fill={isFavorite ? Colors.terracotta : 'transparent'}
+                strokeWidth={2}
+              />
+            </HeaderIconBtn>
+          )}
+        />
 
         <View style={s.headerCard}>
           <Avatar uri={worker.photo_url} size={88} />
@@ -192,23 +194,6 @@ const s = StyleSheet.create({
     fontFamily: FontFamily.bodySemiBold,
     fontSize: 14,
     color: Colors.brandGreen,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.sm,
-  },
-  favoriteBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.divider,
   },
   headerCard: {
     alignItems: 'center',

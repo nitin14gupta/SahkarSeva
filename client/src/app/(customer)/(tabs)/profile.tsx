@@ -1,16 +1,15 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
-import * as ImagePicker from 'expo-image-picker'
-import * as SecureStore from 'expo-secure-store'
 import { ChevronRight, Heart, HelpCircle, LogOut, MapPin } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Avatar, Input, PrimaryButton } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
+import { useImageUpload } from '@/hooks/useImageUpload'
 import { useAuthStore } from '@/store/authStore'
 import { usePillStore } from '@/store/pillStore'
 import * as apiService from '@/api/apiService'
-import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
+import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function CustomerProfileScreen() {
   const insets = useSafeAreaInsets()
@@ -18,14 +17,22 @@ export default function CustomerProfileScreen() {
   const setUser = useAuthStore((s) => s.setUser)
   const { handleLogout } = useAuth()
   const show = usePillStore((s) => s.show)
+  const { pickAndUpload, uploading } = useImageUpload('profile-photos')
 
   const [name, setName] = useState(user?.name ?? '')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   async function pickPhoto() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, quality: 0.7 })
-    if (!result.canceled) setPhotoUri(result.assets[0].uri)
+    try {
+      const picked = await pickAndUpload()
+      if (!picked) return
+      setPhotoUri(picked.localUri)
+      setPhotoUrl(picked.remoteUrl)
+    } catch {
+      show('Could not upload photo. Please try again.', 'error')
+    }
   }
 
   async function handleSave() {
@@ -36,6 +43,7 @@ export default function CustomerProfileScreen() {
         name: name.trim(),
         role: 'customer',
         language: user.language,
+        photo_url: photoUrl ?? undefined,
       })
       setUser(updated)
       show('Profile updated', 'success')
@@ -46,9 +54,8 @@ export default function CustomerProfileScreen() {
     }
   }
 
-  async function handleLanguageChange() {
-    await SecureStore.deleteItemAsync(CacheKeys.language)
-    router.push('/language')
+  function handleLanguageChange() {
+    router.push({ pathname: '/language', params: { from: 'profile' } })
   }
 
   async function onLogoutPress() {
@@ -61,8 +68,13 @@ export default function CustomerProfileScreen() {
       <Text style={s.title}>Profile</Text>
 
       <View style={s.header}>
-        <Pressable onPress={pickPhoto}>
+        <Pressable onPress={pickPhoto} disabled={uploading} style={s.avatarWrap}>
           <Avatar uri={photoUri ?? user?.photo_url} size={72} />
+          {uploading && (
+            <View style={s.avatarOverlay}>
+              <ActivityIndicator color={Colors.white} size="small" />
+            </View>
+          )}
         </Pressable>
         <View style={{ flex: 1 }}>
           <Input placeholder="Full name" value={name} onChangeText={setName} />
@@ -109,6 +121,22 @@ const s = StyleSheet.create({
     gap: Spacing.md,
     paddingHorizontal: Spacing.screenPadding,
     marginBottom: Spacing.sm,
+  },
+  avatarWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  avatarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 36,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   phone: {
     fontFamily: FontFamily.bodyRegular,

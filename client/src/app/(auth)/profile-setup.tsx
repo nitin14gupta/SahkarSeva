@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
-import * as ImagePicker from 'expo-image-picker'
 import * as Location from 'expo-location'
 import * as SecureStore from 'expo-secure-store'
 import { Camera } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Input, KeyboardAvoidingWrapper, PrimaryButton, Screen } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
+import { useImageUpload } from '@/hooks/useImageUpload'
+import { usePillStore } from '@/store/pillStore'
 import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
 import type { Role } from '@/types/auth'
 
@@ -16,17 +17,21 @@ export default function ProfileSetupScreen() {
   const insets = useSafeAreaInsets()
   const [name, setName] = useState('')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const { handleCompleteProfile } = useAuth()
+  const { pickAndUpload, uploading } = useImageUpload('profile-photos')
+  const show = usePillStore((s) => s.show)
 
   async function pickPhoto() {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    })
-    if (!result.canceled) setPhotoUri(result.assets[0].uri)
+    try {
+      const picked = await pickAndUpload()
+      if (!picked) return
+      setPhotoUri(picked.localUri)
+      setPhotoUrl(picked.remoteUrl)
+    } catch {
+      show('Could not upload photo. You can try again later.', 'error')
+    }
   }
 
   async function handleSubmit() {
@@ -35,7 +40,7 @@ export default function ProfileSetupScreen() {
     try {
       await Location.requestForegroundPermissionsAsync()
       const language = (await SecureStore.getItemAsync(CacheKeys.language)) ?? 'en'
-      await handleCompleteProfile({ name: name.trim(), role, language })
+      await handleCompleteProfile({ name: name.trim(), role, language, photo_url: photoUrl ?? undefined })
       router.replace(role === 'worker' ? '/(worker)/(tabs)/home' : '/(customer)/(tabs)/home')
     } finally {
       setLoading(false)
@@ -49,8 +54,10 @@ export default function ProfileSetupScreen() {
           <Text style={s.title}>Set up your profile</Text>
           <Text style={s.subtitle}>This is how workers and customers will see you</Text>
 
-          <Pressable style={s.photoPicker} onPress={pickPhoto}>
-            {photoUri ? (
+          <Pressable style={s.photoPicker} onPress={pickPhoto} disabled={uploading}>
+            {uploading ? (
+              <ActivityIndicator color={Colors.brandGreen} />
+            ) : photoUri ? (
               <Image source={{ uri: photoUri }} style={s.photo} />
             ) : (
               <Camera size={24} color={Colors.textSecondary} strokeWidth={2} />

@@ -111,6 +111,11 @@ export async function createAddress(body: CreateAddressRequest): Promise<{ addre
   return data
 }
 
+export async function updateAddress(id: string, body: CreateAddressRequest): Promise<{ address: Address }> {
+  const { data } = await apiClient.put(`/addresses/${id}`, body)
+  return data
+}
+
 export async function deleteAddress(id: string): Promise<{ deleted: boolean }> {
   const { data } = await apiClient.delete(`/addresses/${id}`)
   return data
@@ -185,4 +190,19 @@ export async function getPayments(): Promise<{ payments: PaymentHistoryItem[] }>
 export async function createTicket(body: CreateTicketRequest): Promise<{ ticket: SupportTicket }> {
   const { data } = await apiClient.post('/support-tickets', body)
   return data
+}
+
+export async function uploadImage(localUri: string, folder: string): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', {
+    uri: localUri,
+    name: 'photo.webp',
+    type: 'image/webp',
+  } as unknown as Blob)
+  formData.append('folder', folder)
+
+  const { data } = await apiClient.post<{ url: string }>('/uploads', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return data.url
 }

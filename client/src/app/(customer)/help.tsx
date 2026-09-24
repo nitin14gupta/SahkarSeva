@@ -1,9 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router'
 import { ChevronDown, ChevronUp, Mail } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, Input, PrimaryButton, SearchBar } from '@/components/ui'
+import { AppHeader, Input, PrimaryButton, SearchBar } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -20,7 +19,6 @@ const SUPPORT_EMAIL = 'support@sahkarseva.in'
 
 export default function HelpScreen() {
   const { bookingId } = useLocalSearchParams<{ bookingId?: string }>()
-  const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const [query, setQuery] = useState('')
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -49,11 +47,8 @@ export default function HelpScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Help & Support</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Help & Support" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         <SearchBar value={query} onChangeText={setQuery} placeholder="Search FAQs" />
@@ -98,18 +93,6 @@ export default function HelpScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.xl,

@@ -2,20 +2,22 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
-import { MapPin, Plus, Trash2 } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, EmptyState, Input, MapPinPicker, PrimaryButton } from '@/components/ui'
+import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react-native'
+import { AppHeader, EmptyState, Input, MapPinPicker, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { Address } from '@/types/address'
 
+const LABELS = ['Home', 'Work', 'Other']
+
 export default function AddressesScreen() {
-  const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [label, setLabel] = useState('Home')
   const [line1, setLine1] = useState('')
   const [city, setCity] = useState('')
   const [saving, setSaving] = useState(false)
@@ -35,16 +37,6 @@ export default function AddressesScreen() {
   }
 
   useEffect(() => {
-    if (!showForm || pinCoords) return
-    Location.getForegroundPermissionsAsync().then(({ status }) => {
-      if (status !== 'granted') return
-      Location.getCurrentPositionAsync({}).then((pos) => {
-        setPinCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-      })
-    })
-  }, [showForm])
-
-  useEffect(() => {
     let cancelled = false
     ;(async () => {
       setLoading(true)
@@ -58,40 +50,73 @@ export default function AddressesScreen() {
     return () => { cancelled = true }
   }, [])
 
-  async function handleAdd() {
+  function resetForm() {
+    setShowForm(false)
+    setEditingId(null)
+    setLabel('Home')
+    setLine1('')
+    setCity('')
+    setPinCoords(null)
+  }
+
+  function startAdd() {
+    resetForm()
+    setShowForm(true)
+  }
+
+  function startEdit(addr: Address) {
+    setEditingId(addr.id)
+    setLabel(addr.label)
+    setLine1(addr.line1)
+    setCity(addr.city ?? '')
+    setPinCoords(addr.lat != null && addr.lng != null ? { lat: addr.lat, lng: addr.lng } : null)
+    setShowForm(true)
+  }
+
+  async function handleSave() {
     if (!line1.trim()) return
     setSaving(true)
     try {
-      const { address } = await apiService.createAddress({
-        label: 'Home', line1: line1.trim(), city: city.trim() || undefined,
-        lat: pinCoords?.lat, lng: pinCoords?.lng,
-        is_default: addresses.length === 0,
-      })
-      setAddresses((prev) => [address, ...prev])
-      setShowForm(false)
-      setLine1('')
-      setCity('')
-      setPinCoords(null)
+      const body = {
+        label,
+        line1: line1.trim(),
+        city: city.trim() || undefined,
+        lat: pinCoords?.lat,
+        lng: pinCoords?.lng,
+        is_default: editingId
+          ? addresses.find((a) => a.id === editingId)?.is_default ?? false
+          : addresses.length === 0,
+      }
+
+      if (editingId) {
+        const { address } = await apiService.updateAddress(editingId, body)
+        setAddresses((prev) => prev.map((a) => (a.id === editingId ? address : a)))
+      } else {
+        const { address } = await apiService.createAddress(body)
+        setAddresses((prev) => [address, ...prev])
+      }
+      resetForm()
+    } catch {
+      show('Could not save address', 'error')
     } finally {
       setSaving(false)
     }
   }
 
   async function handleDelete(id: string) {
+    const previous = addresses
     setAddresses((prev) => prev.filter((a) => a.id !== id))
     try {
       await apiService.deleteAddress(id)
-    } catch {
-      show('Could not delete address', 'error')
+    } catch (e: any) {
+      setAddresses(previous)
+      show(e?.response?.data?.detail ?? 'Could not delete address', 'error')
     }
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Saved addresses</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Saved addresses" showBack />
 
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
@@ -107,6 +132,9 @@ export default function AddressesScreen() {
                   <Text style={s.addressLabel}>{addr.label}</Text>
                   <Text style={s.addressLine} numberOfLines={2}>{addr.line1}{addr.city ? `, ${addr.city}` : ''}</Text>
                 </View>
+                <Pressable onPress={() => startEdit(addr)} hitSlop={8} style={{ marginRight: Spacing.md }}>
+                  <Pencil size={16} color={Colors.textSecondary} strokeWidth={2} />
+                </Pressable>
                 <Pressable onPress={() => handleDelete(addr.id)} hitSlop={8}>
                   <Trash2 size={16} color={Colors.destructive} strokeWidth={2} />
                 </Pressable>
@@ -118,15 +146,32 @@ export default function AddressesScreen() {
             <View style={s.form}>
               <MapPinPicker initialCoords={pinCoords ?? undefined} onPick={handlePinPicked} />
               <Text style={s.mapHint}>Tap the map to drop a pin at the address</Text>
+              <View style={{ height: Spacing.md }} />
+
+              <View style={s.labelRow}>
+                {LABELS.map((l) => (
+                  <Pressable key={l} style={[s.labelChip, label === l && s.labelChipSelected]} onPress={() => setLabel(l)}>
+                    <Text style={[s.labelChipText, label === l && s.labelChipTextSelected]}>{l}</Text>
+                  </Pressable>
+                ))}
+              </View>
               <View style={{ height: Spacing.sm }} />
+
               <Input placeholder="House / street / landmark" value={line1} onChangeText={setLine1} />
               <View style={{ height: Spacing.sm }} />
               <Input placeholder="City (optional)" value={city} onChangeText={setCity} />
               <View style={{ height: Spacing.md }} />
-              <PrimaryButton label="Save address" onPress={handleAdd} loading={saving} disabled={!line1.trim()} />
+              <PrimaryButton
+                label={editingId ? 'Save changes' : 'Save address'}
+                onPress={handleSave}
+                loading={saving}
+                disabled={!line1.trim()}
+              />
+              <View style={{ height: Spacing.sm }} />
+              <SecondaryButton label="Cancel" onPress={resetForm} />
             </View>
           ) : (
-            <Pressable style={s.addNew} onPress={() => setShowForm(true)}>
+            <Pressable style={s.addNew} onPress={startAdd}>
               <Plus size={16} color={Colors.brandGreen} strokeWidth={2} />
               <Text style={s.addNewText}>Add new address</Text>
             </Pressable>
@@ -140,18 +185,6 @@ export default function AddressesScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     gap: Spacing.sm,
@@ -196,5 +229,29 @@ const s = StyleSheet.create({
     color: Colors.textSecondary,
     marginTop: 6,
     textAlign: 'center',
+  },
+  labelRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  labelChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+    borderColor: Colors.divider,
+    backgroundColor: Colors.surface,
+  },
+  labelChipSelected: {
+    borderColor: Colors.brandGreen,
+    backgroundColor: Colors.brandGreen,
+  },
+  labelChipText: {
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 13,
+    color: Colors.textPrimary,
+  },
+  labelChipTextSelected: {
+    color: Colors.inkOnAccent,
   },
 })

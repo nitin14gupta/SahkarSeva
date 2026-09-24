@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import * as Location from 'expo-location'
-import { Siren } from 'lucide-react-native'
+import { ChevronLeft, Siren } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, CategoryIcon, PrimaryButton } from '@/components/ui'
+import { AppHeader, CategoryIcon, HeaderIconBtn, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -47,10 +47,15 @@ export default function EmergencyBookingEntryScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton transparent onPress={() => router.back()} />
-      </View>
+    <View style={s.container}>
+      <AppHeader
+        transparent
+        leftAction={(
+          <HeaderIconBtn onPress={() => router.back()}>
+            <ChevronLeft size={22} color={Colors.inkOnAccent} strokeWidth={2} />
+          </HeaderIconBtn>
+        )}
+      />
 
       <View style={s.content}>
         <Siren size={40} color={Colors.inkOnAccent} strokeWidth={1.5} />
@@ -84,10 +89,6 @@ export default function EmergencyBookingEntryScreen() {
 
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.terracotta },
-  topRow: {
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.sm,
-  },
   content: {
     flex: 1,
     alignItems: 'center',

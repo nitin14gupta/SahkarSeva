@@ -5,8 +5,7 @@ import BottomSheet, { BottomSheetView } from '@expo/ui/community/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import { SlidersHorizontal, UserX } from 'lucide-react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, EmptyState, PrimaryButton, SecondaryButton, WorkerCard } from '@/components/ui'
+import { AppHeader, EmptyState, HeaderIconBtn, PrimaryButton, SecondaryButton, WorkerCard } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerSearchParams, WorkerSummary } from '@/types/catalog'
@@ -24,7 +23,6 @@ const MAX_PRICE_OPTIONS = [
 
 export default function CategoryBrowseScreen() {
   const { name } = useLocalSearchParams<{ name: string }>()
-  const insets = useSafeAreaInsets()
   const sheetRef = useRef<BottomSheet>(null)
 
   const [workers, setWorkers] = useState<WorkerSummary[]>([])
@@ -91,14 +89,16 @@ export default function CategoryBrowseScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title} numberOfLines={1}>{name}</Text>
-        <Pressable style={s.filterBtn} onPress={() => sheetRef.current?.snapToIndex(0)}>
-          <SlidersHorizontal size={18} color={Colors.brandGreen} strokeWidth={2} />
-        </Pressable>
-      </View>
+    <View style={s.container}>
+      <AppHeader
+        title={name}
+        showBack
+        rightAction={(
+          <HeaderIconBtn onPress={() => sheetRef.current?.snapToIndex(0)}>
+            <SlidersHorizontal size={18} color={Colors.brandGreen} strokeWidth={2} />
+          </HeaderIconBtn>
+        )}
+      />
 
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
@@ -179,29 +179,6 @@ const s = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    flex: 1,
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
-  filterBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.divider,
   },
   center: {
     flex: 1,

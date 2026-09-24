@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { BackButton, EmptyState, PrimaryButton } from '@/components/ui'
+import { AppHeader, EmptyState, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -56,11 +56,8 @@ export default function SelectDateTimeScreen() {
   }
 
   return (
-    <View style={[s.container, { paddingTop: insets.top }]}>
-      <View style={s.topRow}>
-        <BackButton onPress={() => router.back()} />
-        <Text style={s.title}>Select date & time</Text>
-      </View>
+    <View style={s.container}>
+      <AppHeader title="Select date & time" showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         {worker.categories.length > 1 && (
@@ -131,18 +128,6 @@ export default function SelectDateTimeScreen() {
 const s = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   center: { alignItems: 'center', justifyContent: 'center' },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.screenPadding,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontFamily: FontFamily.headingBold,
-    fontSize: 18,
-    color: Colors.textPrimary,
-  },
   content: {
     paddingHorizontal: Spacing.screenPadding,
     paddingBottom: Spacing.xl,
