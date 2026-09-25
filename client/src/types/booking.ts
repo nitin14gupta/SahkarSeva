@@ -42,6 +42,7 @@ export interface BookingDetail extends BookingSummary {
   address_city: string | null
   cooperative_name: string | null
   worker_phone: string
+  worker_language: string | null
   photo_urls: string[]
   updated_at: string
 }
@@ -81,6 +82,7 @@ export interface WorkerBookingSummary {
 export interface WorkerBookingDetail extends WorkerBookingSummary {
   customer_id: string
   customer_phone: string | null
+  customer_language: string | null
   address_id: string | null
   address_lat: number | null
   address_lng: number | null

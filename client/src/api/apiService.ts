@@ -363,6 +363,19 @@ export async function sendMessage(bookingId: string, message: string): Promise<{
   return data
 }
 
+export async function translateText(
+  text: string,
+  sourceLang: string,
+  targetLang: string
+): Promise<{ translated_text: string }> {
+  const { data } = await apiClient.post('/translate', {
+    text,
+    source_lang: sourceLang,
+    target_lang: targetLang,
+  })
+  return data
+}
+
 export async function getFavorites(): Promise<{ favorites: WorkerSummary[] }> {
   const { data } = await apiClient.get('/favorites')
   return data

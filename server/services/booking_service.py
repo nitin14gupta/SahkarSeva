@@ -193,7 +193,7 @@ def get_booking(booking_id: str, customer_id: str) -> dict | None:
         cur.execute(
             """
             SELECT b.*, w.id AS worker_id, u.name AS worker_name, u.photo_url AS worker_photo_url,
-                   u.phone AS worker_phone, c.name AS cooperative_name,
+                   u.phone AS worker_phone, u.language AS worker_language, c.name AS cooperative_name,
                    cat.name AS category, a.line1 AS address_line1, a.city AS address_city
             FROM bookings b
             JOIN workers w ON w.id = b.worker_id
@@ -430,8 +430,8 @@ def get_worker_booking(booking_id: str, user_id: str) -> dict | None:
         cur.execute(
             """
             SELECT b.*, u.name AS customer_name, u.photo_url AS customer_photo_url, u.phone AS customer_phone,
-                   cat.name AS category, a.line1 AS address_line1, a.city AS address_city,
-                   a.lat AS address_lat, a.lng AS address_lng
+                   u.language AS customer_language, cat.name AS category, a.line1 AS address_line1,
+                   a.city AS address_city, a.lat AS address_lat, a.lng AS address_lng
             FROM bookings b
             JOIN users u ON u.id = b.customer_id
             JOIN categories cat ON cat.id = b.category_id

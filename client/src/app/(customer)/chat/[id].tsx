@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Linking, Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
-import { Phone, Send } from 'lucide-react-native'
+import { Languages, Phone, Send } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, HeaderIconBtn, KeyboardAvoidingWrapper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
@@ -17,11 +17,36 @@ export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const myUserId = useAuthStore((s) => s.user?.id)
+  const myLanguage = useAuthStore((s) => s.user?.language) ?? 'en'
   const [booking, setBooking] = useState<BookingDetail | null>(null)
   const [draft, setDraft] = useState('')
+  const [translations, setTranslations] = useState<Record<string, string>>({})
+  const [translating, setTranslating] = useState<Record<string, boolean>>({})
   const listRef = useRef<FlatList>(null)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const { messages, partnerTyping, sendMessage, setTyping } = useChatSocket(id)
+
+  async function handleToggleTranslate(messageId: string, text: string) {
+    if (translations[messageId] !== undefined) {
+      setTranslations((prev) => {
+        const next = { ...prev }
+        delete next[messageId]
+        return next
+      })
+      return
+    }
+    setTranslating((prev) => ({ ...prev, [messageId]: true }))
+    try {
+      const { translated_text } = await apiService.translateText(
+        text,
+        booking?.worker_language ?? 'en',
+        myLanguage
+      )
+      setTranslations((prev) => ({ ...prev, [messageId]: translated_text }))
+    } finally {
+      setTranslating((prev) => ({ ...prev, [messageId]: false }))
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -64,10 +89,30 @@ export default function ChatScreen() {
           onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
           renderItem={({ item }) => {
             const isMe = item.sender_id === myUserId
+            const translated = translations[item.id]
+            const isTranslating = translating[item.id]
             return (
               <View style={[s.bubbleRow, isMe && s.bubbleRowMe]}>
                 <View style={[s.bubble, isMe ? s.bubbleMe : s.bubbleThem]}>
-                  <Text style={[s.bubbleText, isMe && s.bubbleTextMe]}>{item.message}</Text>
+                  <Text style={[s.bubbleText, isMe && s.bubbleTextMe]}>{translated ?? item.message}</Text>
+                  {!isMe && booking?.worker_language && booking.worker_language !== myLanguage && (
+                    <Pressable
+                      style={s.translateBtn}
+                      onPress={() => handleToggleTranslate(item.id, item.message)}
+                      disabled={isTranslating}
+                    >
+                      {isTranslating ? (
+                        <ActivityIndicator size="small" color={Colors.textSecondary} />
+                      ) : (
+                        <>
+                          <Languages size={12} color={Colors.textSecondary} strokeWidth={2} />
+                          <Text style={s.translateBtnText}>
+                            {translated ? 'Show original' : 'Translate'}
+                          </Text>
+                        </>
+                      )}
+                    </Pressable>
+                  )}
                 </View>
               </View>
             )
@@ -147,6 +192,17 @@ const s = StyleSheet.create({
   },
   bubbleTextMe: {
     color: Colors.inkOnAccent,
+  },
+  translateBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 6,
+  },
+  translateBtnText: {
+    fontFamily: FontFamily.bodyMedium,
+    fontSize: 11,
+    color: Colors.textSecondary,
   },
   typingRow: {
     paddingHorizontal: Spacing.screenPadding,
