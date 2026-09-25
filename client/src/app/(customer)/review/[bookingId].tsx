@@ -3,14 +3,22 @@ import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 
-const TAG_OPTIONS = ['On time', 'Professional', 'Great work', 'Polite', 'Skilled', 'Fair pricing']
-
 export default function RateReviewScreen() {
+  const { t } = useTranslation('customer')
+  const TAG_OPTIONS = [
+    t('review.tagOnTime'),
+    t('review.tagProfessional'),
+    t('review.tagGreatWork'),
+    t('review.tagPolite'),
+    t('review.tagSkilled'),
+    t('review.tagFairPricing'),
+  ]
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -28,10 +36,10 @@ export default function RateReviewScreen() {
     setSubmitting(true)
     try {
       await apiService.createReview({ booking_id: bookingId, rating, comment: comment.trim() || undefined, tags })
-      show('Thanks for your review!', 'success')
+      show(t('review.thanksMessage'), 'success')
       router.replace('/(customer)/(tabs)/home')
     } catch {
-      show('Could not submit your review. Please try again.', 'error')
+      show(t('review.submitError'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -44,7 +52,7 @@ export default function RateReviewScreen() {
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
       <View style={s.content}>
-        <Text style={s.title}>How was the service?</Text>
+        <Text style={s.title}>{t('review.title')}</Text>
 
         <View style={s.starRow}>
           {[1, 2, 3, 4, 5].map((i) => (
@@ -74,7 +82,7 @@ export default function RateReviewScreen() {
         <TextInput
           value={comment}
           onChangeText={setComment}
-          placeholder="Leave a comment (optional)"
+          placeholder={t('review.commentPlaceholder')}
           placeholderTextColor={Colors.inkDisabled}
           multiline
           style={s.textArea}
@@ -82,9 +90,9 @@ export default function RateReviewScreen() {
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Submit Review" onPress={handleSubmit} disabled={rating === 0} loading={submitting} />
+        <PrimaryButton label={t('review.submitButton')} onPress={handleSubmit} disabled={rating === 0} loading={submitting} />
         <View style={{ height: Spacing.sm }} />
-        <SecondaryButton label="Skip" onPress={handleSkip} />
+        <SecondaryButton label={t('common:skip')} onPress={handleSkip} />
       </View>
     </View>
   )

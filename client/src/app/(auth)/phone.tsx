@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { View, Text, StyleSheet, Keyboard } from 'react-native'
 import { router } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PhoneInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function PhoneScreen() {
+  const { t } = useTranslation('auth')
   const [phone, setPhone] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -23,7 +25,7 @@ export default function PhoneScreen() {
       await handleSendOTP(phone)
       router.push({ pathname: '/otp', params: { phone } })
     } catch (e: any) {
-      setError(e?.message || 'Failed to send OTP. Please try again.')
+      setError(e?.message || t('phone.errorGeneric'))
     } finally {
       setLoading(false)
     }
@@ -35,8 +37,8 @@ export default function PhoneScreen() {
       <KeyboardAvoidingWrapper transparent>
         <View style={styles.inner}>
           <View style={styles.header}>
-            <Text style={styles.title}>What&apos;s your number?</Text>
-            <Text style={styles.subtitle}>We&apos;ll send a one-time code</Text>
+            <Text style={styles.title}>{t('phone.title')}</Text>
+            <Text style={styles.subtitle}>{t('phone.subtitle')}</Text>
           </View>
           <PhoneInput
             value={phone}
@@ -47,13 +49,13 @@ export default function PhoneScreen() {
         </View>
         <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
-            label="Send Code"
+            label={t('phone.sendCode')}
             onPress={handleContinue}
             disabled={!isValid}
             loading={loading}
           />
           <Text style={styles.legal}>
-            By continuing, you agree to SahkarSeva&apos;s Terms and Privacy Policy.
+            {t('phone.legal')}
           </Text>
         </View>
       </KeyboardAvoidingWrapper>

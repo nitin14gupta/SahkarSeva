@@ -3,23 +3,24 @@ import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollVie
 import { router, useLocalSearchParams } from 'expo-router'
 import { MessageCircle, Phone } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
 
-const STATUS_LABEL: Record<string, string> = {
-  requested: 'Requested',
-  accepted: 'Accepted',
-  en_route: 'On the way',
-  in_progress: 'In progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-}
-
 const ACTIVE_STATUSES = ['requested', 'accepted', 'en_route', 'in_progress']
 
 export default function BookingDetailScreen() {
+  const { t } = useTranslation('customer')
+  const STATUS_LABEL: Record<string, string> = {
+    requested: t('bookingDetail.statusRequested'),
+    accepted: t('bookingDetail.statusAccepted'),
+    en_route: t('bookingDetail.statusEnRoute'),
+    in_progress: t('bookingDetail.statusInProgress'),
+    completed: t('bookingDetail.statusCompleted'),
+    cancelled: t('bookingDetail.statusCancelled'),
+  }
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
@@ -60,7 +61,7 @@ export default function BookingDetailScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Booking details" showBack />
+      <AppHeader title={t('bookingDetail.title')} showBack />
 
       <ScrollView
         contentContainerStyle={s.content}
@@ -71,7 +72,7 @@ export default function BookingDetailScreen() {
           <View style={{ flex: 1 }}>
             <Text style={s.workerName}>{booking.worker_name}</Text>
             <Text style={s.workerCategory}>{booking.category}</Text>
-            {!!booking.cooperative_name && <Text style={s.cooperative}>Verified by {booking.cooperative_name}</Text>}
+            {!!booking.cooperative_name && <Text style={s.cooperative}>{t('bookingDetail.verifiedBy', { name: booking.cooperative_name })}</Text>}
           </View>
           <View style={s.statusBadge}>
             <Text style={s.statusText}>{STATUS_LABEL[booking.status]}</Text>
@@ -82,24 +83,24 @@ export default function BookingDetailScreen() {
           <View style={s.actionsRow}>
             <Pressable style={s.actionBtn} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })}>
               <MessageCircle size={18} color={Colors.brandGreen} strokeWidth={2} />
-              <Text style={s.actionText}>Chat</Text>
+              <Text style={s.actionText}>{t('bookingDetail.chat')}</Text>
             </Pressable>
             <Pressable style={s.actionBtn} onPress={() => Linking.openURL(`tel:${booking.worker_phone}`)}>
               <Phone size={18} color={Colors.brandGreen} strokeWidth={2} />
-              <Text style={s.actionText}>Call</Text>
+              <Text style={s.actionText}>{t('bookingDetail.call')}</Text>
             </Pressable>
           </View>
         )}
 
         <View style={s.row}>
-          <Text style={s.label}>Date & time</Text>
+          <Text style={s.label}>{t('bookingDetail.dateTimeLabel')}</Text>
           <Text style={s.value}>
             {booking.scheduled_date ?? '—'} {booking.scheduled_time?.slice(0, 5) ?? ''}
           </Text>
         </View>
 
         <View style={s.row}>
-          <Text style={s.label}>Address</Text>
+          <Text style={s.label}>{t('bookingDetail.addressLabel')}</Text>
           <Text style={s.value}>
             {booking.address_line1 ? `${booking.address_line1}${booking.address_city ? `, ${booking.address_city}` : ''}` : '—'}
           </Text>
@@ -107,14 +108,14 @@ export default function BookingDetailScreen() {
 
         {!!booking.notes && (
           <View style={s.row}>
-            <Text style={s.label}>Notes</Text>
+            <Text style={s.label}>{t('bookingDetail.notesLabel')}</Text>
             <Text style={s.value}>{booking.notes}</Text>
           </View>
         )}
 
         {booking.photo_urls.length > 0 && (
           <View style={s.row}>
-            <Text style={s.label}>Photos ({booking.photo_urls.length})</Text>
+            <Text style={s.label}>{t('bookingDetail.photosLabel', { count: booking.photo_urls.length })}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.photoRow}>
               {booking.photo_urls.map((url) => (
                 <Image key={url} source={{ uri: url }} style={s.photoThumb} />
@@ -125,26 +126,26 @@ export default function BookingDetailScreen() {
 
         {booking.status === 'cancelled' && !!booking.cancelled_reason && (
           <View style={s.row}>
-            <Text style={s.label}>Cancellation reason</Text>
+            <Text style={s.label}>{t('bookingDetail.cancelReasonLabel')}</Text>
             <Text style={s.value}>{booking.cancelled_reason}</Text>
           </View>
         )}
 
         <View style={s.row}>
-          <Text style={s.label}>Price</Text>
-          <Text style={s.price}>{booking.price_estimate !== null ? `₹${booking.price_estimate}` : 'TBD'}</Text>
+          <Text style={s.label}>{t('bookingDetail.priceLabel')}</Text>
+          <Text style={s.price}>{booking.price_estimate !== null ? `₹${booking.price_estimate}` : t('bookingDetail.priceTBD')}</Text>
         </View>
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         {isActive ? (
           <SecondaryButton
-            label="Cancel booking"
+            label={t('bookingDetail.cancelButton')}
             onPress={() => router.push({ pathname: '/cancel/[id]', params: { id: booking.id } })}
           />
         ) : booking.status === 'completed' ? (
           <PrimaryButton
-            label="Book again"
+            label={t('bookingDetail.bookAgainButton')}
             onPress={() => router.push({ pathname: '/worker/[id]', params: { id: booking.worker_id } })}
           />
         ) : null}

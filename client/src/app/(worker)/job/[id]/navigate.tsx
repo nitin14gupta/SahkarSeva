@@ -4,6 +4,7 @@ import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Map, Camera, Marker } from '@maplibre/maplibre-react-native'
 import { MapPin, Navigation } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useCurrentLocation } from '@/hooks/useCurrentLocation'
@@ -22,6 +23,7 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 }
 
 export default function JobNavigateScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -40,7 +42,7 @@ export default function JobNavigateScreen() {
           const { booking } = await apiService.getWorkerBookingDetail(id)
           if (!cancelled) setBooking(booking)
         } catch {
-          if (!cancelled) show('Could not load this job', 'error')
+          if (!cancelled) show(t('jobNavigate.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -56,7 +58,7 @@ export default function JobNavigateScreen() {
       await apiService.updateBookingStatus(id, 'in_progress')
       router.replace({ pathname: '/job/[id]/in-progress', params: { id } })
     } catch {
-      show('Could not update status', 'error')
+      show(t('jobNavigate.statusError'), 'error')
       setArriving(false)
     }
   }
@@ -78,7 +80,7 @@ export default function JobNavigateScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="En route" showBack />
+      <AppHeader title={t('jobNavigate.title')} showBack />
       <View style={s.mapWrap}>
         <Map style={s.map} mapStyle={MAP_STYLE_URL} logo={false} attribution={false}>
           <Camera center={[center.lng, center.lat]} zoom={13} />
@@ -100,14 +102,14 @@ export default function JobNavigateScreen() {
         <Text style={s.infoText}>
           {destination
             ? distanceKm !== null
-              ? `${distanceKm.toFixed(1)} km to ${booking.customer_name}'s location`
-              : `Heading to ${booking.customer_name}'s location`
-            : 'Exact destination not shared — use the address on the job details screen'}
+              ? t('jobNavigate.distanceInfo', { distance: distanceKm.toFixed(1), name: booking.customer_name })
+              : t('jobNavigate.headingInfo', { name: booking.customer_name })
+            : t('jobNavigate.noDestination')}
         </Text>
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Arrived" onPress={handleArrived} loading={arriving} />
+        <PrimaryButton label={t('jobNavigate.arrivedButton')} onPress={handleArrived} loading={arriving} />
       </View>
     </View>
   )

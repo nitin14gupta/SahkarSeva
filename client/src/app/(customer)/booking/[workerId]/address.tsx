@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { MapPin, Plus } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
@@ -10,6 +11,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { Address } from '@/types/address'
 
 export default function AddressLocationScreen() {
+  const { t } = useTranslation('customer')
   const { workerId } = useLocalSearchParams<{ workerId: string }>()
   const insets = useSafeAreaInsets()
   const setDraft = useBookingDraftStore((s) => s.setDraft)
@@ -48,11 +50,11 @@ export default function AddressLocationScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Service address" showBack />
+      <AppHeader title={t('bookingAddress.title')} showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         {addresses.length === 0 ? (
-          <EmptyState icon={MapPin} title="No saved addresses" subtitle="Add one to continue" />
+          <EmptyState icon={MapPin} title={t('bookingAddress.emptyTitle')} subtitle={t('bookingAddress.emptySubtitle')} />
         ) : (
           addresses.map((addr) => (
             <Pressable
@@ -73,12 +75,12 @@ export default function AddressLocationScreen() {
 
         <Pressable style={s.addNew} onPress={() => router.push('/addresses/form')}>
           <Plus size={16} color={Colors.brandGreen} strokeWidth={2} />
-          <Text style={s.addNewText}>Add new address</Text>
+          <Text style={s.addNewText}>{t('bookingAddress.addNew')}</Text>
         </Pressable>
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Continue" onPress={handleContinue} disabled={!selectedId} />
+        <PrimaryButton label={t('common:continue')} onPress={handleContinue} disabled={!selectedId} />
       </View>
     </View>
   )

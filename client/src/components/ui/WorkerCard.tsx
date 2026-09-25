@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { ShieldCheck } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import { Avatar } from './Avatar'
 import { RatingStars } from './RatingStars'
@@ -12,6 +13,7 @@ interface WorkerCardProps {
 }
 
 export function WorkerCard({ worker, onPress }: WorkerCardProps) {
+  const { t } = useTranslation('common')
   return (
     <Pressable style={s.card} onPress={onPress}>
       <Avatar uri={worker.photo_url} size={56} />
@@ -24,7 +26,7 @@ export function WorkerCard({ worker, onPress }: WorkerCardProps) {
         {!!worker.cooperative_name && (
           <View style={s.badgeRow}>
             <ShieldCheck size={12} color={Colors.brandGreen} strokeWidth={2} />
-            <Text style={s.badgeText} numberOfLines={1}>Verified by {worker.cooperative_name}</Text>
+            <Text style={s.badgeText} numberOfLines={1}>{t('worker.verifiedBy', { name: worker.cooperative_name })}</Text>
           </View>
         )}
 

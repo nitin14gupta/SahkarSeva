@@ -3,12 +3,14 @@ import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-nativ
 import { FlashList } from '@shopify/flash-list'
 import { router, useLocalSearchParams } from 'expo-router'
 import { SearchX } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, SearchBar, WorkerCard } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, Spacing } from '@/constants'
 import type { WorkerSummary } from '@/types/catalog'
 
 export default function SearchResultsScreen() {
+  const { t } = useTranslation('customer')
   const { q: initialQuery } = useLocalSearchParams<{ q?: string }>()
   const [query, setQuery] = useState(initialQuery ?? '')
   const [results, setResults] = useState<WorkerSummary[]>([])
@@ -91,8 +93,8 @@ export default function SearchResultsScreen() {
       ) : results.length === 0 && searched ? (
         <EmptyState
           icon={SearchX}
-          title="No matches found"
-          subtitle="Try a different service, skill, or worker name"
+          title={t('search.emptyTitle')}
+          subtitle={t('search.emptySubtitle')}
         />
       ) : (
         <FlashList

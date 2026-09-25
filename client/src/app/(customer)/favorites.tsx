@@ -3,12 +3,14 @@ import { ActivityIndicator, RefreshControl, StyleSheet, View } from 'react-nativ
 import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { HeartOff } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, WorkerCard } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, Spacing } from '@/constants'
 import type { WorkerSummary } from '@/types/catalog'
 
 export default function FavoritesScreen() {
+  const { t } = useTranslation('customer')
   const [favorites, setFavorites] = useState<WorkerSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -41,12 +43,12 @@ export default function FavoritesScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Favorites" showBack />
+      <AppHeader title={t('favorites.title')} showBack />
 
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : favorites.length === 0 ? (
-        <EmptyState icon={HeartOff} title="No favorites yet" subtitle="Workers you favorite will show up here" />
+        <EmptyState icon={HeartOff} title={t('favorites.emptyTitle')} subtitle={t('favorites.emptySubtitle')} />
       ) : (
         <FlashList
           data={favorites}

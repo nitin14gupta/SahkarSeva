@@ -4,6 +4,7 @@ import { router } from 'expo-router'
 import * as Location from 'expo-location'
 import { ChevronLeft, Siren } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, CategoryIcon, HeaderIconBtn, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -11,6 +12,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { Category } from '@/types/catalog'
 
 export default function EmergencyBookingEntryScreen() {
+  const { t } = useTranslation('customer')
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const [categories, setCategories] = useState<Category[]>([])
@@ -29,7 +31,7 @@ export default function EmergencyBookingEntryScreen() {
     try {
       const { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') {
-        show('Location access is needed for emergency requests', 'error')
+        show(t('emergency.locationError'), 'error')
         return
       }
       const pos = await Location.getCurrentPositionAsync({})
@@ -40,7 +42,7 @@ export default function EmergencyBookingEntryScreen() {
       })
       router.replace({ pathname: '/emergency-matching/[id]', params: { id: booking.id } })
     } catch {
-      show('No workers available nearby right now', 'error')
+      show(t('emergency.noWorkersError'), 'error')
     } finally {
       setRequesting(false)
     }
@@ -59,8 +61,8 @@ export default function EmergencyBookingEntryScreen() {
 
       <View style={s.content}>
         <Siren size={40} color={Colors.inkOnAccent} strokeWidth={1.5} />
-        <Text style={s.title}>Emergency Service</Text>
-        <Text style={s.subtitle}>Get the nearest verified worker to your door, fast</Text>
+        <Text style={s.title}>{t('emergency.title')}</Text>
+        <Text style={s.subtitle}>{t('emergency.subtitle')}</Text>
 
         <View style={s.grid}>
           {categories.map((cat) => (
@@ -80,7 +82,7 @@ export default function EmergencyBookingEntryScreen() {
         {requesting ? (
           <ActivityIndicator color={Colors.inkOnAccent} />
         ) : (
-          <PrimaryButton label="Request Now" onPress={handleRequest} disabled={!selected} />
+          <PrimaryButton label={t('emergency.requestButton')} onPress={handleRequest} disabled={!selected} />
         )}
       </View>
     </View>

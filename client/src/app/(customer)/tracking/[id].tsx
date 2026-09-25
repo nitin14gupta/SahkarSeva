@@ -4,23 +4,24 @@ import { Map, Camera, Marker } from '@maplibre/maplibre-react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Check } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, MAP_STYLE_URL, Radius, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
 import type { WorkerDetail } from '@/types/catalog'
 
-const STEPS: { key: string; label: string }[] = [
-  { key: 'requested', label: 'Requested' },
-  { key: 'accepted', label: 'Accepted' },
-  { key: 'en_route', label: 'En Route' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'completed', label: 'Completed' },
-]
-
 const POLL_MS = 6000
 
 export default function LiveTrackingScreen() {
+  const { t } = useTranslation('customer')
+  const STEPS: { key: string; label: string }[] = [
+    { key: 'requested', label: t('tracking.stepRequested') },
+    { key: 'accepted', label: t('tracking.stepAccepted') },
+    { key: 'en_route', label: t('tracking.stepEnRoute') },
+    { key: 'in_progress', label: t('tracking.stepInProgress') },
+    { key: 'completed', label: t('tracking.stepCompleted') },
+  ]
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
@@ -57,7 +58,7 @@ export default function LiveTrackingScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Live tracking" showBack />
+      <AppHeader title={t('tracking.title')} showBack />
 
       <View style={s.mapWrap}>
         {workerCoords ? (
@@ -69,7 +70,7 @@ export default function LiveTrackingScreen() {
           </Map>
         ) : (
           <View style={[s.map, s.center]}>
-            <Text style={s.mutedText}>Worker location unavailable</Text>
+            <Text style={s.mutedText}>{t('tracking.locationUnavailable')}</Text>
           </View>
         )}
       </View>
@@ -96,7 +97,7 @@ export default function LiveTrackingScreen() {
       )}
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Chat with worker" onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })} />
+        <PrimaryButton label={t('tracking.chatButton')} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })} />
       </View>
     </View>
   )

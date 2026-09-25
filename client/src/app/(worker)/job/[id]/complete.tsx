@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, InvoicePreview, KeyboardAvoidingWrapper, OTPInput, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useCountdown } from '@/hooks/useCountdown'
@@ -10,6 +11,7 @@ import { Colors, FontFamily, Spacing } from '@/constants'
 import type { WorkerBookingDetail } from '@/types/booking'
 
 export default function JobCompleteScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -35,7 +37,7 @@ export default function JobCompleteScreen() {
             setAmount(booking.price_estimate != null ? String(booking.price_estimate) : '')
           }
         } catch {
-          if (!cancelled) show('Could not load this job', 'error')
+          if (!cancelled) show(t('jobComplete.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -52,7 +54,7 @@ export default function JobCompleteScreen() {
       setOtpSent(true)
       reset()
     } catch {
-      show('Could not send confirmation code', 'error')
+      show(t('jobComplete.sendCodeError'), 'error')
     } finally {
       setSendingOtp(false)
     }
@@ -63,10 +65,10 @@ export default function JobCompleteScreen() {
     setSubmitting(true)
     try {
       await apiService.completeBooking(id, { otp_code: code, final_amount: Number(amount) })
-      show('Job completed!', 'success')
+      show(t('jobComplete.completedSuccess'), 'success')
       router.replace('/(worker)/(tabs)/home')
     } catch {
-      show('Incorrect code. Ask the customer to check and try again.', 'error')
+      show(t('jobComplete.incorrectCodeError'), 'error')
       setCode('')
     } finally {
       setSubmitting(false)
@@ -83,11 +85,11 @@ export default function JobCompleteScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Complete job" showBack />
+      <AppHeader title={t('jobComplete.title')} showBack />
       <KeyboardAvoidingWrapper transparent>
         <View style={s.inner}>
-          <Text style={s.fieldLabel}>Final amount (₹)</Text>
-          <Input value={amount} onChangeText={setAmount} keyboardType="number-pad" placeholder="0" style={s.gapBelow} />
+          <Text style={s.fieldLabel}>{t('jobComplete.finalAmountLabel')}</Text>
+          <Input value={amount} onChangeText={setAmount} keyboardType="number-pad" placeholder={t('jobComplete.amountPlaceholder')} style={s.gapBelow} />
 
           <InvoicePreview
             category={booking.category}
@@ -99,18 +101,18 @@ export default function JobCompleteScreen() {
           {!otpSent ? (
             <View style={s.confirmSection}>
               <Text style={s.confirmHint}>
-                We&apos;ll send a confirmation code to {booking.customer_name} to verify the job is done.
+                {t('jobComplete.confirmHint', { name: booking.customer_name })}
               </Text>
-              <SecondaryButton label="Send code to customer" onPress={handleSendOtp} loading={sendingOtp} disabled={!amount} />
+              <SecondaryButton label={t('jobComplete.sendCodeButton')} onPress={handleSendOtp} loading={sendingOtp} disabled={!amount} />
             </View>
           ) : (
             <View style={s.confirmSection}>
-              <Text style={s.fieldLabel}>Ask the customer for their code</Text>
+              <Text style={s.fieldLabel}>{t('jobComplete.askCodeLabel')}</Text>
               <OTPInput value={code} onChange={setCode} autoFocus />
               {!isExpired ? (
-                <Text style={s.countdown}>Code expires in 0:{String(seconds).padStart(2, '0')}</Text>
+                <Text style={s.countdown}>{t('jobComplete.codeExpiresIn')} 0:{String(seconds).padStart(2, '0')}</Text>
               ) : (
-                <SecondaryButton label="Resend code" onPress={handleSendOtp} loading={sendingOtp} />
+                <SecondaryButton label={t('jobComplete.resendButton')} onPress={handleSendOtp} loading={sendingOtp} />
               )}
             </View>
           )}
@@ -118,7 +120,7 @@ export default function JobCompleteScreen() {
 
         <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
-            label="Submit"
+            label={t('jobComplete.submitButton')}
             onPress={handleSubmit}
             disabled={!otpSent || code.length !== 6}
             loading={submitting}

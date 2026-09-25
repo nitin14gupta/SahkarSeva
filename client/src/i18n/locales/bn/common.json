@@ -1,0 +1,41 @@
+{
+  "continue": "চালিয়ে যান",
+  "next": "পরবর্তী",
+  "getStarted": "শুরু করুন",
+  "skip": "এড়িয়ে যান",
+  "finish": "শেষ করুন",
+  "cancel": "বাতিল করুন",
+  "save": "সংরক্ষণ করুন",
+  "back": "ফিরে যান",
+  "retry": "পুনরায় চেষ্টা করুন",
+  "loading": "লোড করা হচ্ছে",
+  "somethingWentWrong": "কিছু একটা ভুল হয়ে গেছে। দয়া করে আবার চেষ্টা করুন।",
+  "search": {
+    "placeholder": "কোনও পরিষেবা বা কর্মী খুঁজুন"
+  },
+  "bookingStatus": {
+    "requested": "অনুরোধ করা হয়েছে",
+    "accepted": "গৃহীত হয়েছে",
+    "enRoute": "পথে",
+    "inProgress": "চলছে",
+    "completed": "সম্পন্ন হয়েছে",
+    "cancelled": "বাতিল করা হয়েছে"
+  },
+  "booking": {
+    "emergency": "জরুরি"
+  },
+  "worker": {
+    "verifiedBy": "{{name}} দ্বারা যাচাইকৃত"
+  },
+  "invoice": {
+    "title": "চালান",
+    "customer": "গ্রাহক",
+    "service": "পরিষেবা",
+    "date": "তারিখ",
+    "total": "মোট"
+  },
+  "validation": {
+    "descriptionLengthHint": "{{length}}/{{max}} · ন্যূনতম {{min}} অক্ষর",
+    "photosCountHint": "ছবি ({{count}}/{{max}}) — অন্তত {{min}}টি সংযুক্ত করুন"
+  }
+}

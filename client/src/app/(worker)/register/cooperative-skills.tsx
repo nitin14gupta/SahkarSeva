@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, KeyboardAvoidingWrapper, LanguageChip, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useWorkerRegistrationDraftStore } from '@/store/workerRegistrationDraftStore'
@@ -10,6 +11,7 @@ import type { Category } from '@/types/catalog'
 import type { Cooperative } from '@/types/worker'
 
 export default function WorkerRegisterCooperativeSkillsScreen() {
+  const { t } = useTranslation('worker')
   const insets = useSafeAreaInsets()
   const draft = useWorkerRegistrationDraftStore()
 
@@ -72,13 +74,13 @@ export default function WorkerRegisterCooperativeSkillsScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Cooperative & Skills" showBack />
+      <AppHeader title={t('registerCooperativeSkills.title')} showBack />
       <KeyboardAvoidingWrapper transparent>
         <ScrollView style={s.inner} contentContainerStyle={s.innerContent}>
-          <Text style={s.stepLabel}>Step 2 of 3</Text>
-          <Text style={s.title}>Your cooperative & skills</Text>
+          <Text style={s.stepLabel}>{t('registerCooperativeSkills.stepLabel')}</Text>
+          <Text style={s.title}>{t('registerCooperativeSkills.heading')}</Text>
 
-          <Text style={s.fieldLabel}>Cooperative society</Text>
+          <Text style={s.fieldLabel}>{t('registerCooperativeSkills.cooperativeLabel')}</Text>
           <View style={s.chipRow}>
             {cooperatives.map((c) => (
               <LanguageChip
@@ -90,7 +92,7 @@ export default function WorkerRegisterCooperativeSkillsScreen() {
             ))}
           </View>
 
-          <Text style={[s.fieldLabel, s.sectionGap]}>Services you offer</Text>
+          <Text style={[s.fieldLabel, s.sectionGap]}>{t('registerCooperativeSkills.servicesLabel')}</Text>
           <View style={s.chipRow}>
             {categories.map((c) => (
               <LanguageChip
@@ -102,27 +104,27 @@ export default function WorkerRegisterCooperativeSkillsScreen() {
             ))}
           </View>
 
-          <Text style={[s.fieldLabel, s.sectionGap]}>Years of experience</Text>
+          <Text style={[s.fieldLabel, s.sectionGap]}>{t('registerCooperativeSkills.experienceLabel')}</Text>
           <Input
             value={yearsExperience}
             onChangeText={setYearsExperience}
-            placeholder="e.g. 5"
+            placeholder={t('registerCooperativeSkills.experiencePlaceholder')}
             keyboardType="number-pad"
           />
 
-          <Text style={[s.fieldLabel, s.sectionGap]}>Price range (₹ per job)</Text>
+          <Text style={[s.fieldLabel, s.sectionGap]}>{t('registerCooperativeSkills.priceRangeLabel')}</Text>
           <View style={s.priceRow}>
             <Input
               value={priceMin}
               onChangeText={setPriceMin}
-              placeholder="Min"
+              placeholder={t('registerCooperativeSkills.priceMinPlaceholder')}
               keyboardType="number-pad"
               style={s.priceInput}
             />
             <Input
               value={priceMax}
               onChangeText={setPriceMax}
-              placeholder="Max (optional)"
+              placeholder={t('registerCooperativeSkills.priceMaxPlaceholder')}
               keyboardType="number-pad"
               style={s.priceInput}
             />
@@ -130,7 +132,7 @@ export default function WorkerRegisterCooperativeSkillsScreen() {
         </ScrollView>
 
         <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <PrimaryButton label="Continue" onPress={handleContinue} disabled={!isValid} />
+          <PrimaryButton label={t('common:continue')} onPress={handleContinue} disabled={!isValid} />
         </View>
       </KeyboardAvoidingWrapper>
     </View>

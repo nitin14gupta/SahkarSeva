@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { router } from 'expo-router'
 import { Bell, ChevronRight, Heart, HelpCircle, LogOut, MapPin } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Input, PrimaryButton } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -12,6 +13,7 @@ import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function CustomerProfileScreen() {
+  const { t } = useTranslation('customer')
   const insets = useSafeAreaInsets()
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
@@ -31,7 +33,7 @@ export default function CustomerProfileScreen() {
       setPhotoUri(picked.localUri)
       setPhotoUrl(picked.remoteUrl)
     } catch {
-      show('Could not upload photo. Please try again.', 'error')
+      show(t('profile.photoUploadError'), 'error')
     }
   }
 
@@ -46,9 +48,9 @@ export default function CustomerProfileScreen() {
         photo_url: photoUrl ?? undefined,
       })
       setUser(updated)
-      show('Profile updated', 'success')
+      show(t('profile.updateSuccess'), 'success')
     } catch {
-      show('Could not update profile', 'error')
+      show(t('profile.updateError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -65,7 +67,7 @@ export default function CustomerProfileScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
-      <Text style={s.title}>Profile</Text>
+      <Text style={s.title}>{t('profile.title')}</Text>
 
       <View style={s.header}>
         <Pressable onPress={pickPhoto} disabled={uploading} style={s.avatarWrap}>
@@ -77,19 +79,19 @@ export default function CustomerProfileScreen() {
           )}
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Input placeholder="Full name" value={name} onChangeText={setName} />
+          <Input placeholder={t('profile.namePlaceholder')} value={name} onChangeText={setName} />
         </View>
       </View>
-      <Text style={s.phone}>+91 {user?.phone}</Text>
-      <PrimaryButton label="Save changes" onPress={handleSave} loading={saving} disabled={!name.trim()} />
+      <Text style={s.phone}>{t('profile.phoneDisplay', { phone: user?.phone })}</Text>
+      <PrimaryButton label={t('profile.saveChanges')} onPress={handleSave} loading={saving} disabled={!name.trim()} />
 
       <View style={s.menu}>
-        <MenuRow icon={MapPin} label="Saved addresses" onPress={() => router.push('/addresses')} />
-        <MenuRow icon={Heart} label="Favorites" onPress={() => router.push('/favorites')} />
-        <MenuRow icon={Bell} label="Notifications" onPress={() => router.push('/notifications')} />
-        <MenuRow icon={ChevronRight} label={`Language: ${user?.language?.toUpperCase() ?? 'EN'}`} onPress={handleLanguageChange} />
-        <MenuRow icon={HelpCircle} label="Help & Support" onPress={() => router.push('/help')} />
-        <MenuRow icon={LogOut} label="Log out" onPress={onLogoutPress} destructive />
+        <MenuRow icon={MapPin} label={t('profile.menuAddresses')} onPress={() => router.push('/addresses')} />
+        <MenuRow icon={Heart} label={t('profile.menuFavorites')} onPress={() => router.push('/favorites')} />
+        <MenuRow icon={Bell} label={t('profile.menuNotifications')} onPress={() => router.push('/notifications')} />
+        <MenuRow icon={ChevronRight} label={t('profile.menuLanguage', { lang: user?.language?.toUpperCase() ?? 'EN' })} onPress={handleLanguageChange} />
+        <MenuRow icon={HelpCircle} label={t('profile.menuHelp')} onPress={() => router.push('/help')} />
+        <MenuRow icon={LogOut} label={t('profile.menuLogout')} onPress={onLogoutPress} destructive />
       </View>
     </View>
   )

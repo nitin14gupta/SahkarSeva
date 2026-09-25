@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Linking, Pressable, StyleSheet, Text, Text
 import { useLocalSearchParams } from 'expo-router'
 import { Languages, Phone, Send } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, HeaderIconBtn, KeyboardAvoidingWrapper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useAuthStore } from '@/store/authStore'
@@ -10,12 +11,18 @@ import { useChatSocket } from '@/hooks/useChatSocket'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerBookingDetail } from '@/types/booking'
 
-const QUICK_REPLIES = ["I'm on my way", 'Running a few minutes late', 'Job is done', 'Please confirm the address']
 const TYPING_DEBOUNCE_MS = 1500
 
 export default function WorkerChatScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
+  const QUICK_REPLIES = [
+    t('chat.quickReplies.onMyWay'),
+    t('chat.quickReplies.runningLate'),
+    t('chat.quickReplies.jobDone'),
+    t('chat.quickReplies.confirmAddress'),
+  ]
   const myUserId = useAuthStore((s) => s.user?.id)
   const myLanguage = useAuthStore((s) => s.user?.language) ?? 'en'
   const [booking, setBooking] = useState<WorkerBookingDetail | null>(null)
@@ -71,7 +78,7 @@ export default function WorkerChatScreen() {
   return (
     <View style={s.container}>
       <AppHeader
-        title={booking?.customer_name ?? 'Chat'}
+        title={booking?.customer_name ?? t('chat.defaultTitle')}
         showBack
         rightAction={booking?.customer_phone && (
           <HeaderIconBtn onPress={() => Linking.openURL(`tel:${booking.customer_phone}`)}>
@@ -107,7 +114,7 @@ export default function WorkerChatScreen() {
                         <>
                           <Languages size={12} color={Colors.textSecondary} strokeWidth={2} />
                           <Text style={s.translateBtnText}>
-                            {translated ? 'Show original' : 'Translate'}
+                            {translated ? t('chat.showOriginal') : t('chat.translate')}
                           </Text>
                         </>
                       )}
@@ -121,7 +128,7 @@ export default function WorkerChatScreen() {
 
         {partnerTyping && (
           <View style={s.typingRow}>
-            <Text style={s.typingText}>{booking?.customer_name ?? 'They'} is typing…</Text>
+            <Text style={s.typingText}>{t('chat.typingIndicator', { name: booking?.customer_name ?? t('chat.typingFallbackName') })}</Text>
           </View>
         )}
 
@@ -144,7 +151,7 @@ export default function WorkerChatScreen() {
           <TextInput
             value={draft}
             onChangeText={handleChangeDraft}
-            placeholder="Type a message"
+            placeholder={t('chat.inputPlaceholder')}
             placeholderTextColor={Colors.inkDisabled}
             style={s.input}
             onSubmitEditing={() => handleSend(draft)}

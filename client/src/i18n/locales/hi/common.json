@@ -1,0 +1,41 @@
+{
+  "continue": "जारी रखें",
+  "next": "अगला",
+  "getStarted": "शुरू करें",
+  "skip": "छोड़ दें",
+  "finish": "समाप्त करें",
+  "cancel": "रद्द करें",
+  "save": "सहेजें",
+  "back": "वापस",
+  "retry": "पुनः प्रयास करें",
+  "loading": "लोड हो रहा है",
+  "somethingWentWrong": "कुछ गड़बड़ हो गई। कृपया पुनः प्रयास करें।",
+  "search": {
+    "placeholder": "सेवा या कर्मचारी की खोज करें"
+  },
+  "bookingStatus": {
+    "requested": "अनुरोध किया गया",
+    "accepted": "स्वीकार किया गया",
+    "enRoute": "रास्ते में",
+    "inProgress": "प्रगति में",
+    "completed": "पूर्ण",
+    "cancelled": "रद्द किया गया"
+  },
+  "booking": {
+    "emergency": "आपातकाल"
+  },
+  "worker": {
+    "verifiedBy": "द्वारा सत्यापित {{name}}"
+  },
+  "invoice": {
+    "title": "चालान",
+    "customer": "ग्राहक",
+    "service": "सेवा",
+    "date": "तिथि",
+    "total": "कुल"
+  },
+  "validation": {
+    "descriptionLengthHint": "{{length}}/{{max}} · न्यूनतम {{min}} वर्ण",
+    "photosCountHint": "तस्वीरें ({{count}}/{{max}})-कम से कम संलग्न करें {{min}}"
+  }
+}

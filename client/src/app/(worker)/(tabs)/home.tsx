@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { CalendarClock, ClipboardCheck, Power } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, JobCard, NotificationBell, PrimaryButton, RatingStars, StatusBadge } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -21,6 +22,7 @@ function jobHref(booking: WorkerBookingSummary) {
 }
 
 export default function WorkerHomeScreen() {
+  const { t } = useTranslation('worker')
   const show = usePillStore((s) => s.show)
   const { lat, lng } = useCurrentLocation()
 
@@ -58,7 +60,7 @@ export default function WorkerHomeScreen() {
           if (cancelled) return
           setJobs([...incoming, ...bookings])
         } catch {
-          if (!cancelled) show('Could not load your dashboard', 'error')
+          if (!cancelled) show(t('home.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -84,7 +86,7 @@ export default function WorkerHomeScreen() {
         setJobs([...incoming, ...bookings])
       }
     } catch {
-      show('Could not refresh your dashboard', 'error')
+      show(t('home.refreshError'), 'error')
     } finally {
       setRefreshing(false)
     }
@@ -98,7 +100,7 @@ export default function WorkerHomeScreen() {
       await apiService.setWorkerOnline({ is_online: next, lat, lng })
       setDashboard((prev) => (prev ? { ...prev, is_online: next } : prev))
     } catch {
-      show('Could not update your status', 'error')
+      show(t('home.statusUpdateError'), 'error')
     } finally {
       setTogglingOnline(false)
     }
@@ -121,25 +123,23 @@ export default function WorkerHomeScreen() {
           <View style={s.gateIconWrap}>
             <ClipboardCheck size={32} color={Colors.brandGreen} strokeWidth={1.5} />
           </View>
-          <StatusBadge tone={isRejected ? 'error' : 'pending'} label={isRejected ? 'Rejected' : 'Pending review'} />
+          <StatusBadge tone={isRejected ? 'error' : 'pending'} label={isRejected ? t('home.rejectedBadge') : t('home.pendingBadge')} />
           <Text style={s.gateTitle}>
-            {isRejected ? 'Verification unsuccessful' : 'Your documents are under review'}
+            {isRejected ? t('home.verificationFailedTitle') : t('home.pendingReviewTitle')}
           </Text>
           <Text style={s.gateBody}>
-            {isRejected
-              ? 'Your cooperative flagged an issue with your submission. Review the reason below and re-submit your documents.'
-              : "Your cooperative usually reviews new registrations within 1–2 business days. We'll notify you once you're verified."}
+            {isRejected ? t('home.rejectedBody') : t('home.pendingBody')}
           </Text>
           {isRejected && !!verificationReason && (
             <View style={s.reasonBox}>
-              <Text style={s.reasonLabel}>Reason</Text>
+              <Text style={s.reasonLabel}>{t('home.reasonLabel')}</Text>
               <Text style={s.reasonText}>{verificationReason}</Text>
             </View>
           )}
           {isRejected && (
             <View style={s.gateAction}>
               <PrimaryButton
-                label="Re-submit documents"
+                label={t('home.resubmitButton')}
                 onPress={() => router.push({ pathname: '/register/documents', params: { mode: 'resubmit' } })}
               />
             </View>
@@ -170,10 +170,10 @@ export default function WorkerHomeScreen() {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[s.onlineTitle, dashboard?.is_online && s.onlineTitleActive]}>
-            {dashboard?.is_online ? "You're online" : "You're offline"}
+            {dashboard?.is_online ? t('home.onlineTitle') : t('home.offlineTitle')}
           </Text>
           <Text style={[s.onlineSubtitle, dashboard?.is_online && s.onlineSubtitleActive]}>
-            {dashboard?.is_online ? 'Receiving job requests nearby' : 'Tap to start receiving jobs'}
+            {dashboard?.is_online ? t('home.onlineSubtitle') : t('home.offlineSubtitle')}
           </Text>
         </View>
       </Pressable>
@@ -181,26 +181,26 @@ export default function WorkerHomeScreen() {
       <View style={s.statsRow}>
         <View style={s.statCard}>
           <Text style={s.statValue}>{dashboard?.today_job_count ?? 0}</Text>
-          <Text style={s.statLabel}>Today&apos;s jobs</Text>
+          <Text style={s.statLabel}>{t('home.todaysJobs')}</Text>
         </View>
         <View style={s.statCard}>
           <Text style={s.statValue}>₹{dashboard?.today_earnings ?? 0}</Text>
-          <Text style={s.statLabel}>Earned today</Text>
+          <Text style={s.statLabel}>{t('home.earnedToday')}</Text>
         </View>
         <View style={s.statCard}>
           <RatingStars rating={dashboard?.rating_avg ?? 0} count={dashboard?.rating_count ?? 0} />
-          <Text style={s.statLabel}>Rating</Text>
+          <Text style={s.statLabel}>{t('home.rating')}</Text>
         </View>
       </View>
 
       <Pressable style={s.availabilityLink} onPress={() => router.push('/availability')}>
         <CalendarClock size={16} color={Colors.brandGreen} strokeWidth={2} />
-        <Text style={s.availabilityLinkText}>Manage availability</Text>
+        <Text style={s.availabilityLinkText}>{t('home.manageAvailability')}</Text>
       </Pressable>
 
-      <Text style={s.sectionTitle}>Today&apos;s jobs</Text>
+      <Text style={s.sectionTitle}>{t('home.todaysJobs')}</Text>
       {jobs.length === 0 ? (
-        <EmptyState icon={Power} title="No jobs right now" subtitle="New requests will show up here" />
+        <EmptyState icon={Power} title={t('home.noJobsTitle')} subtitle={t('home.noJobsSubtitle')} />
       ) : (
         <View style={s.jobList}>
           {jobs.map((job) => (

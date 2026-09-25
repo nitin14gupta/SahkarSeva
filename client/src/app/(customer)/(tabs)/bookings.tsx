@@ -4,18 +4,25 @@ import { FlashList } from '@shopify/flash-list'
 import { router } from 'expo-router'
 import { CalendarX } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { BookingCard, EmptyState } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { BookingGroup, BookingSummary } from '@/types/booking'
 
-const TABS: { key: BookingGroup; label: string }[] = [
-  { key: 'upcoming', label: 'Upcoming' },
-  { key: 'past', label: 'Past' },
-  { key: 'cancelled', label: 'Cancelled' },
+const TABS: { key: BookingGroup }[] = [
+  { key: 'upcoming' },
+  { key: 'past' },
+  { key: 'cancelled' },
 ]
 
 export default function BookingHistoryScreen() {
+  const { t } = useTranslation('customer')
+  const tabLabels: Record<BookingGroup, string> = {
+    upcoming: t('bookingsList.tabUpcoming'),
+    past: t('bookingsList.tabPast'),
+    cancelled: t('bookingsList.tabCancelled'),
+  }
   const insets = useSafeAreaInsets()
   const [tab, setTab] = useState<BookingGroup>('upcoming')
   const [bookings, setBookings] = useState<BookingSummary[]>([])
@@ -55,12 +62,12 @@ export default function BookingHistoryScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
-      <Text style={s.title}>Bookings</Text>
+      <Text style={s.title}>{t('bookingsList.title')}</Text>
 
       <View style={s.tabRow}>
-        {TABS.map((t) => (
-          <Pressable key={t.key} style={[s.tab, tab === t.key && s.tabActive]} onPress={() => setTab(t.key)}>
-            <Text style={[s.tabText, tab === t.key && s.tabTextActive]}>{t.label}</Text>
+        {TABS.map((tabItem) => (
+          <Pressable key={tabItem.key} style={[s.tab, tab === tabItem.key && s.tabActive]} onPress={() => setTab(tabItem.key)}>
+            <Text style={[s.tabText, tab === tabItem.key && s.tabTextActive]}>{tabLabels[tabItem.key]}</Text>
           </Pressable>
         ))}
       </View>
@@ -68,9 +75,9 @@ export default function BookingHistoryScreen() {
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : error ? (
-        <View style={s.center}><Text style={s.errorText}>Couldn&apos;t load bookings.</Text></View>
+        <View style={s.center}><Text style={s.errorText}>{t('bookingsList.loadError')}</Text></View>
       ) : bookings.length === 0 ? (
-        <EmptyState icon={CalendarX} title={`No ${tab} bookings`} subtitle="Bookings you make will show up here" />
+        <EmptyState icon={CalendarX} title={t('bookingsList.emptyTitle', { tab: tabLabels[tab].toLowerCase() })} subtitle={t('bookingsList.emptySubtitle')} />
       ) : (
         <FlashList
           data={bookings}

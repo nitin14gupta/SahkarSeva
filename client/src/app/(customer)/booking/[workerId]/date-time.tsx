@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
@@ -10,6 +11,7 @@ import type { WorkerDetail } from '@/types/catalog'
 import { CalendarX } from 'lucide-react-native'
 
 export default function SelectDateTimeScreen() {
+  const { t } = useTranslation('customer')
   const { workerId } = useLocalSearchParams<{ workerId: string }>()
   const insets = useSafeAreaInsets()
   const setDraft = useBookingDraftStore((s) => s.setDraft)
@@ -57,12 +59,12 @@ export default function SelectDateTimeScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Select date & time" showBack />
+      <AppHeader title={t('bookingDateTime.title')} showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         {worker.categories.length > 1 && (
           <>
-            <Text style={s.sectionTitle}>Service</Text>
+            <Text style={s.sectionTitle}>{t('bookingDateTime.serviceLabel')}</Text>
             <View style={s.chipRow}>
               {worker.categories.map((cat) => (
                 <Pressable
@@ -77,9 +79,9 @@ export default function SelectDateTimeScreen() {
           </>
         )}
 
-        <Text style={s.sectionTitle}>Date</Text>
+        <Text style={s.sectionTitle}>{t('bookingDateTime.dateLabel')}</Text>
         {dates.length === 0 ? (
-          <EmptyState icon={CalendarX} title="No open slots" subtitle="This worker has no availability right now" />
+          <EmptyState icon={CalendarX} title={t('bookingDateTime.noSlotsTitle')} subtitle={t('bookingDateTime.noSlotsSubtitle')} />
         ) : (
           <View style={s.chipRow}>
             {dates.map((d) => (
@@ -96,7 +98,7 @@ export default function SelectDateTimeScreen() {
 
         {!!selectedDate && (
           <>
-            <Text style={s.sectionTitle}>Time</Text>
+            <Text style={s.sectionTitle}>{t('bookingDateTime.timeLabel')}</Text>
             <View style={s.chipRow}>
               {timesForDate.map((slot) => (
                 <Pressable
@@ -116,7 +118,7 @@ export default function SelectDateTimeScreen() {
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <PrimaryButton
-          label="Continue"
+          label={t('common:continue')}
           onPress={handleContinue}
           disabled={!category || !selectedDate || !selectedTime}
         />

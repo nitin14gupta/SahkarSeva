@@ -1,18 +1,21 @@
 import { useCallback, useState } from 'react'
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, KeyboardAvoidingWrapper, PrimaryButton, StatusStepper } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
-import { Colors, DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH, FontFamily, Radius, Spacing } from '@/constants'
+import { Colors, DESCRIPTION_LENGTH_HINT_KEY, DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH, FontFamily, Radius, Spacing } from '@/constants'
 import type { WelfareClaim } from '@/types/worker'
 
-const STEPS = ['Submitted', 'Under Review', 'Approved']
 const STEP_INDEX: Record<string, number> = { submitted: 0, under_review: 1, approved: 2, rejected: 2 }
 const ACTIVE_STATUSES = new Set(['submitted', 'under_review'])
 
 export default function WorkerClaimScreen() {
+  const { t } = useTranslation('worker')
+  const { t: tCommon } = useTranslation('common')
   const show = usePillStore((s) => s.show)
+  const STEPS = [t('welfareClaim.stepSubmitted'), t('welfareClaim.stepUnderReview'), t('welfareClaim.stepApproved')]
 
   const [claims, setClaims] = useState<WelfareClaim[]>([])
   const [loading, setLoading] = useState(true)
@@ -30,7 +33,7 @@ export default function WorkerClaimScreen() {
           const { claims } = await apiService.getWelfareClaims()
           if (!cancelled) setClaims(claims)
         } catch {
-          if (!cancelled) show('Could not load your claims', 'error')
+          if (!cancelled) show(t('welfareClaim.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -69,9 +72,9 @@ export default function WorkerClaimScreen() {
       setClaims((prev) => [claim, ...prev])
       setReason('')
       setAmount('')
-      show('Claim submitted', 'success')
+      show(t('welfareClaim.submitSuccess'), 'success')
     } catch {
-      show('Could not submit your claim', 'error')
+      show(t('welfareClaim.submitError'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -79,7 +82,7 @@ export default function WorkerClaimScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Welfare claim" showBack />
+      <AppHeader title={t('welfareClaim.title')} showBack />
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : (
@@ -91,7 +94,7 @@ export default function WorkerClaimScreen() {
           >
             {activeClaim ? (
               <View style={s.card}>
-                <Text style={s.cardTitle}>Your claim</Text>
+                <Text style={s.cardTitle}>{t('welfareClaim.yourClaimTitle')}</Text>
                 <Text style={s.claimReason}>{activeClaim.reason}</Text>
                 <View style={s.stepperWrap}>
                   <StatusStepper steps={STEPS} currentIndex={STEP_INDEX[activeClaim.status]} />
@@ -99,38 +102,38 @@ export default function WorkerClaimScreen() {
               </View>
             ) : (
               <View style={s.card}>
-                <Text style={s.cardTitle}>Submit a claim</Text>
-                <Text style={s.cardSubtitle}>Tell us what happened — your cooperative will review it.</Text>
+                <Text style={s.cardTitle}>{t('welfareClaim.submitClaimTitle')}</Text>
+                <Text style={s.cardSubtitle}>{t('welfareClaim.submitClaimSubtitle')}</Text>
                 <Input
                   value={reason}
                   onChangeText={(v) => setReason(v.slice(0, DESCRIPTION_MAX_LENGTH))}
-                  placeholder="Reason for claim"
+                  placeholder={t('welfareClaim.reasonPlaceholder')}
                   multiline
                   numberOfLines={3}
                   style={s.reasonInput}
                 />
                 <Text style={[s.counter, reasonLength > 0 && !reasonValid && s.counterError]}>
-                  {reasonLength}/{DESCRIPTION_MAX_LENGTH} · minimum {DESCRIPTION_MIN_LENGTH} characters
+                  {tCommon(DESCRIPTION_LENGTH_HINT_KEY, { length: reasonLength, max: DESCRIPTION_MAX_LENGTH, min: DESCRIPTION_MIN_LENGTH })}
                 </Text>
                 <Input
                   value={amount}
                   onChangeText={setAmount}
-                  placeholder="Amount claimed (optional)"
+                  placeholder={t('welfareClaim.amountPlaceholder')}
                   keyboardType="number-pad"
                   style={s.fieldGap}
                 />
-                <PrimaryButton label="Submit claim" onPress={handleSubmit} disabled={!reasonValid} loading={submitting} />
+                <PrimaryButton label={t('welfareClaim.submitButton')} onPress={handleSubmit} disabled={!reasonValid} loading={submitting} />
               </View>
             )}
 
             {pastClaims.length > 0 && (
               <>
-                <Text style={s.historyTitle}>Past claims</Text>
+                <Text style={s.historyTitle}>{t('welfareClaim.pastClaimsTitle')}</Text>
                 {pastClaims.map((c) => (
                   <View key={c.id} style={s.historyCard}>
                     <Text style={s.historyReason} numberOfLines={2}>{c.reason}</Text>
                     <Text style={[s.historyStatus, c.status === 'rejected' && s.historyStatusRejected]}>
-                      {c.status === 'approved' ? 'Approved' : c.status === 'rejected' ? 'Rejected' : c.status}
+                      {c.status === 'approved' ? t('welfareClaim.approvedStatus') : c.status === 'rejected' ? t('welfareClaim.rejectedStatus') : c.status}
                     </Text>
                   </View>
                 ))}

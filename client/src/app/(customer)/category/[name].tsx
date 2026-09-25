@@ -5,23 +5,24 @@ import BottomSheet, { BottomSheetView } from '@expo/ui/community/bottom-sheet'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import { SlidersHorizontal, UserX } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, HeaderIconBtn, PrimaryButton, SecondaryButton, WorkerCard } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerSearchParams, WorkerSummary } from '@/types/catalog'
 
-const MIN_RATING_OPTIONS = [
-  { label: 'Any', value: undefined },
-  { label: '4.0+', value: 4 },
-  { label: '4.5+', value: 4.5 },
-]
-const MAX_PRICE_OPTIONS = [
-  { label: 'Any', value: undefined },
-  { label: 'Under ₹300', value: 300 },
-  { label: 'Under ₹500', value: 500 },
-]
-
 export default function CategoryBrowseScreen() {
+  const { t } = useTranslation('customer')
+  const MIN_RATING_OPTIONS = [
+    { label: t('category.ratingAny'), value: undefined },
+    { label: t('category.rating4'), value: 4 },
+    { label: t('category.rating45'), value: 4.5 },
+  ]
+  const MAX_PRICE_OPTIONS = [
+    { label: t('category.priceAny'), value: undefined },
+    { label: t('category.priceUnder300'), value: 300 },
+    { label: t('category.priceUnder500'), value: 500 },
+  ]
   const { name } = useLocalSearchParams<{ name: string }>()
   const sheetRef = useRef<BottomSheet>(null)
 
@@ -119,13 +120,13 @@ export default function CategoryBrowseScreen() {
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : error ? (
         <View style={s.center}>
-          <Text style={s.errorText}>Couldn&apos;t load workers.</Text>
+          <Text style={s.errorText}>{t('category.loadError')}</Text>
           <Pressable onPress={() => load({ min_rating: minRating, max_price: maxPrice, available_today: availableToday, ...coords })}>
-            <Text style={s.retry}>Tap to retry</Text>
+            <Text style={s.retry}>{t('category.tapToRetry')}</Text>
           </Pressable>
         </View>
       ) : workers.length === 0 ? (
-        <EmptyState icon={UserX} title="No workers found" subtitle="Try adjusting your filters" />
+        <EmptyState icon={UserX} title={t('category.emptyTitle')} subtitle={t('category.emptySubtitle')} />
       ) : (
         <FlashList
           data={workers}
@@ -142,9 +143,9 @@ export default function CategoryBrowseScreen() {
 
       <BottomSheet ref={sheetRef} index={-1} enablePanDownToClose snapPoints={['55%']}>
         <BottomSheetView style={s.sheet}>
-          <Text style={s.sheetTitle}>Filters</Text>
+          <Text style={s.sheetTitle}>{t('category.filtersTitle')}</Text>
 
-          <Text style={s.filterLabel}>Minimum rating</Text>
+          <Text style={s.filterLabel}>{t('category.minRatingLabel')}</Text>
           <View style={s.chipRow}>
             {MIN_RATING_OPTIONS.map((opt) => (
               <Pressable
@@ -157,7 +158,7 @@ export default function CategoryBrowseScreen() {
             ))}
           </View>
 
-          <Text style={s.filterLabel}>Price</Text>
+          <Text style={s.filterLabel}>{t('category.priceLabel')}</Text>
           <View style={s.chipRow}>
             {MAX_PRICE_OPTIONS.map((opt) => (
               <Pressable
@@ -171,7 +172,7 @@ export default function CategoryBrowseScreen() {
           </View>
 
           <Pressable style={s.toggleRow} onPress={() => setAvailableToday((v) => !v)}>
-            <Text style={s.filterLabel}>Available today</Text>
+            <Text style={s.filterLabel}>{t('category.availableTodayLabel')}</Text>
             <View style={[s.toggle, availableToday && s.toggleOn]}>
               <View style={[s.toggleKnob, availableToday && s.toggleKnobOn]} />
             </View>
@@ -179,10 +180,10 @@ export default function CategoryBrowseScreen() {
 
           <View style={s.sheetFooter}>
             <View style={{ flex: 1 }}>
-              <SecondaryButton label="Reset" onPress={resetFilters} />
+              <SecondaryButton label={t('category.resetButton')} onPress={resetFilters} />
             </View>
             <View style={{ flex: 1 }}>
-              <PrimaryButton label="Apply" onPress={applyFilters} />
+              <PrimaryButton label={t('category.applyButton')} onPress={applyFilters} />
             </View>
           </View>
         </BottomSheetView>

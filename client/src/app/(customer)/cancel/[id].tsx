@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -16,6 +17,14 @@ const REASONS = [
 ]
 
 export default function CancelBookingScreen() {
+  const { t } = useTranslation('customer')
+  const reasonDisplay: Record<string, string> = {
+    'Booked by mistake': t('cancelBooking.reasonMistake'),
+    'Found another worker': t('cancelBooking.reasonFoundAnother'),
+    'Schedule changed': t('cancelBooking.reasonScheduleChanged'),
+    'Price too high': t('cancelBooking.reasonPriceTooHigh'),
+    Other: t('cancelBooking.reasonOther'),
+  }
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -27,11 +36,11 @@ export default function CancelBookingScreen() {
     setSubmitting(true)
     try {
       await apiService.cancelBooking(id, reason)
-      show('Booking cancelled', 'default')
+      show(t('cancelBooking.successMessage'), 'default')
       router.back()
       router.back()
     } catch {
-      show('Could not cancel booking. Please try again.', 'error')
+      show(t('cancelBooking.error'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -39,26 +48,26 @@ export default function CancelBookingScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Cancel booking" showBack />
+      <AppHeader title={t('cancelBooking.title')} showBack />
 
       <View style={s.content}>
-        <Text style={s.subtitle}>Why are you cancelling?</Text>
+        <Text style={s.subtitle}>{t('cancelBooking.subtitle')}</Text>
         {REASONS.map((r) => (
           <Pressable key={r} style={[s.option, reason === r && s.optionSelected]} onPress={() => setReason(r)}>
-            <Text style={s.optionText}>{r}</Text>
+            <Text style={s.optionText}>{reasonDisplay[r]}</Text>
             <View style={[s.radio, reason === r && s.radioSelected]} />
           </Pressable>
         ))}
 
         <Text style={s.policy}>
-          Cancellations made less than 1 hour before the scheduled time may still incur a partial charge.
+          {t('cancelBooking.policy')}
         </Text>
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Confirm Cancellation" onPress={handleConfirm} disabled={!reason} loading={submitting} />
+        <PrimaryButton label={t('cancelBooking.confirmButton')} onPress={handleConfirm} disabled={!reason} loading={submitting} />
         <View style={{ height: Spacing.sm }} />
-        <SecondaryButton label="Never mind" onPress={() => router.back()} />
+        <SecondaryButton label={t('cancelBooking.neverMind')} onPress={() => router.back()} />
       </View>
     </View>
   )

@@ -3,6 +3,7 @@ import { ActivityIndicator, Share, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { CheckCircle2 } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { APP_NAME, Colors, FontFamily, Radius, Spacing } from '@/constants'
@@ -10,6 +11,7 @@ import type { BookingDetail } from '@/types/booking'
 import type { Payment } from '@/types/payment'
 
 export default function PaymentSuccessScreen() {
+  const { t } = useTranslation('customer')
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>()
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
@@ -38,13 +40,14 @@ export default function PaymentSuccessScreen() {
   async function handleShare() {
     if (!booking || !payment) return
     await Share.share({
-      message:
-        `${APP_NAME} — Invoice\n\n` +
-        `Service: ${booking.category}\n` +
-        `Worker: ${booking.worker_name}\n` +
-        `Date: ${booking.scheduled_date} ${booking.scheduled_time?.slice(0, 5) ?? ''}\n` +
-        `Amount paid: ₹${payment.amount}\n` +
-        `Payment ID: ${payment.razorpay_payment_id ?? '—'}`,
+      message: t('paymentSuccess.shareMessage', {
+        appName: APP_NAME,
+        category: booking.category,
+        workerName: booking.worker_name,
+        date: `${booking.scheduled_date} ${booking.scheduled_time?.slice(0, 5) ?? ''}`,
+        amount: payment.amount,
+        paymentId: payment.razorpay_payment_id ?? '—',
+      }),
     })
   }
 
@@ -62,25 +65,25 @@ export default function PaymentSuccessScreen() {
         <View style={s.successIcon}>
           <CheckCircle2 size={56} color={Colors.success} strokeWidth={1.5} />
         </View>
-        <Text style={s.title}>Payment successful</Text>
-        <Text style={s.subtitle}>₹{payment.amount} paid to {booking.worker_name}</Text>
+        <Text style={s.title}>{t('paymentSuccess.title')}</Text>
+        <Text style={s.subtitle}>{t('paymentSuccess.subtitle', { amount: payment.amount, worker: booking.worker_name })}</Text>
 
         <View style={s.invoiceCard}>
-          <Text style={s.invoiceTitle}>Invoice</Text>
-          <InvoiceRow label="Service" value={booking.category} />
-          <InvoiceRow label="Worker" value={booking.worker_name} />
-          <InvoiceRow label="Date" value={`${booking.scheduled_date} ${booking.scheduled_time?.slice(0, 5) ?? ''}`} />
-          <InvoiceRow label="Payment method" value={payment.method.toUpperCase()} />
-          <InvoiceRow label="Payment ID" value={payment.razorpay_payment_id ?? '—'} />
+          <Text style={s.invoiceTitle}>{t('paymentSuccess.invoiceTitle')}</Text>
+          <InvoiceRow label={t('paymentSuccess.labelService')} value={booking.category} />
+          <InvoiceRow label={t('paymentSuccess.labelWorker')} value={booking.worker_name} />
+          <InvoiceRow label={t('paymentSuccess.labelDate')} value={`${booking.scheduled_date} ${booking.scheduled_time?.slice(0, 5) ?? ''}`} />
+          <InvoiceRow label={t('paymentSuccess.labelMethod')} value={payment.method.toUpperCase()} />
+          <InvoiceRow label={t('paymentSuccess.labelPaymentId')} value={payment.razorpay_payment_id ?? '—'} />
           <View style={s.invoiceDivider} />
-          <InvoiceRow label="Total" value={`₹${payment.amount}`} bold />
+          <InvoiceRow label={t('paymentSuccess.labelTotal')} value={`₹${payment.amount}`} bold />
         </View>
 
-        <SecondaryButton label="Share Invoice" onPress={handleShare} />
+        <SecondaryButton label={t('paymentSuccess.shareButton')} onPress={handleShare} />
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Rate this service" onPress={handleContinue} />
+        <PrimaryButton label={t('paymentSuccess.rateButton')} onPress={handleContinue} />
       </View>
     </View>
   )

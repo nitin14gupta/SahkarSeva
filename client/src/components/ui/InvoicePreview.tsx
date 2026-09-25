@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 
 interface InvoicePreviewProps {
@@ -10,18 +11,19 @@ interface InvoicePreviewProps {
 }
 
 export function InvoicePreview({ category, customerName, date, amount }: InvoicePreviewProps) {
+  const { t } = useTranslation('common')
   return (
     <View style={s.card}>
-      <Text style={s.title}>Invoice</Text>
+      <Text style={s.title}>{t('invoice.title')}</Text>
 
-      <Row label="Customer" value={customerName} />
-      <Row label="Service" value={category} />
-      {!!date && <Row label="Date" value={date} />}
+      <Row label={t('invoice.customer')} value={customerName} />
+      <Row label={t('invoice.service')} value={category} />
+      {!!date && <Row label={t('invoice.date')} value={date} />}
 
       <View style={s.divider} />
 
       <View style={s.row}>
-        <Text style={s.totalLabel}>Total</Text>
+        <Text style={s.totalLabel}>{t('invoice.total')}</Text>
         <Text style={s.totalValue}>₹{amount}</Text>
       </View>
     </View>

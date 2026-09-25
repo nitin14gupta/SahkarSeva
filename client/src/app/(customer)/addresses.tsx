@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
 import { MapPin, Pencil, Plus, Trash2 } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -9,6 +10,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { Address } from '@/types/address'
 
 export default function AddressesScreen() {
+  const { t } = useTranslation('customer')
   const show = usePillStore((s) => s.show)
   const [addresses, setAddresses] = useState<Address[]>([])
   const [loading, setLoading] = useState(true)
@@ -49,13 +51,13 @@ export default function AddressesScreen() {
       await apiService.deleteAddress(id)
     } catch (e: any) {
       setAddresses(previous)
-      show(e?.response?.data?.detail ?? 'Could not delete address', 'error')
+      show(e?.response?.data?.detail ?? t('addresses.deleteError'), 'error')
     }
   }
 
   return (
     <View style={s.container}>
-      <AppHeader title="Saved addresses" showBack />
+      <AppHeader title={t('addresses.title')} showBack />
 
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
@@ -65,7 +67,7 @@ export default function AddressesScreen() {
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
         >
           {addresses.length === 0 ? (
-            <EmptyState icon={MapPin} title="No saved addresses" />
+            <EmptyState icon={MapPin} title={t('addresses.emptyTitle')} />
           ) : (
             addresses.map((addr) => (
               <View key={addr.id} style={s.addressCard}>
@@ -89,7 +91,7 @@ export default function AddressesScreen() {
 
           <Pressable style={s.addNew} onPress={() => router.push('/addresses/form')}>
             <Plus size={16} color={Colors.brandGreen} strokeWidth={2} />
-            <Text style={s.addNewText}>Add new address</Text>
+            <Text style={s.addNewText}>{t('addresses.addNew')}</Text>
           </Pressable>
         </ScrollView>
       )}

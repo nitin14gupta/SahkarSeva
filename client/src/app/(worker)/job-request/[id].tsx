@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapPin, Siren } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, CountdownRing, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useCountdown } from '@/hooks/useCountdown'
@@ -13,6 +14,7 @@ import type { WorkerBookingDetail } from '@/types/booking'
 const EMERGENCY_COUNTDOWN_SECONDS = 30
 
 export default function JobRequestScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -31,7 +33,7 @@ export default function JobRequestScreen() {
           const { booking } = await apiService.getWorkerBookingDetail(id)
           if (!cancelled) setBooking(booking)
         } catch {
-          if (!cancelled) show('Could not load this request', 'error')
+          if (!cancelled) show(t('jobRequest.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -49,18 +51,18 @@ export default function JobRequestScreen() {
       await apiService.acceptBooking(id)
       router.replace({ pathname: '/job/[id]/details', params: { id } })
     } catch {
-      show('Could not accept this job — it may have already been taken', 'error')
+      show(t('jobRequest.acceptError'), 'error')
       setResponding(null)
     }
   }
 
-  async function handleDecline(reason = 'Declined by worker') {
+  async function handleDecline(reason = t('jobRequest.declineReasonDefault')) {
     setResponding('decline')
     try {
       await apiService.declineBooking(id, reason)
       router.back()
     } catch {
-      show('Could not decline this job', 'error')
+      show(t('jobRequest.declineError'), 'error')
       setResponding(null)
     }
   }
@@ -71,11 +73,11 @@ export default function JobRequestScreen() {
     ;(async () => {
       setResponding('decline')
       try {
-        await apiService.declineBooking(id, 'Emergency request timed out')
+        await apiService.declineBooking(id, t('jobRequest.emergencyTimeoutReason'))
         if (!cancelled) router.back()
       } catch {
         if (!cancelled) {
-          show('Could not decline this job', 'error')
+          show(t('jobRequest.declineError'), 'error')
           setResponding(null)
         }
       }
@@ -94,12 +96,12 @@ export default function JobRequestScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="New job request" showBack />
+      <AppHeader title={t('jobRequest.title')} showBack />
       <View style={s.inner}>
         {isEmergency && (
           <View style={s.emergencyBanner}>
             <Siren size={16} color={Colors.inkOnAccent} strokeWidth={2} />
-            <Text style={s.emergencyText}>Emergency request</Text>
+            <Text style={s.emergencyText}>{t('jobRequest.emergencyBadge')}</Text>
             <CountdownRing progress={seconds / EMERGENCY_COUNTDOWN_SECONDS} seconds={seconds} size={40} strokeWidth={3} />
           </View>
         )}
@@ -112,7 +114,7 @@ export default function JobRequestScreen() {
           <View style={s.row}>
             <MapPin size={16} color={Colors.textSecondary} strokeWidth={2} />
             <Text style={s.rowText}>
-              {booking.address_city ?? 'Location shared after you accept'}
+              {booking.address_city ?? t('jobRequest.locationHidden')}
             </Text>
           </View>
 
@@ -133,10 +135,10 @@ export default function JobRequestScreen() {
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <View style={s.actionsRow}>
           <View style={{ flex: 1 }}>
-            <SecondaryButton label="Decline" onPress={handleDecline} loading={responding === 'decline'} disabled={!!responding} />
+            <SecondaryButton label={t('jobRequest.declineButton')} onPress={handleDecline} loading={responding === 'decline'} disabled={!!responding} />
           </View>
           <View style={{ flex: 1 }}>
-            <PrimaryButton label="Accept" onPress={handleAccept} loading={responding === 'accept'} disabled={!!responding} />
+            <PrimaryButton label={t('jobRequest.acceptButton')} onPress={handleAccept} loading={responding === 'accept'} disabled={!!responding} />
           </View>
         </View>
       </View>

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, KeyboardAvoidingWrapper, MapPinPicker, PrimaryButton } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { useWorkerRegistrationDraftStore } from '@/store/workerRegistrationDraftStore'
 import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function WorkerRegisterPersonalScreen() {
+  const { t } = useTranslation('worker')
   const insets = useSafeAreaInsets()
   const user = useAuthStore((s) => s.user)
   const draft = useWorkerRegistrationDraftStore()
@@ -31,34 +33,34 @@ export default function WorkerRegisterPersonalScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Personal Details" showBack />
+      <AppHeader title={t('registerPersonal.title')} showBack />
       <KeyboardAvoidingWrapper transparent>
         <View style={s.inner}>
-          <Text style={s.stepLabel}>Step 1 of 3</Text>
-          <Text style={s.title}>Tell us about yourself</Text>
+          <Text style={s.stepLabel}>{t('registerPersonal.stepLabel')}</Text>
+          <Text style={s.title}>{t('registerPersonal.heading')}</Text>
 
           <View style={s.field}>
-            <Text style={s.fieldLabel}>Name</Text>
+            <Text style={s.fieldLabel}>{t('registerPersonal.nameLabel')}</Text>
             <Text style={s.readonlyValue}>{user?.name}</Text>
           </View>
           <View style={s.field}>
-            <Text style={s.fieldLabel}>Phone</Text>
+            <Text style={s.fieldLabel}>{t('registerPersonal.phoneLabel')}</Text>
             <Text style={s.readonlyValue}>+91 {user?.phone}</Text>
           </View>
 
-          <Text style={s.fieldLabel}>ID number</Text>
+          <Text style={s.fieldLabel}>{t('registerPersonal.idNumberLabel')}</Text>
           <Input
             value={idNumber}
             onChangeText={setIdNumber}
-            placeholder="Aadhaar / voter ID number"
+            placeholder={t('registerPersonal.idNumberPlaceholder')}
             style={s.gapBelow}
           />
 
-          <Text style={s.fieldLabel}>Address</Text>
+          <Text style={s.fieldLabel}>{t('registerPersonal.addressLabel')}</Text>
           <Input
             value={addressLine1}
             onChangeText={setAddressLine1}
-            placeholder="House no, street, area"
+            placeholder={t('registerPersonal.addressPlaceholder')}
             style={s.gapBelow}
           />
 
@@ -66,7 +68,7 @@ export default function WorkerRegisterPersonalScreen() {
         </View>
 
         <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <PrimaryButton label="Continue" onPress={handleContinue} disabled={!isValid} />
+          <PrimaryButton label={t('common:continue')} onPress={handleContinue} disabled={!isValid} />
         </View>
       </KeyboardAvoidingWrapper>
     </View>

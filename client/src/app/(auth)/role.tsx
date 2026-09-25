@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { UserRound, Wrench } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { PrimaryButton, RoleCard } from '@/components/ui'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { Role } from '@/types/auth'
 
 export default function RoleScreen() {
+  const { t } = useTranslation('auth')
   const insets = useSafeAreaInsets()
   const [role, setRole] = useState<Role | null>(null)
 
@@ -19,29 +21,29 @@ export default function RoleScreen() {
   return (
     <View style={[s.container, { paddingTop: insets.top + Spacing.xl }]}>
       <View style={s.header}>
-        <Text style={s.title}>How will you use SahkarSeva?</Text>
-        <Text style={s.subtitle}>You can&apos;t switch this later without contacting support</Text>
+        <Text style={s.title}>{t('role.title')}</Text>
+        <Text style={s.subtitle}>{t('role.subtitle')}</Text>
       </View>
 
       <View style={s.row}>
         <RoleCard
           icon={UserRound}
-          title="I need a service"
-          subtitle="Book verified workers"
+          title={t('role.customerTitle')}
+          subtitle={t('role.customerSubtitle')}
           selected={role === 'customer'}
           onPress={() => setRole('customer')}
         />
         <RoleCard
           icon={Wrench}
-          title="I provide a service"
-          subtitle="Find work, get paid, get covered"
+          title={t('role.workerTitle')}
+          subtitle={t('role.workerSubtitle')}
           selected={role === 'worker'}
           onPress={() => setRole('worker')}
         />
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
-        <PrimaryButton label="Continue" onPress={handleContinue} disabled={!role} />
+        <PrimaryButton label={t('common:continue')} onPress={handleContinue} disabled={!role} />
       </View>
     </View>
   )

@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { Bell } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -9,6 +10,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { AppNotification } from '@/types/notification'
 
 export default function CustomerNotificationsScreen() {
+  const { t } = useTranslation('customer')
   const show = usePillStore((s) => s.show)
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
@@ -23,7 +25,7 @@ export default function CustomerNotificationsScreen() {
           const { notifications } = await apiService.getNotifications()
           if (!cancelled) setNotifications(notifications)
         } catch {
-          if (!cancelled) show('Could not load notifications', 'error')
+          if (!cancelled) show(t('notifications.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -57,11 +59,11 @@ export default function CustomerNotificationsScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Notifications" showBack />
+      <AppHeader title={t('notifications.title')} showBack />
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : notifications.length === 0 ? (
-        <EmptyState icon={Bell} title="No notifications yet" />
+        <EmptyState icon={Bell} title={t('notifications.emptyTitle')} />
       ) : (
         <ScrollView
           contentContainerStyle={s.content}

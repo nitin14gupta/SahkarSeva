@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'rea
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Camera, CheckCircle2 } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -15,6 +16,7 @@ interface PickedPhoto {
 }
 
 export default function JobInProgressScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -31,7 +33,7 @@ export default function JobInProgressScreen() {
       if (!picked) return
       setPhoto(picked)
     } catch {
-      show('Could not upload photo. You can skip this and continue.', 'error')
+      show(t('jobInProgress.uploadError'), 'error')
     }
   }
 
@@ -41,7 +43,7 @@ export default function JobInProgressScreen() {
       if (beforePhoto) await apiService.attachBookingPhotos(id, { before_photo_url: beforePhoto.remoteUrl })
       setStarted(true)
     } catch {
-      show('Could not save your before photo', 'error')
+      show(t('jobInProgress.beforeSaveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -53,7 +55,7 @@ export default function JobInProgressScreen() {
       if (afterPhoto) await apiService.attachBookingPhotos(id, { after_photo_url: afterPhoto.remoteUrl })
       router.push({ pathname: '/job/[id]/complete', params: { id } })
     } catch {
-      show('Could not save your after photo', 'error')
+      show(t('jobInProgress.afterSaveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -61,39 +63,39 @@ export default function JobInProgressScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title={started ? 'Job in progress' : 'Ready to begin?'} showBack />
+      <AppHeader title={started ? t('jobInProgress.headerInProgress') : t('jobInProgress.headerReady')} showBack />
       <View style={s.inner}>
         {!started ? (
           <>
-            <Text style={s.title}>Take a before photo</Text>
-            <Text style={s.subtitle}>Optional — helps document the job&apos;s starting condition</Text>
-            <PhotoSlot photo={beforePhoto} uploading={uploading} onPress={() => pickPhoto(setBeforePhoto)} />
+            <Text style={s.title}>{t('jobInProgress.beforeTitle')}</Text>
+            <Text style={s.subtitle}>{t('jobInProgress.beforeSubtitle')}</Text>
+            <PhotoSlot photo={beforePhoto} uploading={uploading} onPress={() => pickPhoto(setBeforePhoto)} addPhotoLabel={t('jobInProgress.addPhoto')} />
           </>
         ) : (
           <>
             <View style={s.startedBadge}>
               <CheckCircle2 size={16} color={Colors.brandGreen} strokeWidth={2} />
-              <Text style={s.startedText}>Job started</Text>
+              <Text style={s.startedText}>{t('jobInProgress.startedBadge')}</Text>
             </View>
-            <Text style={s.title}>Take an after photo</Text>
-            <Text style={s.subtitle}>Optional — helps document the completed work</Text>
-            <PhotoSlot photo={afterPhoto} uploading={uploading} onPress={() => pickPhoto(setAfterPhoto)} />
+            <Text style={s.title}>{t('jobInProgress.afterTitle')}</Text>
+            <Text style={s.subtitle}>{t('jobInProgress.afterSubtitle')}</Text>
+            <PhotoSlot photo={afterPhoto} uploading={uploading} onPress={() => pickPhoto(setAfterPhoto)} addPhotoLabel={t('jobInProgress.addPhoto')} />
           </>
         )}
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         {!started ? (
-          <PrimaryButton label="Mark Started" onPress={handleMarkStarted} loading={saving} />
+          <PrimaryButton label={t('jobInProgress.markStartedButton')} onPress={handleMarkStarted} loading={saving} />
         ) : (
-          <PrimaryButton label="Mark Completed" onPress={handleMarkCompleted} loading={saving} />
+          <PrimaryButton label={t('jobInProgress.markCompletedButton')} onPress={handleMarkCompleted} loading={saving} />
         )}
       </View>
     </View>
   )
 }
 
-function PhotoSlot({ photo, uploading, onPress }: { photo: PickedPhoto | null; uploading: boolean; onPress: () => void }) {
+function PhotoSlot({ photo, uploading, onPress, addPhotoLabel }: { photo: PickedPhoto | null; uploading: boolean; onPress: () => void; addPhotoLabel: string }) {
   return (
     <Pressable style={s.photoSlot} onPress={onPress} disabled={uploading}>
       {uploading ? (
@@ -103,7 +105,7 @@ function PhotoSlot({ photo, uploading, onPress }: { photo: PickedPhoto | null; u
       ) : (
         <>
           <Camera size={22} color={Colors.textSecondary} strokeWidth={2} />
-          <Text style={s.photoSlotText}>Add photo</Text>
+          <Text style={s.photoSlotText}>{addPhotoLabel}</Text>
         </>
       )}
     </Pressable>

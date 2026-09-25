@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { Star } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, EmptyState, RatingStars } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -9,6 +10,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerReview } from '@/types/worker'
 
 export default function WorkerReviewsScreen() {
+  const { t } = useTranslation('worker')
   const show = usePillStore((s) => s.show)
   const [reviews, setReviews] = useState<WorkerReview[]>([])
   const [ratingAvg, setRatingAvg] = useState(0)
@@ -29,7 +31,7 @@ export default function WorkerReviewsScreen() {
           setReviews(reviews)
           setRatingAvg(worker.rating_avg)
         } catch {
-          if (!cancelled) show('Could not load your reviews', 'error')
+          if (!cancelled) show(t('reviews.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -57,7 +59,7 @@ export default function WorkerReviewsScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Reviews received" showBack />
+      <AppHeader title={t('reviews.title')} showBack />
       {loading ? (
         <View style={s.center}><ActivityIndicator color={Colors.brandGreen} /></View>
       ) : (
@@ -70,7 +72,7 @@ export default function WorkerReviewsScreen() {
           </View>
 
           {reviews.length === 0 ? (
-            <EmptyState icon={Star} title="No reviews yet" subtitle="Reviews from completed jobs will show up here" />
+            <EmptyState icon={Star} title={t('reviews.emptyTitle')} subtitle={t('reviews.emptySubtitle')} />
           ) : (
             reviews.map((review, i) => (
               <View key={`${review.created_at}-${i}`} style={s.card}>

@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { router, useFocusEffect } from 'expo-router'
 import { HeartHandshake } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { Input, PrimaryButton, StatusBadge } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -10,6 +11,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WelfareEnrollment } from '@/types/worker'
 
 export default function WorkerWelfareScreen() {
+  const { t } = useTranslation('worker')
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
 
@@ -29,7 +31,7 @@ export default function WorkerWelfareScreen() {
           const { enrollment } = await apiService.getWelfareEnrollment()
           if (!cancelled) setEnrollment(enrollment)
         } catch {
-          if (!cancelled) show('Could not load welfare status', 'error')
+          if (!cancelled) show(t('welfare.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -59,9 +61,9 @@ export default function WorkerWelfareScreen() {
         scheme_name: schemeName.trim() || undefined,
       })
       setEnrollment(enrollment)
-      show('Enrollment submitted', 'success')
+      show(t('welfare.enrollSuccess'), 'success')
     } catch {
-      show('Could not submit enrollment', 'error')
+      show(t('welfare.enrollError'), 'error')
     } finally {
       setEnrolling(false)
     }
@@ -73,7 +75,7 @@ export default function WorkerWelfareScreen() {
         contentContainerStyle={{ paddingTop: insets.top + Spacing.md, paddingBottom: Spacing.xxl }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
       >
-        <Text style={s.title}>Welfare & Insurance</Text>
+        <Text style={s.title}>{t('welfare.title')}</Text>
 
         {loading ? (
           <ActivityIndicator color={Colors.brandGreen} style={s.center} />
@@ -81,14 +83,14 @@ export default function WorkerWelfareScreen() {
           <View style={s.card}>
             <StatusBadge
               tone={enrollment.status === 'active' ? 'success' : 'pending'}
-              label={enrollment.status === 'active' ? 'Active' : 'Enrollment pending'}
+              label={enrollment.status === 'active' ? t('welfare.activeBadge') : t('welfare.pendingBadge')}
             />
             <View style={s.field}>
-              <Text style={s.fieldLabel}>e-Shram UAN</Text>
+              <Text style={s.fieldLabel}>{t('welfare.uanLabel')}</Text>
               <Text style={s.fieldValue}>{enrollment.eshram_uan ?? '—'}</Text>
             </View>
             <View style={s.field}>
-              <Text style={s.fieldLabel}>Scheme</Text>
+              <Text style={s.fieldLabel}>{t('welfare.schemeLabel')}</Text>
               <Text style={s.fieldValue}>{enrollment.scheme_name ?? '—'}</Text>
             </View>
           </View>
@@ -96,29 +98,29 @@ export default function WorkerWelfareScreen() {
           <View style={s.card}>
             <View style={s.cardHeader}>
               <HeartHandshake size={20} color={Colors.brandGreen} strokeWidth={2} />
-              <Text style={s.cardTitle}>Enroll in welfare & insurance</Text>
+              <Text style={s.cardTitle}>{t('welfare.enrollCardTitle')}</Text>
             </View>
             <Text style={s.cardSubtitle}>
-              Link your e-Shram account to get access to cooperative welfare schemes and insurance cover.
+              {t('welfare.enrollCardSubtitle')}
             </Text>
             <Input
               value={eshramUan}
               onChangeText={setEshramUan}
-              placeholder="e-Shram UAN (optional)"
+              placeholder={t('welfare.uanPlaceholder')}
               style={s.fieldGap}
             />
             <Input
               value={schemeName}
               onChangeText={setSchemeName}
-              placeholder="Preferred scheme (optional)"
+              placeholder={t('welfare.schemePlaceholder')}
               style={s.fieldGap}
             />
-            <PrimaryButton label="Enroll" onPress={handleEnroll} loading={enrolling} />
+            <PrimaryButton label={t('welfare.enrollButton')} onPress={handleEnroll} loading={enrolling} />
           </View>
         )}
 
         <Pressable style={s.claimLink} onPress={() => router.push('/welfare/claim')}>
-          <Text style={s.claimLinkText}>Submit or track a claim</Text>
+          <Text style={s.claimLinkText}>{t('welfare.claimLink')}</Text>
         </Pressable>
       </ScrollView>
     </View>

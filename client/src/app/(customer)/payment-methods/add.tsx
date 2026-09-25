@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { CheckCircle2, XCircle } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useVpaValidation } from '@/hooks/useVpaValidation'
@@ -10,6 +11,7 @@ import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing, withOpacity } from '@/constants'
 
 export default function AddPaymentMethodScreen() {
+  const { t } = useTranslation('customer')
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const [upiId, setUpiId] = useState('')
@@ -29,10 +31,10 @@ export default function AddPaymentMethodScreen() {
     setSaving(true)
     try {
       await apiService.addPaymentMethod({ type: 'upi', upi_id: upiId.trim() })
-      show('Payment method saved', 'success')
+      show(t('paymentMethodsAdd.saveSuccess'), 'success')
       router.back()
     } catch {
-      show('Could not save payment method', 'error')
+      show(t('paymentMethodsAdd.saveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -40,11 +42,11 @@ export default function AddPaymentMethodScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Add payment method" showBack />
+      <AppHeader title={t('paymentMethodsAdd.title')} showBack />
 
       <View style={s.content}>
         <Input
-          placeholder="yourname@upi"
+          placeholder={t('paymentMethodsAdd.placeholder')}
           value={upiId}
           onChangeText={(v) => setUpiId(v.toLowerCase().trim())}
           autoCapitalize="none"
@@ -53,7 +55,7 @@ export default function AddPaymentMethodScreen() {
         {vpaChecking && (
           <View style={s.statusRow}>
             <ActivityIndicator size="small" color={Colors.textSecondary} />
-            <Text style={s.statusText}>Verifying UPI ID…</Text>
+            <Text style={s.statusText}>{t('paymentMethodsAdd.verifying')}</Text>
           </View>
         )}
         {!vpaChecking && vpaResult && (
@@ -65,13 +67,13 @@ export default function AddPaymentMethodScreen() {
         {!vpaChecking && vpaError && (
           <View style={[s.statusRow, s.statusRowError]}>
             <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
-            <Text style={s.statusTextError}>Couldn&apos;t verify this UPI ID</Text>
+            <Text style={s.statusTextError}>{t('paymentMethodsAdd.verifyError')}</Text>
           </View>
         )}
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Save" onPress={handleSave} disabled={!isValid} loading={saving} />
+        <PrimaryButton label={t('common:save')} onPress={handleSave} disabled={!isValid} loading={saving} />
       </View>
     </View>
   )

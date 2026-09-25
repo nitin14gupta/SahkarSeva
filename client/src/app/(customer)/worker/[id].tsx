@@ -3,12 +3,14 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { router, useLocalSearchParams } from 'expo-router'
 import { Heart, ShieldCheck, Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, CategoryIcon, EmptyState, HeaderIconBtn, PrimaryButton, RatingStars } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerDetail } from '@/types/catalog'
 
 export default function WorkerProfileScreen() {
+  const { t } = useTranslation('customer')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const [worker, setWorker] = useState<WorkerDetail | null>(null)
@@ -77,8 +79,8 @@ export default function WorkerProfileScreen() {
   if (error || !worker) {
     return (
       <View style={[s.container, s.center]}>
-        <Text style={s.errorText}>Couldn&apos;t load this profile.</Text>
-        <Pressable onPress={() => setRefreshKey((k) => k + 1)}><Text style={s.retry}>Tap to retry</Text></Pressable>
+        <Text style={s.errorText}>{t('worker.loadError')}</Text>
+        <Pressable onPress={() => setRefreshKey((k) => k + 1)}><Text style={s.retry}>{t('worker.tapToRetry')}</Text></Pressable>
       </View>
     )
   }
@@ -109,25 +111,25 @@ export default function WorkerProfileScreen() {
           {!!worker.cooperative_name && (
             <View style={s.verifiedBadge}>
               <ShieldCheck size={14} color={Colors.brandGreen} strokeWidth={2} />
-              <Text style={s.verifiedText}>Verified by {worker.cooperative_name}</Text>
+              <Text style={s.verifiedText}>{t('worker.verifiedBy', { name: worker.cooperative_name })}</Text>
             </View>
           )}
           <View style={s.ratingRow}>
             <RatingStars rating={worker.rating_avg} count={worker.rating_count} size={16} />
             <Text style={s.dot}>·</Text>
-            <Text style={s.experience}>{worker.years_experience} yrs experience</Text>
+            <Text style={s.experience}>{t('worker.yearsExperience', { years: worker.years_experience })}</Text>
           </View>
         </View>
 
         {!!worker.bio && (
           <View style={s.section}>
-            <Text style={s.sectionTitle}>About</Text>
+            <Text style={s.sectionTitle}>{t('worker.aboutTitle')}</Text>
             <Text style={s.bio}>{worker.bio}</Text>
           </View>
         )}
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Skills</Text>
+          <Text style={s.sectionTitle}>{t('worker.skillsTitle')}</Text>
           <View style={s.skillRow}>
             {worker.categories.map((cat) => (
               <View key={cat} style={s.skillChip}>
@@ -139,18 +141,18 @@ export default function WorkerProfileScreen() {
         </View>
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Pricing</Text>
+          <Text style={s.sectionTitle}>{t('worker.pricingTitle')}</Text>
           <Text style={s.price}>
             {worker.price_min !== null
-              ? `₹${worker.price_min}${worker.price_max ? `–₹${worker.price_max}` : ''} per visit`
-              : 'Contact for pricing'}
+              ? t('worker.pricePerVisit', { price: `₹${worker.price_min}${worker.price_max ? `–₹${worker.price_max}` : ''}` })
+              : t('worker.contactForPricing')}
           </Text>
         </View>
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Availability</Text>
+          <Text style={s.sectionTitle}>{t('worker.availabilityTitle')}</Text>
           {availableDates.length === 0 ? (
-            <Text style={s.mutedText}>No open slots right now</Text>
+            <Text style={s.mutedText}>{t('worker.noSlots')}</Text>
           ) : (
             <View style={s.skillRow}>
               {availableDates.map((d) => (
@@ -161,9 +163,9 @@ export default function WorkerProfileScreen() {
         </View>
 
         <View style={s.section}>
-          <Text style={s.sectionTitle}>Reviews ({worker.reviews.length})</Text>
+          <Text style={s.sectionTitle}>{t('worker.reviewsTitle', { count: worker.reviews.length })}</Text>
           {worker.reviews.length === 0 ? (
-            <EmptyState icon={Star} title="No reviews yet" subtitle="Be the first to book and review this worker" />
+            <EmptyState icon={Star} title={t('worker.noReviewsTitle')} subtitle={t('worker.noReviewsSubtitle')} />
           ) : (
             worker.reviews.map((review, i) => (
               <View key={i} style={s.reviewCard}>
@@ -187,7 +189,7 @@ export default function WorkerProfileScreen() {
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <PrimaryButton
-          label="Book Now"
+          label={t('worker.bookNowButton')}
           onPress={() => router.push({ pathname: '/booking/[workerId]/date-time', params: { workerId: worker.id } })}
         />
       </View>

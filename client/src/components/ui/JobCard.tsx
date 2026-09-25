@@ -1,8 +1,9 @@
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import { Avatar } from './Avatar'
-import { STATUS_COLOR, STATUS_LABEL } from './BookingCard'
+import { STATUS_COLOR, STATUS_LABEL_KEY } from './BookingCard'
 import type { WorkerBookingSummary } from '@/types/booking'
 
 interface JobCardProps {
@@ -11,6 +12,7 @@ interface JobCardProps {
 }
 
 export function JobCard({ booking, onPress }: JobCardProps) {
+  const { t } = useTranslation('common')
   return (
     <Pressable style={s.card} onPress={onPress}>
       <Avatar uri={booking.customer_photo_url} size={48} />
@@ -22,9 +24,9 @@ export function JobCard({ booking, onPress }: JobCardProps) {
         )}
       </View>
       <View style={s.trailing}>
-        {booking.is_emergency && <Text style={s.emergency}>Emergency</Text>}
+        {booking.is_emergency && <Text style={s.emergency}>{t('booking.emergency')}</Text>}
         <Text style={[s.status, { color: STATUS_COLOR[booking.status] }]}>
-          {STATUS_LABEL[booking.status]}
+          {t(STATUS_LABEL_KEY[booking.status])}
         </Text>
         {booking.price_estimate !== null && <Text style={s.price}>₹{booking.price_estimate}</Text>}
       </View>

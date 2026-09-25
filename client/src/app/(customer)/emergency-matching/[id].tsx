@@ -4,6 +4,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming, Eas
 import { router, useLocalSearchParams } from 'expo-router'
 import { CheckCircle2 } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
@@ -13,6 +14,7 @@ import type { WorkerDetail } from '@/types/catalog'
 const MATCH_DELAY_MS = 2200
 
 export default function EmergencyMatchingScreen() {
+  const { t } = useTranslation('customer')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
@@ -56,13 +58,13 @@ export default function EmergencyMatchingScreen() {
             <Animated.View style={[s.ring, ringStyle]} />
             <View style={s.dot} />
           </View>
-          <Text style={s.title}>Finding the nearest worker…</Text>
-          <Text style={s.subtitle}>This usually takes a few seconds</Text>
+          <Text style={s.title}>{t('emergencyMatching.findingTitle')}</Text>
+          <Text style={s.subtitle}>{t('emergencyMatching.findingSubtitle')}</Text>
         </View>
       ) : (
         <View style={s.center}>
           <CheckCircle2 size={48} color={Colors.success} strokeWidth={1.5} />
-          <Text style={s.title}>Worker matched!</Text>
+          <Text style={s.title}>{t('emergencyMatching.matchedTitle')}</Text>
           {!!worker && (
             <View style={s.workerCard}>
               <Avatar uri={worker.photo_url} size={56} />
@@ -70,12 +72,12 @@ export default function EmergencyMatchingScreen() {
                 <Text style={s.workerName}>{worker.name}</Text>
                 <Text style={s.workerCategory}>{booking?.category}</Text>
               </View>
-              <Text style={s.eta}>{etaMinutes} min</Text>
+              <Text style={s.eta}>{t('emergencyMatching.etaMinutes', { eta: etaMinutes })}</Text>
             </View>
           )}
           <View style={{ width: '100%', marginTop: Spacing.xl }}>
             <PrimaryButton
-              label="Track live"
+              label={t('emergencyMatching.trackLive')}
               onPress={() => router.replace({ pathname: '/tracking/[id]', params: { id } })}
             />
           </View>

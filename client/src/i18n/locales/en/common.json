@@ -1,0 +1,41 @@
+{
+  "continue": "Continue",
+  "next": "Next",
+  "getStarted": "Get Started",
+  "skip": "Skip",
+  "finish": "Finish",
+  "cancel": "Cancel",
+  "save": "Save",
+  "back": "Back",
+  "retry": "Retry",
+  "loading": "Loading…",
+  "somethingWentWrong": "Something went wrong. Please try again.",
+  "search": {
+    "placeholder": "Search for a service or worker"
+  },
+  "bookingStatus": {
+    "requested": "Requested",
+    "accepted": "Accepted",
+    "enRoute": "On the way",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "booking": {
+    "emergency": "Emergency"
+  },
+  "worker": {
+    "verifiedBy": "Verified by {{name}}"
+  },
+  "invoice": {
+    "title": "Invoice",
+    "customer": "Customer",
+    "service": "Service",
+    "date": "Date",
+    "total": "Total"
+  },
+  "validation": {
+    "descriptionLengthHint": "{{length}}/{{max}} · minimum {{min}} characters",
+    "photosCountHint": "Photos ({{count}}/{{max}}) — attach at least {{min}}"
+  }
+}

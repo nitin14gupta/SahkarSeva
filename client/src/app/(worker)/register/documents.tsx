@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, StyleSheet, Text, View } from 'rea
 import { router, useLocalSearchParams } from 'expo-router'
 import { Camera, Check } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useWorkerRegistrationDraftStore } from '@/store/workerRegistrationDraftStore'
@@ -16,15 +17,15 @@ interface SlotState {
   remoteUrl: string | null
 }
 
-const SLOTS: { type: WorkerDocumentType; label: string }[] = [
-  { type: 'id_proof', label: 'ID proof (Aadhaar / voter ID)' },
-  { type: 'skill_certificate', label: 'Skill certificate' },
-]
-
 export default function WorkerRegisterDocumentsScreen() {
+  const { t } = useTranslation('worker')
   const { mode } = useLocalSearchParams<{ mode?: string }>()
   const isResubmit = mode === 'resubmit'
   const insets = useSafeAreaInsets()
+  const SLOTS: { type: WorkerDocumentType; label: string }[] = [
+    { type: 'id_proof', label: t('registerDocuments.idProofLabel') },
+    { type: 'skill_certificate', label: t('registerDocuments.skillCertLabel') },
+  ]
   const draft = useWorkerRegistrationDraftStore()
   const show = usePillStore((s) => s.show)
   const { pickAndUpload, uploading } = useImageUpload('worker-documents')
@@ -43,7 +44,7 @@ export default function WorkerRegisterDocumentsScreen() {
       if (!picked) return
       setDocs((prev) => ({ ...prev, [type]: { localUri: picked.localUri, remoteUrl: picked.remoteUrl } }))
     } catch {
-      show('Could not upload document. Please try again.', 'error')
+      show(t('registerDocuments.uploadError'), 'error')
     } finally {
       setActiveSlot(null)
     }
@@ -78,7 +79,7 @@ export default function WorkerRegisterDocumentsScreen() {
       }
       router.replace('/(worker)/(tabs)/home')
     } catch {
-      show('Could not submit your documents. Please try again.', 'error')
+      show(t('registerDocuments.submitError'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -86,11 +87,11 @@ export default function WorkerRegisterDocumentsScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Certificate Upload" showBack />
+      <AppHeader title={t('registerDocuments.title')} showBack />
       <View style={s.inner}>
-        {!isResubmit && <Text style={s.stepLabel}>Step 3 of 3</Text>}
-        <Text style={s.title}>{isResubmit ? 'Re-submit your documents' : 'Upload your documents'}</Text>
-        <Text style={s.subtitle}>Your cooperative will verify these before you can go online</Text>
+        {!isResubmit && <Text style={s.stepLabel}>{t('registerDocuments.stepLabel')}</Text>}
+        <Text style={s.title}>{isResubmit ? t('registerDocuments.headingResubmit') : t('registerDocuments.headingUpload')}</Text>
+        <Text style={s.subtitle}>{t('registerDocuments.subtitle')}</Text>
 
         {SLOTS.map((slot) => {
           const state = docs[slot.type]
@@ -119,7 +120,7 @@ export default function WorkerRegisterDocumentsScreen() {
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <PrimaryButton
-          label={isResubmit ? 'Re-submit for verification' : 'Submit for verification'}
+          label={isResubmit ? t('registerDocuments.resubmitButton') : t('registerDocuments.submitButton')}
           onPress={handleSubmit}
           disabled={!allUploaded}
           loading={submitting}

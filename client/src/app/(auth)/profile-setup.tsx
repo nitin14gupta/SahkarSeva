@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import * as SecureStore from 'expo-secure-store'
 import { Camera } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Input, KeyboardAvoidingWrapper, PrimaryButton, Screen } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
@@ -13,6 +14,7 @@ import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
 import type { Role } from '@/types/auth'
 
 export default function ProfileSetupScreen() {
+  const { t } = useTranslation('auth')
   const { role } = useLocalSearchParams<{ role: Role }>()
   const insets = useSafeAreaInsets()
   const [name, setName] = useState('')
@@ -30,7 +32,7 @@ export default function ProfileSetupScreen() {
       setPhotoUri(picked.localUri)
       setPhotoUrl(picked.remoteUrl)
     } catch {
-      show('Could not upload photo. You can try again later.', 'error')
+      show(t('profileSetup.photoUploadError'), 'error')
     }
   }
 
@@ -53,8 +55,8 @@ export default function ProfileSetupScreen() {
     <Screen>
       <KeyboardAvoidingWrapper transparent>
         <View style={s.inner}>
-          <Text style={s.title}>Set up your profile</Text>
-          <Text style={s.subtitle}>This is how workers and customers will see you</Text>
+          <Text style={s.title}>{t('profileSetup.title')}</Text>
+          <Text style={s.subtitle}>{t('profileSetup.subtitle')}</Text>
 
           <Pressable style={s.photoPicker} onPress={pickPhoto} disabled={uploading}>
             {uploading ? (
@@ -69,13 +71,13 @@ export default function ProfileSetupScreen() {
           <Input
             value={name}
             onChangeText={setName}
-            placeholder="Full name"
+            placeholder={t('profileSetup.namePlaceholder')}
           />
         </View>
 
         <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
-            label="Finish"
+            label={t('common:finish')}
             onPress={handleSubmit}
             disabled={!name.trim()}
             loading={loading}

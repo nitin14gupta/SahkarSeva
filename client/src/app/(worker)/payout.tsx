@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { useFocusEffect } from 'expo-router'
 import { CheckCircle2, Landmark, XCircle } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, EmptyState, Input, KeyboardAvoidingWrapper, LanguageChip, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useVpaValidation } from '@/hooks/useVpaValidation'
@@ -16,14 +17,14 @@ function maskAccountNumber(accountNumber: string | null): string {
   return `${'•'.repeat(Math.max(0, accountNumber.length - 4))}${last4}`
 }
 
-const SCHEDULES: { key: PayoutSchedule; label: string }[] = [
-  { key: 'daily', label: 'Daily' },
-  { key: 'weekly', label: 'Weekly' },
-  { key: 'monthly', label: 'Monthly' },
-]
-
 export default function WorkerPayoutScreen() {
+  const { t } = useTranslation('worker')
   const show = usePillStore((s) => s.show)
+  const SCHEDULES: { key: PayoutSchedule; label: string }[] = [
+    { key: 'daily', label: t('payout.scheduleDaily') },
+    { key: 'weekly', label: t('payout.scheduleWeekly') },
+    { key: 'monthly', label: t('payout.scheduleMonthly') },
+  ]
 
   const [accounts, setAccounts] = useState<PayoutAccount[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,7 +63,7 @@ export default function WorkerPayoutScreen() {
           setAccounts(accounts)
           setSchedule(worker.payout_schedule)
         } catch {
-          if (!cancelled) show('Could not load your payout details', 'error')
+          if (!cancelled) show(t('payout.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -94,7 +95,7 @@ export default function WorkerPayoutScreen() {
     try {
       await apiService.updateWorkerProfile({ payout_schedule: next })
     } catch {
-      show('Could not update payout schedule', 'error')
+      show(t('payout.scheduleUpdateError'), 'error')
     } finally {
       setSavingSchedule(false)
     }
@@ -126,9 +127,9 @@ export default function WorkerPayoutScreen() {
       setAccountNumber('')
       setConfirmAccountNumber('')
       setIfsc('')
-      show('Payout account added', 'success')
+      show(t('payout.accountAddedSuccess'), 'success')
     } catch {
-      show('Could not save this account', 'error')
+      show(t('payout.accountSaveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -136,14 +137,14 @@ export default function WorkerPayoutScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Payout & bank linking" showBack />
+      <AppHeader title={t('payout.title')} showBack />
       <KeyboardAvoidingWrapper transparent>
         <ScrollView
           style={s.inner}
           contentContainerStyle={s.innerContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
         >
-          <Text style={s.sectionLabel}>Payout schedule</Text>
+          <Text style={s.sectionLabel}>{t('payout.scheduleLabel')}</Text>
           <View style={s.chipRow}>
             {SCHEDULES.map((sch) => (
               <LanguageChip
@@ -156,11 +157,11 @@ export default function WorkerPayoutScreen() {
           </View>
           {savingSchedule && <ActivityIndicator color={Colors.brandGreen} style={s.scheduleSpinner} />}
 
-          <Text style={[s.sectionLabel, s.sectionGap]}>Linked accounts</Text>
+          <Text style={[s.sectionLabel, s.sectionGap]}>{t('payout.linkedAccountsLabel')}</Text>
           {loading ? (
             <ActivityIndicator color={Colors.brandGreen} />
           ) : accounts.length === 0 ? (
-            <EmptyState icon={Landmark} title="No payout account linked yet" />
+            <EmptyState icon={Landmark} title={t('payout.noAccountsTitle')} />
           ) : (
             accounts.map((acc) => (
               <View key={acc.id} style={s.accountCard}>
@@ -169,16 +170,16 @@ export default function WorkerPayoutScreen() {
                   <Text style={s.accountTitle}>
                     {acc.method === 'upi' ? acc.upi_id : `${acc.account_holder} · ${maskAccountNumber(acc.account_number)}`}
                   </Text>
-                  <Text style={s.accountSubtitle}>{acc.method === 'upi' ? 'UPI' : `Bank · ${acc.ifsc}`}{acc.is_default ? ' · Default' : ''}</Text>
+                  <Text style={s.accountSubtitle}>{acc.method === 'upi' ? t('payout.upiTag') : t('payout.bankTag', { ifsc: acc.ifsc })}{acc.is_default ? t('payout.defaultTag') : ''}</Text>
                 </View>
               </View>
             ))
           )}
 
-          <Text style={[s.sectionLabel, s.sectionGap]}>Add a payout account</Text>
+          <Text style={[s.sectionLabel, s.sectionGap]}>{t('payout.addAccountLabel')}</Text>
           <View style={s.chipRow}>
-            <LanguageChip label="UPI" selected={method === 'upi'} onPress={() => setMethod('upi')} />
-            <LanguageChip label="Bank account" selected={method === 'bank'} onPress={() => setMethod('bank')} />
+            <LanguageChip label={t('payout.upiOption')} selected={method === 'upi'} onPress={() => setMethod('upi')} />
+            <LanguageChip label={t('payout.bankOption')} selected={method === 'bank'} onPress={() => setMethod('bank')} />
           </View>
 
           <View style={s.form}>
@@ -187,14 +188,14 @@ export default function WorkerPayoutScreen() {
                 <Input
                   value={upiId}
                   onChangeText={(v) => setUpiId(v.toLowerCase().trim())}
-                  placeholder="yourname@upi"
+                  placeholder={t('payout.upiPlaceholder')}
                   autoCapitalize="none"
                 />
 
                 {vpaChecking && (
                   <View style={s.statusRow}>
                     <ActivityIndicator size="small" color={Colors.textSecondary} />
-                    <Text style={s.statusText}>Verifying UPI ID…</Text>
+                    <Text style={s.statusText}>{t('payout.verifyingUpi')}</Text>
                   </View>
                 )}
                 {!vpaChecking && vpaResult && (
@@ -206,17 +207,17 @@ export default function WorkerPayoutScreen() {
                 {!vpaChecking && vpaError && (
                   <View style={[s.statusRow, s.statusRowError]}>
                     <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
-                    <Text style={s.statusTextError}>Couldn&apos;t verify this UPI ID</Text>
+                    <Text style={s.statusTextError}>{t('payout.upiVerifyError')}</Text>
                   </View>
                 )}
               </>
             ) : (
               <>
-                <Input value={accountHolder} onChangeText={setAccountHolder} placeholder="Account holder name" style={s.fieldGap} />
+                <Input value={accountHolder} onChangeText={setAccountHolder} placeholder={t('payout.accountHolderPlaceholder')} style={s.fieldGap} />
                 <Input
                   value={accountNumber}
                   onChangeText={(v) => setAccountNumber(v.replace(/[^0-9]/g, ''))}
-                  placeholder="Account number"
+                  placeholder={t('payout.accountNumberPlaceholder')}
                   keyboardType="number-pad"
                   secureTextEntry
                   style={s.fieldGap}
@@ -224,17 +225,17 @@ export default function WorkerPayoutScreen() {
                 <Input
                   value={confirmAccountNumber}
                   onChangeText={(v) => setConfirmAccountNumber(v.replace(/[^0-9]/g, ''))}
-                  placeholder="Confirm account number"
+                  placeholder={t('payout.confirmAccountNumberPlaceholder')}
                   keyboardType="number-pad"
-                  error={accountNumberMismatch ? "Account numbers don't match" : undefined}
+                  error={accountNumberMismatch ? t('payout.accountNumberMismatch') : undefined}
                   style={s.fieldGap}
                 />
-                <Input value={ifsc} onChangeText={(v) => setIfsc(v.toUpperCase())} placeholder="IFSC code" autoCapitalize="characters" />
+                <Input value={ifsc} onChangeText={(v) => setIfsc(v.toUpperCase())} placeholder={t('payout.ifscPlaceholder')} autoCapitalize="characters" />
 
                 {bankLookupLoading && (
                   <View style={s.statusRow}>
                     <ActivityIndicator size="small" color={Colors.textSecondary} />
-                    <Text style={s.statusText}>Looking up bank…</Text>
+                    <Text style={s.statusText}>{t('payout.lookingUpBank')}</Text>
                   </View>
                 )}
                 {!bankLookupLoading && bankInfo && (
@@ -246,14 +247,14 @@ export default function WorkerPayoutScreen() {
                 {!bankLookupLoading && ifscError && (
                   <View style={[s.statusRow, s.statusRowError]}>
                     <XCircle size={16} color={Colors.destructive} strokeWidth={2} />
-                    <Text style={s.statusTextError}>Could not verify this IFSC code</Text>
+                    <Text style={s.statusTextError}>{t('payout.ifscVerifyError')}</Text>
                   </View>
                 )}
               </>
             )}
           </View>
 
-          <PrimaryButton label="Save account" onPress={handleAddAccount} disabled={!isValid} loading={saving} />
+          <PrimaryButton label={t('payout.saveAccountButton')} onPress={handleAddAccount} disabled={!isValid} loading={saving} />
         </ScrollView>
       </KeyboardAvoidingWrapper>
     </View>

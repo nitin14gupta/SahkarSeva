@@ -1,0 +1,41 @@
+{
+  "continue": "पुढे चालू ठेवा",
+  "next": "पुढील",
+  "getStarted": "सुरुवात करा",
+  "skip": "स्किप करा",
+  "finish": "संपवा",
+  "cancel": "रद्द करा",
+  "save": "जतन करा",
+  "back": "मागे",
+  "retry": "पुन्हा प्रयत्न करा",
+  "loading": "लोड होत आहे",
+  "somethingWentWrong": "काहीतरी चूक झाली. कृपया पुन्हा प्रयत्न करा.",
+  "search": {
+    "placeholder": "सेवा किंवा कामगार शोधा"
+  },
+  "bookingStatus": {
+    "requested": "विनंती केली",
+    "accepted": "स्वीकारले",
+    "enRoute": "वाटेत",
+    "inProgress": "प्रगतीपथावर",
+    "completed": "पूर्ण झाले",
+    "cancelled": "रद्द केले"
+  },
+  "booking": {
+    "emergency": "आणीबाणी"
+  },
+  "worker": {
+    "verifiedBy": "{{name}} द्वारे पडताळणी केली"
+  },
+  "invoice": {
+    "title": "चलनपत्रिका",
+    "customer": "ग्राहक",
+    "service": "सेवा",
+    "date": "तारीख",
+    "total": "एकूण"
+  },
+  "validation": {
+    "descriptionLengthHint": "{{length}}/{{max}} किमान {{min}} अक्षरे",
+    "photosCountHint": "छायाचित्रे ({{count}}/{{max}})-किमान संलग्न करा {{min}}"
+  }
+}

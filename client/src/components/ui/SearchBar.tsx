@@ -1,6 +1,7 @@
 import React from 'react'
 import { Pressable, StyleSheet, TextInput, View } from 'react-native'
 import { Search, X } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, ComponentSize, FontFamily, Radius, Spacing } from '@/constants'
 
 interface SearchBarProps {
@@ -11,7 +12,8 @@ interface SearchBarProps {
   autoFocus?: boolean
 }
 
-export function SearchBar({ value, onChangeText, onSubmit, placeholder = 'Search for a service or worker', autoFocus }: SearchBarProps) {
+export function SearchBar({ value, onChangeText, onSubmit, placeholder, autoFocus }: SearchBarProps) {
+  const { t } = useTranslation('common')
   return (
     <View style={s.wrap}>
       <Search size={18} color={Colors.textSecondary} strokeWidth={2} />
@@ -19,7 +21,7 @@ export function SearchBar({ value, onChangeText, onSubmit, placeholder = 'Search
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('search.placeholder')}
         placeholderTextColor={Colors.inkDisabled}
         returnKeyType="search"
         autoFocus={autoFocus}

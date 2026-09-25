@@ -1,16 +1,19 @@
 import React from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import { Avatar } from './Avatar'
 import type { BookingSummary } from '@/types/booking'
 
-export const STATUS_LABEL: Record<string, string> = {
-  requested: 'Requested',
-  accepted: 'Accepted',
-  en_route: 'On the way',
-  in_progress: 'In progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
+// Values are i18next keys (in the `common` namespace), not display text —
+// call sites must run them through t().
+export const STATUS_LABEL_KEY: Record<string, string> = {
+  requested: 'bookingStatus.requested',
+  accepted: 'bookingStatus.accepted',
+  en_route: 'bookingStatus.enRoute',
+  in_progress: 'bookingStatus.inProgress',
+  completed: 'bookingStatus.completed',
+  cancelled: 'bookingStatus.cancelled',
 }
 
 export const STATUS_COLOR: Record<string, string> = {
@@ -29,6 +32,7 @@ interface BookingCardProps {
 }
 
 export function BookingCard({ booking, onPress, compact }: BookingCardProps) {
+  const { t } = useTranslation('common')
   if (compact) {
     return (
       <Pressable style={s.compactCard} onPress={onPress}>
@@ -50,7 +54,7 @@ export function BookingCard({ booking, onPress, compact }: BookingCardProps) {
         )}
       </View>
       <Text style={[s.status, { color: STATUS_COLOR[booking.status] }]}>
-        {STATUS_LABEL[booking.status]}
+        {t(STATUS_LABEL_KEY[booking.status])}
       </Text>
     </Pressable>
   )

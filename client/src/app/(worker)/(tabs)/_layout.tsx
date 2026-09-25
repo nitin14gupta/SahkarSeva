@@ -1,8 +1,10 @@
 import { Tabs } from 'expo-router'
 import { Briefcase, HeartHandshake, IndianRupee, UserRound } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { Colors, FontFamily } from '@/constants'
 
 export default function WorkerTabsLayout() {
+  const { t } = useTranslation('worker')
   return (
     <Tabs
       screenOptions={{
@@ -15,19 +17,19 @@ export default function WorkerTabsLayout() {
     >
       <Tabs.Screen
         name="home"
-        options={{ title: 'Jobs', tabBarIcon: ({ color, size }) => <Briefcase color={color} size={size} /> }}
+        options={{ title: t('tabs.jobs'), tabBarIcon: ({ color, size }) => <Briefcase color={color} size={size} /> }}
       />
       <Tabs.Screen
         name="earnings"
-        options={{ title: 'Earnings', tabBarIcon: ({ color, size }) => <IndianRupee color={color} size={size} /> }}
+        options={{ title: t('tabs.earnings'), tabBarIcon: ({ color, size }) => <IndianRupee color={color} size={size} /> }}
       />
       <Tabs.Screen
         name="welfare"
-        options={{ title: 'Welfare', tabBarIcon: ({ color, size }) => <HeartHandshake color={color} size={size} /> }}
+        options={{ title: t('tabs.welfare'), tabBarIcon: ({ color, size }) => <HeartHandshake color={color} size={size} /> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Profile', tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} /> }}
+        options={{ title: t('tabs.profile'), tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} /> }}
       />
     </Tabs>
   )

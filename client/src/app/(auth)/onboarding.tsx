@@ -5,17 +5,14 @@ import {
 } from 'react-native'
 import { router } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LogoMark, PrimaryButton } from '@/components/ui'
 import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
 
 const { width } = Dimensions.get('window')
 
-const SLIDES = [
-  { title: 'Workers who own the platform.' },
-  { title: 'Cooperative-verified, not algorithm-verified.' },
-  { title: 'Welfare that follows you.' },
-]
+const SLIDE_KEYS = ['onboarding.slide1', 'onboarding.slide2', 'onboarding.slide3']
 
 async function finishOnboarding() {
   await SecureStore.setItemAsync(CacheKeys.onboardingSeen, '1')
@@ -23,6 +20,7 @@ async function finishOnboarding() {
 }
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation('auth')
   const insets = useSafeAreaInsets()
   const [index, setIndex] = useState(0)
   const scrollRef = useRef<ScrollView>(null)
@@ -32,12 +30,12 @@ export default function OnboardingScreen() {
     if (next !== index) setIndex(next)
   }
 
-  const isLast = index === SLIDES.length - 1
+  const isLast = index === SLIDE_KEYS.length - 1
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
       <Pressable style={s.skip} onPress={finishOnboarding}>
-        <Text style={s.skipText}>Skip</Text>
+        <Text style={s.skipText}>{t('common:skip')}</Text>
       </Pressable>
 
       <ScrollView
@@ -47,23 +45,23 @@ export default function OnboardingScreen() {
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
       >
-        {SLIDES.map((slide, i) => (
+        {SLIDE_KEYS.map((key, i) => (
           <View key={i} style={s.slide}>
             <LogoMark size={64} style={s.logo} />
-            <Text style={s.title}>{slide.title}</Text>
+            <Text style={s.title}>{t(key)}</Text>
           </View>
         ))}
       </ScrollView>
 
       <View style={s.dots}>
-        {SLIDES.map((_, i) => (
+        {SLIDE_KEYS.map((_, i) => (
           <View key={i} style={[s.dot, i === index && s.dotActive]} />
         ))}
       </View>
 
       <View style={s.footer}>
         <PrimaryButton
-          label={isLast ? 'Get Started' : 'Next'}
+          label={isLast ? t('common:getStarted') : t('common:next')}
           onPress={() => {
             if (isLast) return finishOnboarding()
             scrollRef.current?.scrollTo({ x: width * (index + 1), animated: true })

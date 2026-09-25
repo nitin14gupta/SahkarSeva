@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as Location from 'expo-location'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Input, KeyboardAvoidingWrapper, LanguageChip, MapPinPicker, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -11,6 +12,12 @@ import { Colors, FontFamily, Spacing } from '@/constants'
 const LABELS = ['Home', 'Work', 'Other']
 
 export default function AddressFormScreen() {
+  const { t } = useTranslation('customer')
+  const labelDisplay: Record<string, string> = {
+    Home: t('addressForm.labelHome'),
+    Work: t('addressForm.labelWork'),
+    Other: t('addressForm.labelOther'),
+  }
   const { id } = useLocalSearchParams<{ id?: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -90,7 +97,7 @@ export default function AddressFormScreen() {
       }
       router.back()
     } catch {
-      show('Could not save address', 'error')
+      show(t('addressForm.saveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -102,38 +109,38 @@ export default function AddressFormScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title={id ? 'Edit address' : 'Add address'} showBack />
+      <AppHeader title={id ? t('addressForm.editTitle') : t('addressForm.addTitle')} showBack />
       <KeyboardAvoidingWrapper transparent>
         <View style={s.content}>
           <MapPinPicker initialCoords={pinCoords ?? undefined} onPick={handlePinPicked} />
-          <Text style={s.mapHint}>Tap the map to drop a pin — we&apos;ll try to fill in the address below</Text>
+          <Text style={s.mapHint}>{t('addressForm.mapHint')}</Text>
 
           <View style={s.labelRow}>
             {LABELS.map((l) => (
-              <LanguageChip key={l} label={l} selected={label === l} onPress={() => setLabel(l)} />
+              <LanguageChip key={l} label={labelDisplay[l]} selected={label === l} onPress={() => setLabel(l)} />
             ))}
           </View>
 
-          <Text style={s.fieldLabel}>House / Flat / Building No.</Text>
-          <Input placeholder="e.g. Flat 4B, Shanti Apartments" value={line1} onChangeText={setLine1} style={s.fieldGap} />
+          <Text style={s.fieldLabel}>{t('addressForm.line1Label')}</Text>
+          <Input placeholder={t('addressForm.line1Placeholder')} value={line1} onChangeText={setLine1} style={s.fieldGap} />
 
-          <Text style={s.fieldLabel}>Road, area, landmark (optional)</Text>
-          <Input placeholder="e.g. MG Road, Near City Hospital" value={line2} onChangeText={setLine2} style={s.fieldGap} />
+          <Text style={s.fieldLabel}>{t('addressForm.line2Label')}</Text>
+          <Input placeholder={t('addressForm.line2Placeholder')} value={line2} onChangeText={setLine2} style={s.fieldGap} />
 
           <View style={s.row}>
             <View style={s.rowField}>
-              <Text style={s.fieldLabel}>City</Text>
-              <Input placeholder="City" value={city} onChangeText={setCity} />
+              <Text style={s.fieldLabel}>{t('addressForm.cityLabel')}</Text>
+              <Input placeholder={t('addressForm.cityPlaceholder')} value={city} onChangeText={setCity} />
             </View>
             <View style={s.rowField}>
-              <Text style={s.fieldLabel}>State</Text>
-              <Input placeholder="State" value={state} onChangeText={setState} />
+              <Text style={s.fieldLabel}>{t('addressForm.stateLabel')}</Text>
+              <Input placeholder={t('addressForm.statePlaceholder')} value={state} onChangeText={setState} />
             </View>
           </View>
 
-          <Text style={[s.fieldLabel, s.fieldGapTop]}>Pincode</Text>
+          <Text style={[s.fieldLabel, s.fieldGapTop]}>{t('addressForm.pincodeLabel')}</Text>
           <Input
-            placeholder="6-digit pincode"
+            placeholder={t('addressForm.pincodePlaceholder')}
             value={pincode}
             onChangeText={(v) => setPincode(v.replace(/[^0-9]/g, '').slice(0, 6))}
             keyboardType="number-pad"
@@ -141,7 +148,7 @@ export default function AddressFormScreen() {
         </View>
 
         <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <PrimaryButton label="Save address" onPress={handleSave} disabled={!isValid} loading={saving} />
+          <PrimaryButton label={t('addressForm.saveButton')} onPress={handleSave} disabled={!isValid} loading={saving} />
         </View>
       </KeyboardAvoidingWrapper>
     </View>

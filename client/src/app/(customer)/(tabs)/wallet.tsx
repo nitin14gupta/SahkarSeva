@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, T
 import { router, useFocusEffect } from 'expo-router'
 import { Plus, Receipt, Smartphone, Trash2, Wallet as WalletIcon } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { EmptyState, Screen } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -12,6 +13,7 @@ import type { PaymentHistoryItem, PaymentMethod } from '@/types/payment'
 const METHOD_ICON = { upi: Smartphone, wallet: WalletIcon }
 
 export default function WalletScreen() {
+  const { t } = useTranslation('customer')
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
   const [methods, setMethods] = useState<PaymentMethod[]>([])
@@ -68,7 +70,7 @@ export default function WalletScreen() {
       await apiService.setDefaultPaymentMethod(id)
     } catch {
       setMethods(previous)
-      show('Could not update default payment method', 'error')
+      show(t('wallet.setDefaultError'), 'error')
     }
   }
 
@@ -79,7 +81,7 @@ export default function WalletScreen() {
       await apiService.deletePaymentMethod(id)
     } catch {
       setMethods(previous)
-      show('Could not delete payment method', 'error')
+      show(t('wallet.deleteMethodError'), 'error')
     }
   }
 
@@ -89,17 +91,17 @@ export default function WalletScreen() {
       contentContainerStyle={{ paddingTop: insets.top, paddingBottom: Spacing.xl }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} colors={[Colors.brandGreen]} tintColor={Colors.brandGreen} />}
     >
-      <Text style={s.title}>Wallet</Text>
+      <Text style={s.title}>{t('wallet.title')}</Text>
 
       <View style={s.section}>
         <View style={s.sectionHeader}>
-          <Text style={s.sectionTitle}>Payment methods</Text>
+          <Text style={s.sectionTitle}>{t('wallet.paymentMethodsTitle')}</Text>
           <Pressable onPress={() => router.push('/payment-methods/add')}>
             <Plus size={18} color={Colors.brandGreen} strokeWidth={2} />
           </Pressable>
         </View>
         {methods.length === 0 ? (
-          <Text style={s.mutedText}>No saved payment methods</Text>
+          <Text style={s.mutedText}>{t('wallet.noPaymentMethods')}</Text>
         ) : (
           methods.map((m) => {
             const Icon = METHOD_ICON[m.type]
@@ -107,13 +109,13 @@ export default function WalletScreen() {
               <View key={m.id} style={s.methodCard}>
                 <Icon size={18} color={Colors.brandGreen} strokeWidth={2} />
                 <Text style={s.methodLabel}>
-                  {m.type === 'upi' ? m.upi_id : 'Wallet'}
+                  {m.type === 'upi' ? m.upi_id : t('wallet.walletMethodLabel')}
                 </Text>
                 {m.is_default ? (
-                  <View style={s.defaultBadge}><Text style={s.defaultText}>Default</Text></View>
+                  <View style={s.defaultBadge}><Text style={s.defaultText}>{t('wallet.defaultBadge')}</Text></View>
                 ) : (
                   <Pressable onPress={() => handleSetDefault(m.id)} hitSlop={8}>
-                    <Text style={s.setDefaultText}>Set default</Text>
+                    <Text style={s.setDefaultText}>{t('wallet.setDefaultAction')}</Text>
                   </Pressable>
                 )}
                 <Pressable onPress={() => handleDeleteMethod(m.id)} hitSlop={8} style={s.deleteMethodBtn}>
@@ -126,9 +128,9 @@ export default function WalletScreen() {
       </View>
 
       <View style={s.section}>
-        <Text style={s.sectionTitle}>Transaction history</Text>
+        <Text style={s.sectionTitle}>{t('wallet.transactionHistoryTitle')}</Text>
         {payments.length === 0 ? (
-          <EmptyState icon={Receipt} title="No transactions yet" subtitle="Your payments will show up here" />
+          <EmptyState icon={Receipt} title={t('wallet.noTransactionsTitle')} subtitle={t('wallet.noTransactionsSubtitle')} />
         ) : (
           payments.map((p) => (
             <View key={p.id} style={s.txnRow}>
@@ -137,7 +139,7 @@ export default function WalletScreen() {
                 <Text style={s.txnDate}>{new Date(p.created_at).toLocaleDateString()}</Text>
               </View>
               <Text style={[s.txnAmount, p.status !== 'success' && s.txnAmountPending]}>
-                {p.status === 'success' ? '' : p.status === 'failed' ? 'Failed · ' : 'Pending · '}₹{p.amount}
+                {p.status === 'success' ? '' : p.status === 'failed' ? t('wallet.txnFailedPrefix') : t('wallet.txnPendingPrefix')}₹{p.amount}
               </Text>
             </View>
           ))

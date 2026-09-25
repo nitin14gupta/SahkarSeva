@@ -5,18 +5,19 @@ import * as WebBrowser from 'expo-web-browser'
 import * as Linking from 'expo-linking'
 import { Smartphone, Wallet } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
 import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { PaymentMethodType } from '@/types/payment'
 
-const METHODS: { type: PaymentMethodType; label: string; icon: typeof Smartphone }[] = [
-  { type: 'upi', label: 'UPI', icon: Smartphone },
-  { type: 'wallet', label: 'Wallet', icon: Wallet },
-]
-
 export default function PaymentMethodSelectScreen() {
+  const { t } = useTranslation('customer')
+  const METHODS: { type: PaymentMethodType; label: string; icon: typeof Smartphone }[] = [
+    { type: 'upi', label: t('paymentSelect.methodUpi'), icon: Smartphone },
+    { type: 'wallet', label: t('paymentSelect.methodWallet'), icon: Wallet },
+  ]
   const { bookingId } = useLocalSearchParams<{ bookingId: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -32,7 +33,7 @@ export default function PaymentMethodSelectScreen() {
       const result = await WebBrowser.openAuthSessionAsync(payment.checkout_url, 'client://payment-callback')
 
       if (result.type !== 'success' || !result.url) {
-        show('Payment was not completed', 'default')
+        show(t('paymentSelect.notCompleted'), 'default')
         return
       }
 
@@ -44,7 +45,7 @@ export default function PaymentMethodSelectScreen() {
       const signature = queryParams?.razorpay_signature as string | undefined
 
       if (!paymentId || !linkId || !linkRef || !linkStatus || !signature) {
-        show('Payment could not be verified', 'error')
+        show(t('paymentSelect.verifyError'), 'error')
         return
       }
 
@@ -58,7 +59,7 @@ export default function PaymentMethodSelectScreen() {
 
       router.replace({ pathname: '/payment/[bookingId]/success', params: { bookingId } })
     } catch {
-      show('Payment failed. Please try again.', 'error')
+      show(t('paymentSelect.payError'), 'error')
     } finally {
       setLoading(false)
     }
@@ -66,7 +67,7 @@ export default function PaymentMethodSelectScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Payment method" showBack />
+      <AppHeader title={t('paymentSelect.title')} showBack />
 
       <View style={s.content}>
         {METHODS.map(({ type, label, icon: Icon }) => (
@@ -83,7 +84,7 @@ export default function PaymentMethodSelectScreen() {
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Pay Now" onPress={handlePay} loading={loading} />
+        <PrimaryButton label={t('paymentSelect.payButton')} onPress={handlePay} loading={loading} />
       </View>
     </View>
   )

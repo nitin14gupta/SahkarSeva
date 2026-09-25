@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { useBookingDraftStore } from '@/store/bookingDraftStore'
@@ -11,6 +12,7 @@ import type { WorkerDetail } from '@/types/catalog'
 import type { Address } from '@/types/address'
 
 export default function BookingSummaryScreen() {
+  const { t } = useTranslation('customer')
   const { workerId } = useLocalSearchParams<{ workerId: string }>()
   const insets = useSafeAreaInsets()
   const draft = useBookingDraftStore()
@@ -57,7 +59,7 @@ export default function BookingSummaryScreen() {
       reset()
       router.push({ pathname: '/payment/[bookingId]/select', params: { bookingId: booking.id } })
     } catch {
-      show('Could not confirm booking. Please try again.', 'error')
+      show(t('bookingSummary.confirmError'), 'error')
     } finally {
       setSubmitting(false)
     }
@@ -69,7 +71,7 @@ export default function BookingSummaryScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Confirm booking" showBack />
+      <AppHeader title={t('bookingSummary.title')} showBack />
 
       <ScrollView contentContainerStyle={s.content}>
         <View style={s.workerRow}>
@@ -81,25 +83,25 @@ export default function BookingSummaryScreen() {
         </View>
 
         <View style={s.row}>
-          <Text style={s.label}>Date & time</Text>
+          <Text style={s.label}>{t('bookingSummary.dateTimeLabel')}</Text>
           <Text style={s.value}>{draft.scheduledDate} · {draft.scheduledTime?.slice(0, 5)}</Text>
         </View>
 
         <View style={s.row}>
-          <Text style={s.label}>Address</Text>
+          <Text style={s.label}>{t('bookingSummary.addressLabel')}</Text>
           <Text style={s.value} numberOfLines={2}>
-            {address ? `${address.line1}${address.city ? `, ${address.city}` : ''}` : 'Not selected'}
+            {address ? `${address.line1}${address.city ? `, ${address.city}` : ''}` : t('bookingSummary.addressNotSelected')}
           </Text>
         </View>
 
         <View style={s.row}>
-          <Text style={s.label}>Notes</Text>
+          <Text style={s.label}>{t('bookingSummary.notesLabel')}</Text>
           <Text style={s.value}>{draft.notes}</Text>
         </View>
 
         {draft.photos.length > 0 && (
           <View style={s.row}>
-            <Text style={s.label}>Photos ({draft.photos.length})</Text>
+            <Text style={s.label}>{t('bookingSummary.photosLabel', { count: draft.photos.length })}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.photoRow}>
               {draft.photos.map((photo) => (
                 <Image key={photo.remoteUrl} source={{ uri: photo.localUri }} style={s.photoThumb} />
@@ -111,16 +113,16 @@ export default function BookingSummaryScreen() {
         <View style={s.divider} />
 
         <View style={s.row}>
-          <Text style={s.label}>Estimated price</Text>
+          <Text style={s.label}>{t('bookingSummary.priceLabel')}</Text>
           <Text style={s.price}>
-            {worker.price_min !== null ? `₹${worker.price_min}${worker.price_max ? `–₹${worker.price_max}` : ''}` : 'TBD'}
+            {worker.price_min !== null ? `₹${worker.price_min}${worker.price_max ? `–₹${worker.price_max}` : ''}` : t('bookingSummary.priceTBD')}
           </Text>
         </View>
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <PrimaryButton
-          label="Confirm Booking"
+          label={t('bookingSummary.confirmButton')}
           onPress={handleConfirm}
           loading={submitting}
           disabled={!draft.category || !draft.scheduledDate || !draft.scheduledTime || !draft.addressId}

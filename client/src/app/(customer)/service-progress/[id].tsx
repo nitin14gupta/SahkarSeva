@@ -3,19 +3,11 @@ import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View }
 import { router, useLocalSearchParams } from 'expo-router'
 import { Clock } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, PrimaryButton, SecondaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
 import type { BookingDetail } from '@/types/booking'
-
-const STATUS_LABEL: Record<string, string> = {
-  requested: 'Waiting for confirmation',
-  accepted: 'Worker confirmed',
-  en_route: 'Worker is on the way',
-  in_progress: 'Service in progress',
-  completed: 'Service completed',
-  cancelled: 'Cancelled',
-}
 
 function formatElapsed(startedAt: string): string {
   const ms = Date.now() - new Date(startedAt).getTime()
@@ -26,6 +18,15 @@ function formatElapsed(startedAt: string): string {
 }
 
 export default function ServiceInProgressScreen() {
+  const { t } = useTranslation('customer')
+  const STATUS_LABEL: Record<string, string> = {
+    requested: t('serviceProgress.statusRequested'),
+    accepted: t('serviceProgress.statusAccepted'),
+    en_route: t('serviceProgress.statusEnRoute'),
+    in_progress: t('serviceProgress.statusInProgress'),
+    completed: t('serviceProgress.statusCompleted'),
+    cancelled: t('serviceProgress.statusCancelled'),
+  }
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const [booking, setBooking] = useState<BookingDetail | null>(null)
@@ -70,7 +71,7 @@ export default function ServiceInProgressScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Service status" showBack />
+      <AppHeader title={t('serviceProgress.title')} showBack />
 
       <ScrollView
         contentContainerStyle={s.content}
@@ -82,15 +83,15 @@ export default function ServiceInProgressScreen() {
 
         <View style={s.timerCard}>
           <Clock size={18} color={Colors.brandGreen} strokeWidth={2} />
-          <Text key={now} style={s.timerText}>{formatElapsed(booking.created_at)} since booked</Text>
+          <Text key={now} style={s.timerText}>{t('serviceProgress.timerText', { elapsed: formatElapsed(booking.created_at) })}</Text>
         </View>
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Contact Worker" onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })} />
+        <PrimaryButton label={t('serviceProgress.contactButton')} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: booking.id } })} />
         <View style={{ height: Spacing.sm }} />
         <SecondaryButton
-          label="Report an Issue"
+          label={t('serviceProgress.reportButton')}
           onPress={() => router.push({ pathname: '/help', params: { bookingId: booking.id } })}
         />
       </View>

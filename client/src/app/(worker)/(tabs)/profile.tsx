@@ -3,6 +3,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { router, useFocusEffect } from 'expo-router'
 import { Bell, CalendarClock, ChevronRight, HelpCircle, Landmark, LogOut, Star } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { Avatar, Input, PrimaryButton, StatusBadge } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -13,6 +14,7 @@ import { Colors, FontFamily, Spacing } from '@/constants'
 import type { VerificationStatus } from '@/types/worker'
 
 export default function WorkerProfileScreen() {
+  const { t } = useTranslation('worker')
   const insets = useSafeAreaInsets()
   const user = useAuthStore((s) => s.user)
   const setUser = useAuthStore((s) => s.setUser)
@@ -48,7 +50,7 @@ export default function WorkerProfileScreen() {
       setPhotoUri(picked.localUri)
       setPhotoUrl(picked.remoteUrl)
     } catch {
-      show('Could not upload photo. Please try again.', 'error')
+      show(t('profile.photoUploadError'), 'error')
     }
   }
 
@@ -63,9 +65,9 @@ export default function WorkerProfileScreen() {
         photo_url: photoUrl ?? undefined,
       })
       setUser(updated)
-      show('Profile updated', 'success')
+      show(t('profile.saveSuccess'), 'success')
     } catch {
-      show('Could not update profile', 'error')
+      show(t('profile.saveError'), 'error')
     } finally {
       setSaving(false)
     }
@@ -82,7 +84,7 @@ export default function WorkerProfileScreen() {
 
   return (
     <View style={[s.container, { paddingTop: insets.top }]}>
-      <Text style={s.title}>Profile</Text>
+      <Text style={s.title}>{t('profile.title')}</Text>
 
       <View style={s.header}>
         <Pressable onPress={pickPhoto} disabled={uploading} style={s.avatarWrap}>
@@ -94,7 +96,7 @@ export default function WorkerProfileScreen() {
           )}
         </Pressable>
         <View style={{ flex: 1 }}>
-          <Input placeholder="Full name" value={name} onChangeText={setName} />
+          <Input placeholder={t('profile.namePlaceholder')} value={name} onChangeText={setName} />
         </View>
       </View>
       <View style={s.metaRow}>
@@ -102,20 +104,20 @@ export default function WorkerProfileScreen() {
         {!!verificationStatus && (
           <StatusBadge
             tone={verificationStatus === 'verified' ? 'success' : verificationStatus === 'rejected' ? 'error' : 'pending'}
-            label={verificationStatus === 'verified' ? 'Verified' : verificationStatus === 'rejected' ? 'Rejected' : 'Pending'}
+            label={verificationStatus === 'verified' ? t('profile.verified') : verificationStatus === 'rejected' ? t('profile.rejected') : t('profile.pending')}
           />
         )}
       </View>
-      <PrimaryButton label="Save changes" onPress={handleSave} loading={saving} disabled={!name.trim()} />
+      <PrimaryButton label={t('profile.saveButton')} onPress={handleSave} loading={saving} disabled={!name.trim()} />
 
       <View style={s.menu}>
-        <MenuRow icon={Star} label="Reviews received" onPress={() => router.push('/reviews')} />
-        <MenuRow icon={CalendarClock} label="Availability" onPress={() => router.push('/availability')} />
-        <MenuRow icon={Landmark} label="Payout & bank details" onPress={() => router.push('/payout')} />
-        <MenuRow icon={Bell} label="Notifications" onPress={() => router.push('/notifications')} />
-        <MenuRow icon={ChevronRight} label={`Language: ${user?.language?.toUpperCase() ?? 'EN'}`} onPress={handleLanguageChange} />
-        <MenuRow icon={HelpCircle} label="Help & Support" onPress={() => router.push({ pathname: '/help', params: { audience: 'worker' } })} />
-        <MenuRow icon={LogOut} label="Log out" onPress={onLogoutPress} destructive />
+        <MenuRow icon={Star} label={t('profile.menu.reviews')} onPress={() => router.push('/reviews')} />
+        <MenuRow icon={CalendarClock} label={t('profile.menu.availability')} onPress={() => router.push('/availability')} />
+        <MenuRow icon={Landmark} label={t('profile.menu.payout')} onPress={() => router.push('/payout')} />
+        <MenuRow icon={Bell} label={t('profile.menu.notifications')} onPress={() => router.push('/notifications')} />
+        <MenuRow icon={ChevronRight} label={t('profile.menu.language', { lang: user?.language?.toUpperCase() ?? 'EN' })} onPress={handleLanguageChange} />
+        <MenuRow icon={HelpCircle} label={t('profile.menu.help')} onPress={() => router.push({ pathname: '/help', params: { audience: 'worker' } })} />
+        <MenuRow icon={LogOut} label={t('profile.menu.logout')} onPress={onLogoutPress} destructive />
       </View>
     </View>
   )

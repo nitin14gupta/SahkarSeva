@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, StyleSheet, Pressable } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { Pencil } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AppHeader, OTPInput, PrimaryButton, KeyboardAvoidingWrapper, LogoMark } from '@/components/ui'
 import { useAuth } from '@/hooks/useAuth'
@@ -10,6 +11,7 @@ import { resolveWorkerRoute } from '@/utils/workerRouting'
 import { Colors, FontFamily, Spacing } from '@/constants'
 
 export default function OTPScreen() {
+  const { t } = useTranslation('auth')
   const { phone } = useLocalSearchParams<{ phone: string }>()
   const insets = useSafeAreaInsets()
   const [code, setCode] = useState('')
@@ -42,7 +44,7 @@ export default function OTPScreen() {
       const next = attempts + 1
       setAttempts(next)
       setError(true)
-      setErrorMsg(next >= 3 ? 'Too many attempts — request a new code.' : (e?.message || 'Incorrect code. Try again.'))
+      setErrorMsg(next >= 3 ? t('otp.tooManyAttempts') : (e?.message || t('otp.incorrectCode')))
       setCode('')
     } finally {
       setLoading(false)
@@ -63,7 +65,7 @@ export default function OTPScreen() {
       setErrorMsg('')
     } catch (e: any) {
       setError(true)
-      setErrorMsg(e?.message || 'Failed to resend code. Try again.')
+      setErrorMsg(e?.message || t('otp.resendFailed'))
     }
   }
 
@@ -75,9 +77,9 @@ export default function OTPScreen() {
       />
       <KeyboardAvoidingWrapper transparent>
         <View style={styles.inner}>
-          <Text style={styles.title}>Enter the code</Text>
+          <Text style={styles.title}>{t('otp.title')}</Text>
           <View style={styles.sentRow}>
-            <Text style={styles.sentText}>Sent to +91 {phone}</Text>
+            <Text style={styles.sentText}>{t('otp.sentTo', { phone })}</Text>
             <Pressable onPress={() => router.back()}>
               <Pencil size={14} color={Colors.textSecondary} strokeWidth={2} />
             </Pressable>
@@ -97,14 +99,14 @@ export default function OTPScreen() {
           <View style={styles.resendArea}>
             {!isExpired && !tooManyAttempts ? (
               <Text style={styles.countdown}>
-                Resend code in{' '}
+                {t('otp.resendIn')}{' '}
                 <Text style={styles.countdownTimer}>
                   0:{String(seconds).padStart(2, '0')}
                 </Text>
               </Text>
             ) : (
               <Pressable onPress={handleResend}>
-                <Text style={styles.resendBtn}>Resend code</Text>
+                <Text style={styles.resendBtn}>{t('otp.resendCode')}</Text>
               </Pressable>
             )}
           </View>
@@ -112,7 +114,7 @@ export default function OTPScreen() {
 
         <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
           <PrimaryButton
-            label="Continue"
+            label={t('common:continue')}
             onPress={() => handleVerify(code)}
             disabled={!isComplete || tooManyAttempts}
             loading={loading}

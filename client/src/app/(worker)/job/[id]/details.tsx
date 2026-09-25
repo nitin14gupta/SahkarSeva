@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Linking, Pressable, RefreshControl, ScrollVie
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MapPin, MessageCircle, Phone } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, Avatar, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { usePillStore } from '@/store/pillStore'
@@ -10,6 +11,7 @@ import { Colors, FontFamily, Radius, Spacing } from '@/constants'
 import type { WorkerBookingDetail } from '@/types/booking'
 
 export default function JobDetailsScreen() {
+  const { t } = useTranslation('worker')
   const { id } = useLocalSearchParams<{ id: string }>()
   const insets = useSafeAreaInsets()
   const show = usePillStore((s) => s.show)
@@ -28,7 +30,7 @@ export default function JobDetailsScreen() {
           const { booking } = await apiService.getWorkerBookingDetail(id)
           if (!cancelled) setBooking(booking)
         } catch {
-          if (!cancelled) show('Could not load this job', 'error')
+          if (!cancelled) show(t('jobDetails.loadError'), 'error')
         } finally {
           if (!cancelled) setLoading(false)
         }
@@ -56,7 +58,7 @@ export default function JobDetailsScreen() {
       await apiService.updateBookingStatus(id, 'en_route')
       router.replace({ pathname: '/job/[id]/navigate', params: { id } })
     } catch {
-      show('Could not start navigation', 'error')
+      show(t('jobDetails.startNavError'), 'error')
       setStarting(false)
     }
   }
@@ -71,7 +73,7 @@ export default function JobDetailsScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="Job details" showBack />
+      <AppHeader title={t('jobDetails.title')} showBack />
       <ScrollView
         style={s.inner}
         contentContainerStyle={s.innerContent}
@@ -97,7 +99,7 @@ export default function JobDetailsScreen() {
           <View style={s.sectionRow}>
             <MapPin size={16} color={Colors.textSecondary} strokeWidth={2} />
             <Text style={s.sectionText}>
-              {[booking.address_line1, booking.address_city].filter(Boolean).join(', ') || 'No address on file'}
+              {[booking.address_line1, booking.address_city].filter(Boolean).join(', ') || t('jobDetails.noAddress')}
             </Text>
           </View>
           {!!booking.scheduled_date && (
@@ -109,14 +111,14 @@ export default function JobDetailsScreen() {
 
         {!!booking.notes && (
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Notes from customer</Text>
+            <Text style={s.sectionLabel}>{t('jobDetails.notesLabel')}</Text>
             <Text style={s.sectionText}>{booking.notes}</Text>
           </View>
         )}
 
         {booking.photo_urls.length > 0 && (
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Photos from customer ({booking.photo_urls.length})</Text>
+            <Text style={s.sectionLabel}>{t('jobDetails.photosLabel', { count: booking.photo_urls.length })}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {booking.photo_urls.map((url) => (
                 <Image key={url} source={{ uri: url }} style={s.photoThumb} />
@@ -127,14 +129,14 @@ export default function JobDetailsScreen() {
 
         {booking.price_estimate !== null && (
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Price estimate</Text>
+            <Text style={s.sectionLabel}>{t('jobDetails.priceLabel')}</Text>
             <Text style={s.price}>₹{booking.price_estimate}</Text>
           </View>
         )}
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Start Navigation" onPress={handleStartNavigation} loading={starting} />
+        <PrimaryButton label={t('jobDetails.startNavButton')} onPress={handleStartNavigation} loading={starting} />
       </View>
     </View>
   )

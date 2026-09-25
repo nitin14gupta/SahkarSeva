@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
+import { useTranslation } from 'react-i18next'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LanguageChip, PrimaryButton } from '@/components/ui'
 import * as apiService from '@/api/apiService'
+import i18n from '@/i18n'
 import { useAuthStore } from '@/store/authStore'
 import { CacheKeys, Colors, FontFamily, Spacing } from '@/constants'
 
@@ -18,6 +20,7 @@ const LANGUAGES = [
 ]
 
 export default function LanguageScreen() {
+  const { t } = useTranslation('auth')
   const { from } = useLocalSearchParams<{ from?: string }>()
   const insets = useSafeAreaInsets()
   const user = useAuthStore((s) => s.user)
@@ -27,6 +30,7 @@ export default function LanguageScreen() {
 
   async function handleContinue() {
     await SecureStore.setItemAsync(CacheKeys.language, selected)
+    await i18n.changeLanguage(selected)
 
     if (from === 'profile' && user) {
       setSaving(true)
@@ -50,8 +54,8 @@ export default function LanguageScreen() {
   return (
     <View style={[s.container, { paddingTop: insets.top + Spacing.xl }]}>
       <View style={s.header}>
-        <Text style={s.title}>Choose your language</Text>
-        <Text style={s.subtitle}>You can change this later in Profile</Text>
+        <Text style={s.title}>{t('language.title')}</Text>
+        <Text style={s.subtitle}>{t('language.subtitle')}</Text>
       </View>
 
       <View style={s.grid}>
@@ -66,8 +70,8 @@ export default function LanguageScreen() {
       </View>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, Spacing.lg) }]}>
-        <PrimaryButton label="Continue" onPress={handleContinue} loading={saving} />
-        <Text style={s.poweredBy}>Powered by Bhashini · Made in India</Text>
+        <PrimaryButton label={t('common:continue')} onPress={handleContinue} loading={saving} />
+        <Text style={s.poweredBy}>{t('language.poweredBy')}</Text>
       </View>
     </View>
   )

@@ -3,6 +3,7 @@ import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, Text
 import { router, useLocalSearchParams } from 'expo-router'
 import { Camera, X } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, PrimaryButton } from '@/components/ui'
 import { useBookingDraftStore, type BookingDraftPhoto } from '@/store/bookingDraftStore'
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -19,6 +20,7 @@ import {
 } from '@/constants'
 
 export default function AddNotesScreen() {
+  const { t } = useTranslation('customer')
   const { workerId } = useLocalSearchParams<{ workerId: string }>()
   const insets = useSafeAreaInsets()
   const setDraft = useBookingDraftStore((s) => s.setDraft)
@@ -40,7 +42,7 @@ export default function AddNotesScreen() {
       const picked = await pickMultipleAndUpload(remaining)
       if (picked.length > 0) setPhotos((prev) => [...prev, ...picked].slice(0, BOOKING_PHOTOS_MAX_COUNT))
     } catch {
-      show('Could not upload photos. Please try again.', 'error')
+      show(t('bookingNotes.uploadError'), 'error')
     }
   }
 
@@ -56,23 +58,23 @@ export default function AddNotesScreen() {
 
   return (
     <View style={s.container}>
-      <AppHeader title="What needs fixing?" showBack />
+      <AppHeader title={t('bookingNotes.title')} showBack />
 
       <ScrollView style={s.content} contentContainerStyle={s.contentInner}>
         <TextInput
           value={notes}
           onChangeText={(v) => setNotes(v.slice(0, DESCRIPTION_MAX_LENGTH))}
-          placeholder="Describe the issue — what needs fixing, and any details that will help the worker prepare"
+          placeholder={t('bookingNotes.placeholder')}
           placeholderTextColor={Colors.inkDisabled}
           multiline
           style={s.textArea}
         />
         <Text style={[s.counter, notesLength > 0 && !notesValid && s.counterError]}>
-          {notesLength}/{DESCRIPTION_MAX_LENGTH} · minimum {DESCRIPTION_MIN_LENGTH} characters
+          {t('bookingNotes.counter', { count: notesLength, max: DESCRIPTION_MAX_LENGTH, min: DESCRIPTION_MIN_LENGTH })}
         </Text>
 
         <Text style={s.sectionLabel}>
-          Photos ({photos.length}/{BOOKING_PHOTOS_MAX_COUNT}) — attach at least {BOOKING_PHOTOS_MIN_COUNT}
+          {t('bookingNotes.photosLabel', { count: photos.length, max: BOOKING_PHOTOS_MAX_COUNT, min: BOOKING_PHOTOS_MIN_COUNT })}
         </Text>
         <View style={s.photoGrid}>
           {photos.map((photo) => (
@@ -90,7 +92,7 @@ export default function AddNotesScreen() {
               ) : (
                 <>
                   <Camera size={18} color={Colors.textSecondary} strokeWidth={2} />
-                  <Text style={s.addPhotoText}>Add</Text>
+                  <Text style={s.addPhotoText}>{t('bookingNotes.addPhoto')}</Text>
                 </>
               )}
             </Pressable>
@@ -99,7 +101,7 @@ export default function AddNotesScreen() {
       </ScrollView>
 
       <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <PrimaryButton label="Continue" onPress={handleContinue} disabled={!canContinue} />
+        <PrimaryButton label={t('common:continue')} onPress={handleContinue} disabled={!canContinue} />
       </View>
     </View>
   )

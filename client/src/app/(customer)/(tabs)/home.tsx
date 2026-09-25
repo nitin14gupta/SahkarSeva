@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { router } from 'expo-router'
 import { Siren } from 'lucide-react-native'
+import { useTranslation } from 'react-i18next'
 import { AppHeader, BookingCard, CategoryTile, NotificationBell, SearchBar } from '@/components/ui'
 import * as apiService from '@/api/apiService'
 import { Colors, FontFamily, Spacing } from '@/constants'
@@ -9,6 +10,7 @@ import type { Category } from '@/types/catalog'
 import type { BookingSummary } from '@/types/booking'
 
 export default function CustomerHomeScreen() {
+  const { t } = useTranslation('customer')
   const [query, setQuery] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [recentBookings, setRecentBookings] = useState<BookingSummary[]>([])
@@ -71,8 +73,8 @@ export default function CustomerHomeScreen() {
   if (error) {
     return (
       <View style={[s.container, s.center]}>
-        <Text style={s.errorText}>Couldn&apos;t load the home screen.</Text>
-        <Pressable onPress={() => setRefreshKey((k) => k + 1)}><Text style={s.retry}>Tap to retry</Text></Pressable>
+        <Text style={s.errorText}>{t('home.loadError')}</Text>
+        <Pressable onPress={() => setRefreshKey((k) => k + 1)}><Text style={s.retry}>{t('home.tapToRetry')}</Text></Pressable>
       </View>
     )
   }
@@ -94,12 +96,12 @@ export default function CustomerHomeScreen() {
       >
         <Siren size={22} color={Colors.inkOnAccent} strokeWidth={2} />
         <View style={s.emergencyText}>
-          <Text style={s.emergencyTitle}>Emergency Service</Text>
-          <Text style={s.emergencySubtitle}>Get a verified worker at your door, fast</Text>
+          <Text style={s.emergencyTitle}>{t('home.emergencyTitle')}</Text>
+          <Text style={s.emergencySubtitle}>{t('home.emergencySubtitle')}</Text>
         </View>
       </Pressable>
 
-      <Text style={s.sectionTitle}>What do you need?</Text>
+      <Text style={s.sectionTitle}>{t('home.categoriesTitle')}</Text>
       <FlatList
         data={categories}
         keyExtractor={(c) => c.id}
@@ -117,7 +119,7 @@ export default function CustomerHomeScreen() {
 
       {recentBookings.length > 0 && (
         <>
-          <Text style={s.sectionTitle}>Recently booked</Text>
+          <Text style={s.sectionTitle}>{t('home.recentBookingsTitle')}</Text>
           <FlatList
             data={recentBookings}
             keyExtractor={(b) => b.id}
