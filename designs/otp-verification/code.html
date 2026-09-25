@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>
+  @layer base {
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      overscroll-behavior-y: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .pt-safe {
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+  }
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Core Keyframe Animations for Enriched Visual Experience */
+  @keyframes morphBlob {
+    0%, 100% {
+      border-radius: 44% 56% 65% 35% / 40% 48% 52% 60%;
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    33% {
+      border-radius: 65% 35% 42% 58% / 58% 32% 68% 42%;
+      transform: translate(25px, -30px) rotate(120deg) scale(1.1);
+    }
+    66% {
+      border-radius: 38% 62% 60% 40% / 46% 64% 36% 54%;
+      transform: translate(-20px, 20px) rotate(240deg) scale(0.95);
+    }
+  }
+
+  @keyframes floatSlow1 {
+    0%, 100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+      transform: translate(35px, -45px) scale(1.12);
+    }
+  }
+
+  @keyframes floatSlow2 {
+    0%, 100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    50% {
+      transform: translate(-40px, 35px) scale(1.15);
+    }
+  }
+
+  @keyframes floatSlow3 {
+    0%, 100% {
+      transform: translate(0px, 0px) scale(0.95);
+    }
+    50% {
+      transform: translate(25px, 40px) scale(1.1);
+    }
+  }
+
+  @keyframes waveShift1 {
+    0% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    50% {
+      transform: translateX(-40px) translateY(12px) scaleY(1.08);
+    }
+    100% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+  }
+
+  @keyframes waveShift2 {
+    0% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    50% {
+      transform: translateX(35px) translateY(-14px) scaleY(0.92);
+    }
+    100% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% {
+      opacity: 0.35;
+      transform: scale(0.92);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.08);
+    }
+  }
+
+  @keyframes radialRipple {
+    0% {
+      transform: translate(-50%, -50%) scale(0.75);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.12);
+      opacity: 0.35;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1.35);
+      opacity: 0;
+    }
+  }
+
+  @keyframes orbitClockwise {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  @keyframes orbitCounterClockwise {
+    from {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+  }
+
+  @keyframes twinkleConstellation {
+    0%, 100% {
+      opacity: 0.2;
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes driftOrbUpward {
+    0% {
+      transform: translateY(0px) translateX(0px) scale(0.9);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-40px) translateX(25px) scale(1.15);
+      opacity: 0.85;
+    }
+    100% {
+      transform: translateY(-80px) translateX(-15px) scale(0.95);
+      opacity: 0.45;
+    }
+  }
+
+  @keyframes heroSpinPulse {
+    0% {
+      transform: translate(-50%, -50%) rotate(0deg) scale(0.95);
+    }
+    50% {
+      transform: translate(-50%, -50%) rotate(180deg) scale(1.15);
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(360deg) scale(0.95);
+    }
+  }
+
+  /* Utility animation trigger classes */
+  .animate-morph-blob {
+    animation: morphBlob 16s ease-in-out infinite;
+    will-change: transform, border-radius;
+  }
+  .animate-float-1 {
+    animation: floatSlow1 18s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-float-2 {
+    animation: floatSlow2 22s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-float-3 {
+    animation: floatSlow3 15s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-wave-1 {
+    animation: waveShift1 14s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-wave-2 {
+    animation: waveShift2 18s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-pulse-glow {
+    animation: pulseGlow 6s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+  .animate-ripple-1 {
+    animation: radialRipple 9s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+    will-change: transform, opacity;
+  }
+  .animate-ripple-2 {
+    animation: radialRipple 9s cubic-bezier(0.2, 0.8, 0.4, 1) infinite 3s;
+    will-change: transform, opacity;
+  }
+  .animate-ripple-3 {
+    animation: radialRipple 9s cubic-bezier(0.2, 0.8, 0.4, 1) infinite 6s;
+    will-change: transform, opacity;
+  }
+  .animate-orbit-cw {
+    animation: orbitClockwise 42s linear infinite;
+    will-change: transform;
+  }
+  .animate-orbit-ccw {
+    animation: orbitCounterClockwise 52s linear infinite;
+    will-change: transform;
+  }
+  .animate-drift-orb {
+    animation: driftOrbUpward 12s ease-in-out infinite alternate;
+    will-change: transform, opacity;
+  }
+  .animate-twinkle {
+    animation: twinkleConstellation 5s ease-in-out infinite alternate;
+    will-change: opacity, transform;
+  }
+  .animate-hero-spin-pulse {
+    animation: heroSpinPulse 18s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-morph-blob,
+    .animate-float-1,
+    .animate-float-2,
+    .animate-float-3,
+    .animate-wave-1,
+    .animate-wave-2,
+    .animate-pulse-glow,
+    .animate-ripple-1,
+    .animate-ripple-2,
+    .animate-ripple-3,
+    .animate-orbit-cw,
+    .animate-orbit-ccw,
+    .animate-drift-orb,
+    .animate-twinkle,
+    .animate-hero-spin-pulse {
+      animation: none !important;
+    }
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+  }
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"error-container":"#ffdad6","on-primary-fixed-variant":"#214f3c","secondary-fixed-dim":"#ffb4a2","surface-container-lowest":"#ffffff","surface-container-highest":"#e4e2df","on-tertiary-container":"#bcb0a3","surface-tint":"#3a6753","on-secondary":"#ffffff","tertiary-container":"#4c4339","surface-container":"#efeeeb","surface":"#fbf9f6","surface-dim":"#dbdad7","inverse-on-surface":"#f2f0ed","on-tertiary-fixed":"#211a12","on-background":"#1b1c1a","inverse-surface":"#30312f","on-secondary-fixed-variant":"#7f2b15","on-surface-variant":"#414944","primary-container":"#1f4d3a","on-primary-fixed":"#002114","tertiary":"#352d24","on-primary":"#ffffff","inverse-primary":"#a1d1b8","on-secondary-fixed":"#3c0800","secondary-fixed":"#ffdbd2","primary-fixed":"#bceed3","on-surface":"#1b1c1a","primary-fixed-dim":"#a1d1b8","secondary":"#C05B41","surface-container-high":"#eae8e5","secondary-container":"#fe8b6e","outline":"#717973","surface-bright":"#fbf9f6","tertiary-fixed":"#eee0d2","error":"#ba1a1a","background":"#fbf9f6","outline-variant":"#c0c9c2","on-error":"#ffffff","on-tertiary":"#ffffff","surface-container-low":"#f5f3f0","on-error-container":"#93000a","tertiary-fixed-dim":"#d2c4b7","on-secondary-container":"#75240e","primary":"#023625","on-tertiary-fixed-variant":"#4e453b","on-primary-container":"#8dbda4","surface-variant":"#e4e2df"},borderRadius:{DEFAULT:"0.25rem",lg:"0.5rem",xl:"0.75rem",full:"9999px"},spacing:{gutter:"1rem","gutter-tablet":"1.5rem","space-xl":"2rem","space-sm":"0.5rem","space-md":"1rem",margin:"1rem","space-xs":"0.25rem","margin-tablet":"2rem","space-lg":"1.5rem","margin-desktop":"3rem"},fontFamily:{"body-lg":["Plus Jakarta Sans"],"label-sm":["Plus Jakarta Sans"],"body-md":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"label-lg":["Plus Jakarta Sans"],"headline-xl-mobile":["Plus Jakarta Sans"],"headline-lg":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"label-md":["Plus Jakarta Sans"],"headline-lg-mobile":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"]},fontSize:{"body-lg":["18px",{lineHeight:"28px",fontWeight:"400"}],"label-sm":["12px",{lineHeight:"16px",fontWeight:"500"}],"body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],"headline-md":["20px",{lineHeight:"28px",fontWeight:"600"}],"label-lg":["16px",{lineHeight:"20px",fontWeight:"600"}],"headline-xl-mobile":["28px",{lineHeight:"36px",fontWeight:"700"}],"headline-lg":["28px",{lineHeight:"36px",fontWeight:"600"}],"body-sm":["14px",{lineHeight:"20px",fontWeight:"400"}],"label-md":["14px",{lineHeight:"18px",fontWeight:"600"}],"headline-lg-mobile":["24px",{lineHeight:"32px",fontWeight:"600"}],"headline-xl":["36px",{lineHeight:"44px",fontWeight:"700"}]}}}};</script></head><body class="font-body-md text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary-fixed selection:text-on-primary-fixed relative overflow-x-hidden bg-background">
+<!-- ========================================== -->
+<!-- RICH ACTIVE ANIMATED BACKGROUND (z-0)      -->
+<!-- ========================================== -->
+<div aria-hidden="true" class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+<!-- Soft Mint to Pearl Gradient Base -->
+<div class="absolute inset-0 bg-gradient-to-b from-[#EDF8F2] via-[#F7FCF9] to-[#EEF7F2]"></div>
+<!-- Animated Dotted Grid Matrix Overlay -->
+<svg class="absolute inset-0 w-full h-full opacity-40 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<pattern height="32" id="matrix-dots" patternunits="userSpaceOnUse" width="32">
+<circle cx="2" cy="2" fill="#10B981" opacity="0.25" r="1.2"></circle>
+<circle cx="18" cy="18" fill="#34D399" opacity="0.18" r="0.8"></circle>
+</pattern>
+<lineargradient id="grid-fade" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#fff" stop-opacity="0.8"></stop>
+<stop offset="100%" stop-color="#fff" stop-opacity="0.2"></stop>
+</lineargradient>
+<mask id="fade-mask">
+<rect fill="url(#grid-fade)" height="100%" width="100%"></rect>
+</mask>
+</defs>
+<rect fill="url(#matrix-dots)" height="100%" mask="url(#fade-mask)" width="100%"></rect>
+</svg>
+<!-- 1. Multi-layered Animated SVG Geometric Wave Ribbons / Flowing Sinewaves -->
+<div class="absolute top-[16%] -left-[20%] w-[140%] h-[380px] pointer-events-none animate-wave-1 opacity-70">
+<svg class="w-full h-full preserve-3d" fill="none" viewbox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="waveGrad1" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#10B981" stop-opacity="0.25"></stop>
+<stop offset="50%" stop-color="#34D399" stop-opacity="0.45"></stop>
+<stop offset="100%" stop-color="#059669" stop-opacity="0.15"></stop>
+</lineargradient>
+</defs>
+<path d="M0,180 C300,110 420,290 700,180 C950,90 1080,240 1200,170 L1200,400 L0,400 Z" fill="url(#waveGrad1)"></path>
+</svg>
+</div>
+<div class="absolute top-[32%] -left-[15%] w-[135%] h-[340px] pointer-events-none animate-wave-2 opacity-55">
+<svg class="w-full h-full" fill="none" viewbox="0 0 1200 360" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<lineargradient id="waveGrad2" x1="100%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#34D399" stop-opacity="0.3"></stop>
+<stop offset="45%" stop-color="#6EE7B7" stop-opacity="0.5"></stop>
+<stop offset="100%" stop-color="#10B981" stop-opacity="0.12"></stop>
+</lineargradient>
+</defs>
+<path d="M0,140 C280,230 460,90 740,190 C960,270 1080,120 1200,160 L1200,360 L0,360 Z" fill="url(#waveGrad2)"></path>
+</svg>
+</div>
+<!-- 2. Morphing Fluid Blobs in Mint, Teal & Sage -->
+<div class="absolute -top-16 -left-16 w-[420px] h-[420px] bg-gradient-to-br from-[#10B981]/30 via-[#6EE7B7]/40 to-[#A7F3D0]/25 blur-3xl animate-morph-blob pointer-events-none"></div>
+<div class="absolute top-[38%] -right-20 w-[400px] h-[400px] bg-gradient-to-bl from-[#34D399]/35 via-[#10B981]/25 to-[#A7F3D0]/20 blur-3xl animate-morph-blob pointer-events-none" style="animation-delay: -5s;"></div>
+<div class="absolute -bottom-20 left-1/4 w-[460px] h-[440px] bg-gradient-to-t from-[#6EE7B7]/30 via-[#34D399]/20 to-transparent blur-3xl animate-morph-blob pointer-events-none" style="animation-delay: -9s;"></div>
+<!-- 3. Dynamic Concentric Animated Rings & Outward Pulsing Radial Ripples -->
+<div class="absolute top-[48%] left-1/2 w-0 h-0 pointer-events-none">
+<!-- Pulsing Outward Ripples -->
+<div class="w-[300px] h-[300px] rounded-full border border-emerald-400/30 animate-ripple-1 shadow-[0_0_24px_rgba(16,185,129,0.2)]"></div>
+<div class="w-[300px] h-[300px] rounded-full border border-teal-400/35 animate-ripple-2 shadow-[0_0_20px_rgba(52,211,153,0.25)]"></div>
+<div class="w-[300px] h-[300px] rounded-full border border-emerald-500/25 animate-ripple-3 shadow-[0_0_28px_rgba(16,185,129,0.18)]"></div>
+<!-- Clockwise Dashed Rings -->
+<div class="w-[560px] h-[560px] rounded-full border border-dashed border-emerald-500/25 animate-orbit-cw" style="stroke-dasharray: 10, 16;">
+<span class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.7)]"></span>
+<span class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 rounded-full bg-teal-300 shadow-[0_0_10px_rgba(52,211,153,0.6)]"></span>
+</div>
+<!-- Counter-Clockwise Dotted Rings -->
+<div class="w-[430px] h-[430px] rounded-full border-2 border-dotted border-teal-400/30 animate-orbit-ccw">
+<span class="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_10px_rgba(16,185,129,0.6)]"></span>
+<span class="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-emerald-300 shadow-[0_0_8px_rgba(110,231,183,0.6)]"></span>
+</div>
+<!-- Tight Concentric Inner Orbit Ring -->
+<div class="w-[280px] h-[280px] rounded-full border border-emerald-400/35 animate-orbit-cw" style="animation-duration: 24s;">
+<span class="absolute top-4 right-8 w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.9)]"></span>
+</div>
+</div>
+<!-- 4. Multiple Floating Glowing Orbs & Bokeh Particles (varying sizes) -->
+<!-- Orb 1: 160px Large Glowing Sphere -->
+<div class="absolute top-[12%] right-[4%] w-40 h-40 rounded-full bg-gradient-to-tr from-[#34D399]/40 via-[#6EE7B7]/50 to-white/60 blur-xl animate-drift-orb shadow-[0_0_35px_rgba(52,211,153,0.45)]"></div>
+<!-- Orb 2: 120px Mid Glowing Sphere -->
+<div class="absolute top-[58%] -left-6 w-32 h-32 rounded-full bg-gradient-to-r from-[#10B981]/45 to-[#A7F3D0]/50 blur-lg animate-drift-orb shadow-[0_0_30px_rgba(16,185,129,0.4)]" style="animation-delay: -3s;"></div>
+<!-- Orb 3: 80px Sphere -->
+<div class="absolute top-[32%] left-[10%] w-20 h-20 rounded-full bg-gradient-to-bl from-white via-[#34D399]/50 to-[#10B981]/35 blur-md animate-drift-orb shadow-[0_0_22px_rgba(52,211,153,0.5)]" style="animation-delay: -6s;"></div>
+<!-- Orb 4: 80px Sphere near bottom-right -->
+<div class="absolute bottom-[22%] right-[10%] w-20 h-20 rounded-full bg-gradient-to-br from-[#6EE7B7]/55 to-[#34D399]/40 blur-md animate-drift-orb shadow-[0_0_24px_rgba(110,231,183,0.45)]" style="animation-delay: -2s;"></div>
+<!-- Orb 5: 40px Crisp Accent Orb -->
+<div class="absolute top-[22%] left-[24%] w-10 h-10 rounded-full bg-gradient-to-tr from-[#10B981] to-[#A7F3D0] blur-sm animate-pulse-glow shadow-[0_0_16px_rgba(16,185,129,0.7)]" style="animation-delay: -1.5s;"></div>
+<!-- Orb 6: 40px Accent Orb center right -->
+<div class="absolute top-[68%] right-[22%] w-10 h-10 rounded-full bg-gradient-to-bl from-white via-teal-300 to-[#34D399] blur-sm animate-pulse-glow shadow-[0_0_18px_rgba(52,211,153,0.7)]" style="animation-delay: -4s;"></div>
+<!-- Orb 7: 120px Soft Orb near bottom left -->
+<div class="absolute bottom-[8%] left-[16%] w-28 h-28 rounded-full bg-[#86EFAC]/30 blur-xl animate-drift-orb" style="animation-delay: -8s;"></div>
+<!-- 5. Geometric Constellation Twinkles & Crosshairs -->
+<div class="absolute top-[18%] right-[22%] text-emerald-400/70 animate-twinkle text-lg select-none">✦</div>
+<div class="absolute top-[26%] left-[8%] text-teal-400/60 animate-twinkle text-sm select-none" style="animation-delay: -2s;">✧</div>
+<div class="absolute top-[45%] right-[8%] text-emerald-500/65 animate-twinkle text-base select-none" style="animation-delay: -3.5s;">✦</div>
+<div class="absolute top-[62%] left-[15%] text-teal-500/70 animate-twinkle text-xs select-none" style="animation-delay: -1s;">✦</div>
+<div class="absolute bottom-[28%] right-[26%] text-emerald-400/60 animate-twinkle text-sm select-none" style="animation-delay: -4.5s;">✧</div>
+<div class="absolute bottom-[14%] left-[32%] text-emerald-300/80 animate-twinkle text-xs select-none" style="animation-delay: -2.8s;">✦</div>
+</div>
+<!-- ========================================== -->
+<!-- MAIN APPLICATION UI (z-10)                 -->
+<!-- ========================================== -->
+<main class="flex-1 flex flex-col relative w-full pt-safe pb-safe z-10"><div class="flex flex-col w-full">
+<!-- Top Frosted Header Surface with Dedicated Eye-Catching Animated Halo/Aurora Behind Header -->
+<div class="relative w-full glass-card rounded-b-[2.5rem] px-gutter pt-4 pb-8 overflow-hidden shadow-[0_12px_36px_rgba(2,54,37,0.08)]">
+<!-- DEDICATED ANIMATED AURORA HALO / BADGE (Positioned directly behind icon & headline) -->
+<div class="absolute top-[62%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 pointer-events-none z-0">
+<!-- Rotating Aurora Gradient Disk with Richer Mint & Emerald Tones -->
+<div class="absolute top-1/2 left-1/2 w-72 h-72 rounded-full bg-gradient-to-tr from-[#10B981]/50 via-[#6EE7B7]/70 to-[#34D399]/50 blur-2xl animate-hero-spin-pulse"></div>
+<!-- Pulsing Inner Emerald Core -->
+<div class="absolute top-1/2 left-1/2 w-56 h-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#A7F3D0]/85 via-[#6EE7B7]/75 to-[#34D399]/70 blur-xl animate-pulse-glow"></div>
+<!-- Morphing Fluid Ring Shape -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-gradient-to-br from-[#34D399]/40 via-emerald-300/50 to-transparent blur-lg animate-morph-blob"></div>
+<!-- Glowing Accent Concentric Ring -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 rounded-full border border-emerald-400/40 animate-pulse-glow pointer-events-none shadow-[0_0_28px_rgba(52,211,153,0.4)]"></div>
+</div>
+<!-- Top Navigation Bar -->
+<div class="relative flex items-center justify-between z-10">
+<button aria-label="Go back" class="flex items-center justify-center w-11 h-11 rounded-full glass-pill text-on-surface shadow-sm active:scale-95 transition-all hover:bg-white" type="button">
+<span class="material-symbols-outlined text-headline-md">arrow_back</span>
+</button>
+<div class="flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-pill shadow-sm border border-white/90">
+<img alt="SahkarSeva Emblem" class="w-5 h-5 rounded-full object-cover ring-1 ring-primary/20" src="https://lh3.googleusercontent.com/aida/AEtjO1VdqAFRnbhaFEr1Gif7u6tlf7Nm74I-Hcoha51OdEEsi-rZj6ffFdjNyXlHfbx_t8sAMs6AkX28PO90WVW6taqhRGZ5OIzUt0wLSUN_-eV8QT9U3Y6X1UiEov26tXESidqad-p0kRlWdIluVOO0-X8WngDSBoyGO6olH11ZScevc12uDvvMJGT29Xm4uNuXDHjRLiZBB_z0MwSRcwG8XTV8QdfP4j5PkGyZIk0d_18CjQ6K4PlbkOLF1Zo"/>
+<span class="font-label-md text-label-md text-primary tracking-tight font-semibold">SahkarSeva</span>
+</div>
+<div class="w-11 h-11 flex items-center justify-center rounded-full glass-pill text-primary-container shadow-sm border border-white/80">
+<span class="material-symbols-outlined text-[22px] text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+</div>
+<!-- Hero Header Content: Message Icon, Headline & Edit Phone Pill -->
+<div class="mt-6 flex flex-col items-center text-center relative z-10">
+<div class="relative mb-3.5">
+<!-- Glow surrounding the icon pill -->
+<div class="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-emerald-400 via-primary-fixed to-teal-300 blur-md opacity-85"></div>
+<div class="relative w-14 h-14 rounded-2xl glass-pill flex items-center justify-center text-primary shadow-md border border-white">
+<span class="material-symbols-outlined text-[30px]" style="font-variation-settings: 'FILL' 1;">sms</span>
+</div>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface font-bold tracking-tight drop-shadow-sm" style="font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.02em;">Verify your number</h1>
+<div class="mt-2.5 inline-flex items-center gap-2 glass-pill px-3.5 py-1.5 rounded-full shadow-sm border border-white/90">
+<span class="font-body-sm text-body-sm text-on-surface-variant font-medium">Code sent to <span class="font-label-md text-label-md text-on-surface font-semibold">+91 98765 43210</span></span>
+<button class="flex items-center gap-0.5 text-secondary hover:underline font-label-sm text-label-sm font-semibold pl-1 transition-opacity active:opacity-75" type="button">
+<span class="">Edit</span>
+<span class="material-symbols-outlined text-[14px]">edit</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Main OTP Input Form -->
+<div class="px-gutter pt-8 pb-4 flex flex-col items-center">
+<div class="w-full max-w-sm">
+<label class="block text-center font-label-sm text-label-sm uppercase tracking-wider text-outline mb-3 font-semibold">ENTER 6-DIGIT ONE-TIME CODE</label>
+<div class="grid grid-cols-6 gap-2 w-full" id="otp-container"><input autofocus="" class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest rounded-xl shadow-[0_2px_10px_rgba(2,54,37,0.08)] border-2 border-primary focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest focus:text-primary transition-all caret-secondary" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text" value="4"/>
+<input class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest/90 rounded-xl shadow-[0_2px_6px_rgba(2,54,37,0.04)] border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:bg-surface-container-lowest transition-all caret-secondary hover:border-outline-variant" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text" value="8"/>
+<input class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest/90 rounded-xl shadow-[0_2px_6px_rgba(2,54,37,0.04)] border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:bg-surface-container-lowest transition-all caret-secondary hover:border-outline-variant" inputmode="numeric" maxlength="1" pattern="[0-9]*" type="text" value="2"/>
+<input class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest/80 rounded-xl shadow-[0_2px_6px_rgba(2,54,37,0.04)] border border-outline-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:bg-surface-container-lowest transition-all caret-secondary hover:border-outline-variant" inputmode="numeric" maxlength="1" pattern="[0-9]*" placeholder="•" type="text"/>
+<input class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest/80 rounded-xl shadow-[0_2px_6px_rgba(2,54,37,0.04)] border border-outline-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:bg-surface-container-lowest transition-all caret-secondary hover:border-outline-variant" inputmode="numeric" maxlength="1" pattern="[0-9]*" placeholder="•" type="text"/>
+<input class="otp-box w-full aspect-square text-center font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary bg-surface-container-lowest/80 rounded-xl shadow-[0_2px_6px_rgba(2,54,37,0.04)] border border-outline-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary focus:bg-surface-container-lowest transition-all caret-secondary hover:border-outline-variant" inputmode="numeric" maxlength="1" pattern="[0-9]*" placeholder="•" type="text"/></div>
+<div class="mt-6 flex flex-col items-center justify-center gap-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm bg-surface-container-lowest/90 px-4 py-1.5 rounded-full shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-outline-variant/40" id="timer-wrapper">
+<span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+<span class="">Resend code in <span class="font-label-md text-label-md text-on-surface font-semibold tracking-tight" id="countdown">0:17</span></span>
+</div>
+</div>
+<div class="mt-8">
+<button class="w-full h-14 rounded-2xl bg-[#C05B41] text-on-secondary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(192,91,65,0.32)] active:scale-[0.98] transition-all hover:bg-[#A84A33]" id="verify-button" type="button">
+<span class="">Verify &amp; Continue</span>
+<span class="material-symbols-outlined text-label-lg">lock</span>
+</button>
+</div>
+<div class="mt-7 flex items-center justify-center gap-2 text-center text-outline">
+<span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">handshake</span>
+<p class="font-label-sm text-label-sm tracking-tight text-on-surface-variant font-medium">Protected under SahkarSeva Member Charter</p>
+</div>
+</div>
+</div>
+<!-- Cooperative Identity Vault Badge -->
+<div class="px-gutter pb-6 pt-3">
+<div class="rounded-2xl bg-surface-container-lowest/90 p-3.5 shadow-[0_4px_20px_rgba(2,54,37,0.04)] flex items-start gap-3 border border-outline-variant/40">
+<div class="w-9 h-9 rounded-xl bg-primary-fixed/40 flex items-center justify-center text-primary shrink-0 ring-1 ring-primary/10">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="flex-1 min-w-0 pt-0.5">
+<p class="font-label-md text-label-md text-on-surface truncate font-semibold tracking-tight">Cooperative Identity Vault</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Fair wages, direct dispatch, and 100% verified artisan profiles.</p>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function () {
+    const inputs = document.querySelectorAll('.otp-box');
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    let seconds = 20;
+    const countdownEl = document.getElementById('countdown');
+    const timerWrapper = document.getElementById('timer-wrapper');
+    const resendActions = document.getElementById('resend-actions');
+
+    const timer = setInterval(() => {
+      seconds--;
+      if (seconds >= 0) {
+        countdownEl.textContent = `0:${seconds < 10 ? '0' : ''}${seconds}`;
+      } else {
+        clearInterval(timer);
+        if (timerWrapper) timerWrapper.classList.add('hidden');
+        if (resendActions) resendActions.classList.remove('hidden');
+      }
+    }, 1000);
+  })();
+</script></main>
+</body></html>
