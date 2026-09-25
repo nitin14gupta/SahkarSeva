@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_blank" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-container": "#bcb0a3", "on-secondary-fixed-variant": "#7f2b15", "inverse-on-surface": "#f2f0ed", "surface-dim": "#dbdad7", "primary": "#023625", "on-primary": "#ffffff", "outline-variant": "#c0c9c2", "on-tertiary": "#ffffff", "on-secondary-fixed": "#3c0800", "secondary": "#9e412a", "inverse-primary": "#a1d1b8", "secondary-fixed-dim": "#ffb4a2", "on-tertiary-fixed-variant": "#4e453b", "error": "#ba1a1a", "tertiary-fixed": "#eee0d2", "tertiary-fixed-dim": "#d2c4b7", "primary-fixed-dim": "#a1d1b8", "surface-variant": "#e4e2df", "on-surface-variant": "#414944", "surface-bright": "#fbf9f6", "surface-container-lowest": "#ffffff", "on-background": "#1b1c1a", "surface-container-high": "#eae8e5", "on-secondary-container": "#75240e", "background": "#fbf9f6", "tertiary-container": "#4c4339", "surface": "#fbf9f6", "on-primary-fixed-variant": "#214f3c", "surface-tint": "#3a6753", "on-tertiary-fixed": "#211a12", "tertiary": "#352d24", "secondary-container": "#fe8b6e", "surface-container-low": "#f5f3f0", "on-error-container": "#93000a", "on-error": "#ffffff", "surface-container-highest": "#e4e2df", "error-container": "#ffdad6", "surface-container": "#efeeeb", "on-surface": "#1b1c1a", "secondary-fixed": "#ffdbd2", "on-secondary": "#ffffff", "on-primary-fixed": "#002114", "outline": "#717973", "primary-container": "#1f4d3a", "inverse-surface": "#30312f", "on-primary-container": "#8dbda4", "primary-fixed": "#bceed3" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "margin-tablet": "2rem", "gutter-tablet": "1.5rem", "margin": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "gutter": "1rem", "margin-desktop": "3rem", "space-xs": "0.25rem", "space-md": "1rem", "space-xl": "2rem" }, fontFamily: { "label-md": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"] }, fontSize: { "label-md": ["14px", { "lineHeight": "18px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "fontWeight": "600" }], "label-lg": ["16px", { "lineHeight": "20px", "fontWeight": "600" }], "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }], "headline-xl": ["36px", { "lineHeight": "44px", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-xl-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }] } } } };</script><style>@layer base { html, body { min-height: 100%; margin: 0; padding: 0; } .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } .pt-safe { padding-top: env(safe-area-inset-top, 0px); } main > :first-child { margin-top: 0 !important; } main > :last-child { margin-bottom: 0 !important; } } ::-webkit-scrollbar { display: none; }
+  body {
+    min-height: max(884px, 100dvh);
+  }
+
+  @keyframes floatBlob1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(25px, -30px) scale(1.12); }
+    66% { transform: translate(-20px, 20px) scale(0.92); }
+  }
+  @keyframes floatBlob2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40% { transform: translate(-30px, -25px) scale(1.15); }
+    75% { transform: translate(25px, 25px) scale(0.9); }
+  }
+  @keyframes floatBlob3 {
+    0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+    50% { transform: translate(20px, 35px) scale(1.2); opacity: 0.45; }
+  }
+  @keyframes pulseRings {
+    0%, 100% { transform: scale(1); opacity: 0.25; }
+    50% { transform: scale(1.08); opacity: 0.45; }
+  }
+  @keyframes rotateOrbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes rotateOrbitCounter {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+  @keyframes floatParticle1 {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+    20% { opacity: 0.7; }
+    80% { opacity: 0.7; }
+    100% { transform: translateY(-160px) translateX(18px); opacity: 0; }
+  }
+  @keyframes floatParticle2 {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+    25% { opacity: 0.6; }
+    75% { opacity: 0.6; }
+    100% { transform: translateY(-190px) translateX(-22px); opacity: 0; }
+  }
+  @keyframes floatParticle3 {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+    30% { opacity: 0.8; }
+    70% { opacity: 0.8; }
+    100% { transform: translateY(-140px) translateX(15px); opacity: 0; }
+  }
+  @keyframes gentleBreathe {
+    0%, 100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.1); opacity: 0.7; }
+  }
+  @keyframes waveDrift {
+    0%, 100% { transform: translateY(0px) scaleY(1); }
+    50% { transform: translateY(-8px) scaleY(1.04); }
+  }
+
+  .animate-blob-1 { animation: floatBlob1 18s ease-in-out infinite; }
+  .animate-blob-2 { animation: floatBlob2 22s ease-in-out infinite; }
+  .animate-blob-3 { animation: floatBlob3 15s ease-in-out infinite; }
+  .animate-pulse-rings { animation: pulseRings 9s ease-in-out infinite; }
+  .animate-orbit-slow { animation: rotateOrbit 45s linear infinite; }
+  .animate-orbit-rev { animation: rotateOrbitCounter 60s linear infinite; }
+  .animate-particle-1 { animation: floatParticle1 9s ease-in-out infinite; }
+  .animate-particle-2 { animation: floatParticle2 12s ease-in-out infinite 3s; }
+  .animate-particle-3 { animation: floatParticle3 10s ease-in-out infinite 6s; }
+  .animate-breathe { animation: gentleBreathe 5s ease-in-out infinite; }
+  .animate-wave { animation: waveDrift 14s ease-in-out infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-blob-1, .animate-blob-2, .animate-blob-3,
+    .animate-pulse-rings, .animate-orbit-slow, .animate-orbit-rev,
+    .animate-particle-1, .animate-particle-2, .animate-particle-3,
+    .animate-breathe, .animate-wave {
+      animation: none !important;
+    }
+  }
+</style></head><body class="min-h-full bg-primary text-on-primary flex flex-col relative overflow-x-hidden"><main class="flex-1 flex flex-col relative w-full bg-primary pt-safe pb-safe overflow-hidden">
+<!-- Rich Animated Decorative Background Layer (Behind Screen Content) -->
+<div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden z-0">
+<!-- Glowing Auroral Color Gradients -->
+<div class="animate-blob-1 absolute -top-24 -left-20 w-96 h-96 rounded-full bg-primary-fixed/25 blur-3xl"></div>
+<div class="animate-blob-2 absolute top-1/3 -right-28 w-[380px] h-[380px] rounded-full bg-secondary-fixed/20 blur-3xl"></div>
+<div class="animate-blob-3 absolute -bottom-24 left-1/4 w-[420px] h-[420px] rounded-full bg-primary-fixed-dim/20 blur-3xl"></div>
+<div class="animate-blob-2 absolute top-2/3 -left-24 w-80 h-80 rounded-full bg-secondary-container/15 blur-3xl"></div>
+<!-- Animated Concentric Pulse Ripple Rings -->
+<div class="absolute top-[32%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[540px] h-[540px] flex items-center justify-center opacity-30">
+<div class="animate-pulse-rings absolute w-full h-full rounded-full border border-primary-fixed/20"></div>
+<div class="animate-orbit-slow absolute w-[420px] h-[420px] rounded-full border border-dashed border-primary-fixed/30"></div>
+<div class="animate-orbit-rev absolute w-[300px] h-[300px] rounded-full border border-dotted border-secondary-fixed-dim/25"></div>
+</div>
+<!-- Subtle Wavy Organic Line Contours (Mint & Emerald) -->
+<svg class="animate-wave absolute top-1/4 -left-12 w-[520px] h-72 opacity-15 stroke-primary-fixed" fill="none" viewbox="0 0 500 240" xmlns="http://www.w3.org/2000/svg">
+<path d="M-40 60 C100 120, 200 -20, 340 70 C440 130, 480 30, 560 90" stroke-width="1.5"></path>
+<path d="M-40 140 C80 200, 240 60, 360 150 C440 210, 490 120, 560 170" stroke-dasharray="4 6" stroke-width="1.2"></path>
+<path d="M-40 200 C120 160, 220 240, 360 190 C460 150, 500 230, 560 210" stroke-width="1"></path>
+</svg>
+<!-- Floating Luminous Particles & Twinkling Bokeh Dots -->
+<div class="animate-particle-1 absolute bottom-48 left-[18%] w-2 h-2 rounded-full bg-primary-fixed-dim/80 shadow-[0_0_8px_#A1D1B8]"></div>
+<div class="animate-particle-2 absolute bottom-64 left-[76%] w-2.5 h-2.5 rounded-full bg-secondary-fixed/70 shadow-[0_0_10px_#FFDBD2]"></div>
+<div class="animate-particle-3 absolute bottom-36 left-[48%] w-1.5 h-1.5 rounded-full bg-surface-container-lowest/80 shadow-[0_0_6px_#FFFFFF]"></div>
+<div class="animate-particle-1 absolute bottom-80 left-[84%] w-2 h-2 rounded-full bg-primary-fixed/70 shadow-[0_0_8px_#BCEED3]" style="animation-delay: 4.5s;"></div>
+<div class="animate-particle-2 absolute bottom-24 left-[28%] w-1.5 h-1.5 rounded-full bg-secondary-fixed-dim/60" style="animation-delay: 1.8s;"></div>
+</div>
+<div class="relative z-10 flex flex-col w-full px-margin pb-space-lg select-none">
+<!-- Top Bar / Utility Header -->
+<div class="flex items-center justify-between h-12 w-full">
+<div class="flex items-center gap-space-xs drop-shadow-sm">
+<span class="material-symbols-outlined text-primary-fixed text-xl" style="font-variation-settings: 'FILL' 1;">spa</span>
+<span class="font-label-md text-label-md text-primary-fixed font-bold tracking-wide">SahkarSeva</span>
+</div>
+<button class="px-space-sm py-space-xs font-label-md text-label-md text-primary-fixed/80 hover:text-primary-fixed transition-colors active:scale-95 duration-150 rounded-lg hover:bg-white/5" type="button">
+      Skip
+    </button>
+</div>
+<!-- Hero Illustration Container -->
+<div class="relative w-full rounded-2xl bg-surface-container-low/95 p-space-md mt-space-xs overflow-hidden shadow-lg border border-white/20 backdrop-blur-sm">
+<!-- Ambient Animated Glows behind central graphic inside the card -->
+<div class="animate-blob-1 absolute -top-12 -right-12 w-44 h-44 rounded-full bg-primary-fixed/30 blur-xl pointer-events-none"></div>
+<div class="animate-blob-2 absolute -bottom-8 -left-8 w-36 h-36 rounded-full bg-secondary-fixed/40 blur-xl pointer-events-none"></div>
+<div class="animate-breathe absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary-fixed/20 blur-2xl pointer-events-none"></div>
+<!-- Cooperative Artisan Illustration -->
+<div class="relative w-full flex items-center justify-center py-space-xs">
+<svg class="w-full max-w-[280px] h-60 drop-shadow-sm" fill="none" viewbox="0 0 320 280" xmlns="http://www.w3.org/2000/svg">
+<!-- Backdrop Circle Pattern with Radial Glow Feel -->
+<circle cx="160" cy="140" fill="#FAF8F5" r="105" stroke="#E7E1D8" stroke-width="1.5"></circle>
+<circle cx="160" cy="140" fill="#E8F5E9" fill-opacity="0.55" r="84"></circle>
+<!-- Intertwined Cooperative Ring (Solidarity Orbit) -->
+<path d="M100 130 C100 90, 220 90, 220 130 C220 170, 100 170, 100 130 Z" opacity="0.35" stroke="#1F4D3A" stroke-dasharray="6 6" stroke-width="3"></path>
+<!-- Leaves / Prosperity Flourish -->
+<g transform="translate(160, 48)">
+<path d="M0 0 C-14 -14 -20 -32 0 -42 C20 -32 14 -14 0 0 Z" fill="#1F4D3A"></path>
+<path d="M0 -36 V0" stroke="#FAF8F5" stroke-linecap="round" stroke-width="1.5"></path>
+<path d="M-6 -22 C-16 -24 -24 -16 -28 -6 C-18 -2 -10 -10 -6 -22 Z" fill="#A1D1B8"></path>
+<path d="M6 -22 C16 -24 24 -16 28 -6 C18 -2 10 -10 6 -22 Z" fill="#BF5130" opacity="0.85"></path>
+</g>
+<!-- Base Support Shield/Hands Plinth -->
+<path d="M110 226 C136 242 184 242 210 226 C220 200 228 178 220 160 C200 172 120 172 100 160 C92 178 100 200 110 226 Z" fill="#1F4D3A"></path>
+<circle cx="160" cy="200" fill="#BF5130" r="16"></circle>
+<path d="M154 200 L158 204 L167 195" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+<!-- Handshake / Central Knot Motif -->
+<g id="solidarity-knot">
+<!-- Left Worker Arm (Warm Ochre Cuff) -->
+<path d="M84 148 L114 134 C120 131 128 134 132 140 L146 156" stroke="#BF5130" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"></path>
+<!-- Right Worker Arm (Deep Green Cuff) -->
+<path d="M236 148 L206 134 C200 131 192 134 188 140 L174 156" stroke="#1F4D3A" stroke-linecap="round" stroke-linejoin="round" stroke-width="14"></path>
+<!-- Clasp Union -->
+<rect fill="#EEE0D2" height="24" rx="8" stroke="#1F4D3A" stroke-width="2" width="36" x="142" y="136"></rect>
+<path d="M152 142 H168" stroke="#1F4D3A" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M152 148 H168" stroke="#1F4D3A" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M152 154 H164" stroke="#1F4D3A" stroke-linecap="round" stroke-width="2.5"></path>
+</g>
+<!-- Artisan Tool 1: Wrench (Left Tilt) -->
+<g transform="translate(102, 86) rotate(-22)">
+<rect fill="#352D24" height="42" rx="3" width="10" x="0" y="8"></rect>
+<path d="M-4 8 C-4 -4 14 -4 14 8 C11 5 3 5 0 8 Z" fill="#BF5130"></path>
+<circle cx="5" cy="42" fill="#FAF8F5" r="3"></circle>
+</g>
+<!-- Artisan Tool 2: Precision Tester / Mallet (Right Tilt) -->
+<g transform="translate(208, 76) rotate(24)">
+<rect fill="#1F4D3A" height="46" rx="3" width="9" x="0" y="16"></rect>
+<rect fill="#C85A32" height="14" rx="4" width="25" x="-8" y="4"></rect>
+<line stroke="#D2C4B7" stroke-linecap="round" stroke-width="2" x1="4.5" x2="4.5" y1="4" y2="-4"></line>
+</g>
+<!-- Artisan Tool 3: Brick Trowel (Subtle Center Badge) -->
+<g transform="translate(160, 94)">
+<polygon fill="#FAF8F5" points="0,-16 16,10 -16,10" stroke="#1F4D3A" stroke-width="2"></polygon>
+<line stroke="#BF5130" stroke-linecap="round" stroke-width="3" x1="0" x2="0" y1="10" y2="20"></line>
+</g>
+<!-- Sparkling Equity Accents -->
+<circle cx="86" cy="108" fill="#BF5130" r="3"></circle>
+<circle cx="236" cy="112" fill="#A1D1B8" r="3.5"></circle>
+<circle cx="160" cy="122" fill="#1F4D3A" r="2.5"></circle>
+</svg>
+</div>
+<!-- Micro Stats strip on illustration bottom -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-1 rounded-full shadow-sm border border-neutral-200/50">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">100% Retained Value</span>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-sm py-1 rounded-full shadow-sm border border-neutral-200/50">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">how_to_reg</span>
+<span class="font-label-sm text-label-sm text-on-surface font-medium">Co-Op Certified</span>
+</div>
+</div>
+</div>
+<!-- Content / Story Section -->
+<div class="flex flex-col items-center text-center mt-space-lg">
+<!-- Cooperative Trust Badge Pill -->
+<div class="inline-flex items-center gap-space-xs px-3.5 py-1.5 rounded-full bg-primary-fixed/20 border border-primary-fixed/40 text-primary-fixed mb-space-sm shadow-sm backdrop-blur-sm">
+<span class="material-symbols-outlined text-base text-primary-fixed" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm tracking-wide font-semibold">100% Worker-Owned Collective</span>
+</div>
+<!-- Headline -->
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-white tracking-tight drop-shadow-sm font-bold">
+      Workers who own the platform
+    </h1>
+<!-- Explanatory Subtitle with High Contrast -->
+<p class="font-body-md text-body-md text-[#E1EFE7] mt-space-sm max-w-[328px] leading-relaxed drop-shadow-sm">
+      Unlike traditional gig apps, every artisan on SahkarSeva is an equal co-owner—guaranteeing 100% fair wages, transparent bookings, and dignified work.
+    </p>
+<!-- Value Transparency Micro-Card -->
+<div class="w-full max-w-[342px] mt-space-md p-space-sm rounded-xl bg-surface-container-low/95 backdrop-blur-sm shadow-md border border-white/30 flex items-center justify-around text-left">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-xl">payments</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Worker Cut</span>
+<span class="font-label-md text-label-md text-primary font-bold">0% Commission</span>
+</div>
+</div>
+<div class="w-px h-8 bg-surface-container-highest"></div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">gavel</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Governance</span>
+<span class="font-label-md text-label-md text-primary font-bold">1 Member, 1 Vote</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Spacer to push navigation to bottom zone -->
+<div class="h-6"></div>
+<!-- Bottom Navigation & Controls -->
+<div class="w-full flex items-center justify-between pt-space-xs mt-auto">
+<!-- Pagination Indicator (Slide 1 of 3 Active) -->
+<div aria-label="Slide 1 of 3" class="flex items-center gap-1.5">
+<!-- Dot 1: Active Expanded Pill -->
+<span class="w-7 h-2 rounded-full bg-primary-fixed shadow-[0_0_8px_#BCEED3] transition-all duration-300"></span>
+<!-- Dot 2: Inactive Circle -->
+<span class="w-2 h-2 rounded-full bg-white/40"></span>
+<!-- Dot 3: Inactive Circle -->
+<span class="w-2 h-2 rounded-full bg-white/40"></span>
+</div>
+<!-- Primary Action Next Button (Terracotta) -->
+<button class="group flex items-center justify-center gap-space-xs min-h-[48px] px-space-lg rounded-xl bg-secondary text-on-secondary shadow-lg hover:bg-on-secondary-container active:scale-[0.98] transition-all duration-150 cursor-pointer border border-white/20" type="button">
+<span class="font-label-lg text-label-lg tracking-wide font-semibold">Next</span>
+<span class="material-symbols-outlined text-lg transition-transform duration-200 group-hover:translate-x-0.5">arrow_forward</span>
+</button>
+</div>
+</div></main></body></html>

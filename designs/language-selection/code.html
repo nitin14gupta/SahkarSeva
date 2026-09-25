@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+<meta content="mobile_stack" name="shell-type"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    @layer base {
+      html, body {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: #e9f5ed;
+      }
+      body {
+        overscroll-behavior-y: none;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      main > :first-child {
+        margin-top: 0 !important;
+      }
+      main > :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Keyframes for ambient animations */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes floatOrb1 {
+      0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+      50% { transform: translateY(-24px) translateX(12px) scale(1.08); }
+    }
+    @keyframes floatOrb2 {
+      0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+      50% { transform: translateY(22px) translateX(-14px) scale(0.95); }
+    }
+    @keyframes auroraWave1 {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.55; }
+      50% { transform: translate(25px, -30px) scale(1.15); opacity: 0.75; }
+    }
+    @keyframes auroraWave2 {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.45; }
+      50% { transform: translate(-30px, 20px) scale(1.1); opacity: 0.65; }
+    }
+    @keyframes pulseRipple {
+      0% { transform: scale(0.85); opacity: 0.7; }
+      50% { transform: scale(1.12); opacity: 0.25; }
+      100% { transform: scale(0.85); opacity: 0.7; }
+    }
+    @keyframes subtleGlow {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.85; }
+    }
+
+    .animate-spin-slow {
+      animation: spinSlow 32s linear infinite;
+    }
+    .animate-spin-reverse {
+      animation: spinReverse 26s linear infinite;
+    }
+    .animate-float-1 {
+      animation: floatOrb1 7s ease-in-out infinite;
+    }
+    .animate-float-2 {
+      animation: floatOrb2 9s ease-in-out infinite;
+    }
+    .animate-aurora-1 {
+      animation: auroraWave1 11s ease-in-out infinite alternate;
+    }
+    .animate-aurora-2 {
+      animation: auroraWave2 13s ease-in-out infinite alternate;
+    }
+    .animate-ripple {
+      animation: pulseRipple 4.5s ease-in-out infinite;
+    }
+    .animate-glow {
+      animation: subtleGlow 4s ease-in-out infinite;
+    }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "secondary-fixed-dim": "#ffb4a2",
+            "on-secondary": "#ffffff",
+            "primary-container": "#1f4d3a",
+            "on-surface-variant": "#414944",
+            "inverse-surface": "#30312f",
+            "error": "#ba1a1a",
+            "on-surface": "#1b1c1a",
+            "on-secondary-fixed": "#3c0800",
+            "on-primary-container": "#8dbda4",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#4e453b",
+            "inverse-primary": "#a1d1b8",
+            "tertiary": "#352d24",
+            "on-error": "#ffffff",
+            "secondary-fixed": "#ffdbd2",
+            "on-tertiary-container": "#bcb0a3",
+            "secondary": "#9e412a",
+            "on-secondary-container": "#75240e",
+            "on-primary-fixed-variant": "#214f3c",
+            "surface-dim": "#dbdad7",
+            "surface-container-low": "#f5f3f0",
+            "primary-fixed": "#bceed3",
+            "outline": "#717973",
+            "tertiary-fixed-dim": "#d2c4b7",
+            "surface-container": "#efeeeb",
+            "tertiary-container": "#4c4339",
+            "on-tertiary": "#ffffff",
+            "surface-variant": "#e4e2df",
+            "surface-container-high": "#eae8e5",
+            "outline-variant": "#c0c9c2",
+            "on-primary": "#ffffff",
+            "surface-container-highest": "#e4e2df",
+            "surface-tint": "#3a6753",
+            "on-error-container": "#93000a",
+            "secondary-container": "#fe8b6e",
+            "error-container": "#ffdad6",
+            "on-primary-fixed": "#002114",
+            "on-secondary-fixed-variant": "#7f2b15",
+            "primary-fixed-dim": "#a1d1b8",
+            "tertiary-fixed": "#eee0d2",
+            "inverse-on-surface": "#f2f0ed",
+            "surface": "#fbf9f6",
+            "primary": "#023625",
+            "on-tertiary-fixed": "#211a12",
+            "background": "#e9f5ed",
+            "surface-bright": "#fbf9f6",
+            "on-background": "#1b1c1a"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "margin-desktop": "3rem",
+            "gutter-tablet": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "margin-tablet": "2rem",
+            "space-xl": "2rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "margin": "1rem"
+          },
+          fontFamily: {
+            "body-md": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"],
+            "headline-xl-mobile": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "headline-xl": ["Plus Jakarta Sans"],
+            "headline-lg-mobile": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"]
+          },
+          fontSize: {
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "label-md": ["14px", { lineHeight: "18px", fontWeight: "600" }],
+            "headline-md": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "headline-xl-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }],
+            "label-lg": ["16px", { lineHeight: "20px", fontWeight: "600" }],
+            "headline-xl": ["36px", { lineHeight: "44px", fontWeight: "700" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "headline-lg": ["28px", { lineHeight: "36px", fontWeight: "600" }],
+            "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+            "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#e9f5ed] text-on-surface antialiased flex flex-col min-h-screen relative overflow-x-hidden selection:bg-primary-fixed selection:text-primary">
+<!-- Fixed Top Header -->
+<header class="fixed top-0 w-full z-50 pt-safe bg-[#e9f5ed]/80 backdrop-blur-xl border-b border-[#cfe6d6]/60 shadow-[0_2px_12px_rgba(2,54,37,0.03)]">
+<div class="h-16 px-gutter flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-white/60 active:scale-95 transition-all" onclick="history.back()" type="button">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<div class="flex items-center gap-space-sm pl-space-xs">
+<img alt="SahkarSeva Brand logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VdqAFRnbhaFEr1Gif7u6tlf7Nm74I-Hcoha51OdEEsi-rZj6ffFdjNyXlHfbx_t8sAMs6AkX28PO90WVW6taqhRGZ5OIzUt0wLSUN_-eV8QT9U3Y6X1UiEov26tXESidqad-p0kRlWdIluVOO0-X8WngDSBoyGO6olH11ZScevc12uDvvMJGT29Xm4uNuXDHjRLiZBB_z0MwSRcwG8XTV8QdfP4j5PkGyZIk0d_18CjQ6K4PlbkOLF1Zo"/>
+<span class="font-label-lg text-label-lg text-primary tracking-tight font-bold">SahkarSeva</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-label-md text-label-md text-on-surface-variant hidden sm:inline-block">Language Selection</span>
+<div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-primary text-[19px]">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Stage -->
+<main class="flex-1 flex flex-col relative w-full pt-16 bg-[#e9f5ed] pb-safe min-h-screen">
+<!-- Rich Animated Background Layer -->
+<div class="pointer-events-none absolute inset-0 overflow-hidden z-0 select-none"><!-- Large Aurora Atmosphere Blobs -->
+<div class="animate-aurora-1 absolute -top-24 -left-20 w-96 h-96 rounded-full bg-gradient-to-tr from-[#78d1a1]/55 via-[#b9ebcb]/65 to-[#bceed3]/45 blur-3xl"></div>
+<div class="animate-aurora-2 absolute top-1/4 -right-24 w-[420px] h-[420px] rounded-full bg-gradient-to-bl from-[#58c38e]/40 via-[#a7e4be]/55 to-[#f7d6cb]/30 blur-3xl"></div>
+<div class="animate-aurora-1 absolute bottom-10 -left-24 w-88 h-88 rounded-full bg-gradient-to-br from-[#7ecc9f]/50 via-[#c0f0d2]/55 to-[#ffcfc3]/30 blur-3xl" style="animation-delay: -3.5s;"></div>
+<div class="animate-aurora-2 absolute top-[52%] left-[10%] w-80 h-80 rounded-full bg-gradient-to-tr from-[#8ce0b4]/35 via-[#c7f4d7]/45 to-transparent blur-3xl" style="animation-delay: -6s;"></div>
+<!-- Drifting Geometric Cooperative Wave & Contour Lines (SVG) -->
+<svg class="animate-wave-flow absolute inset-0 w-full h-full opacity-40 mix-blend-multiply" fill="none" preserveaspectratio="none" viewbox="0 0 400 900" xmlns="http://www.w3.org/2000/svg">
+<path d="M-40 180 C 120 120, 240 260, 440 160" opacity="0.45" stroke="#1f4d3a" stroke-dasharray="6 6" stroke-width="1.2"></path>
+<path d="M-20 220 C 140 160, 260 300, 460 200" opacity="0.35" stroke="#2d7355" stroke-width="1.5"></path>
+<path d="M-50 480 C 80 430, 290 560, 450 470" opacity="0.4" stroke="#1f4d3a" stroke-dasharray="4 8" stroke-width="1.2"></path>
+<path d="M-30 510 C 100 460, 310 590, 470 500" opacity="0.3" stroke="#3a6753" stroke-width="1.4"></path>
+<path d="M-40 760 C 130 700, 250 830, 440 750" opacity="0.35" stroke="#2d7355" stroke-dasharray="7 5" stroke-width="1.5"></path>
+</svg>
+<!-- Layered Concentric Orbital Rings & Floating Satellite Nodes -->
+<!-- Inner Orbital Ring with Satellite Node -->
+<div class="absolute top-20 left-1/2 -translate-x-1/2 w-[340px] h-[340px] rounded-full border border-[#1f4d3a]/25 animate-spin-slow">
+<div class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#1f4d3a] shadow-[0_0_10px_rgba(31,77,58,0.45)] ring-2 ring-white"></div>
+<div class="absolute bottom-8 right-10 w-2.5 h-2.5 rounded-full bg-[#3a6753]/80 shadow-sm"></div>
+</div>
+<!-- Middle Dashed Orbital Ring with Satellite Node -->
+<div class="absolute top-14 left-1/2 -translate-x-1/2 w-[430px] h-[430px] rounded-full border border-dashed border-[#2d7355]/30 animate-spin-reverse">
+<div class="absolute top-1/4 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#fe8b6e] shadow-[0_0_12px_rgba(254,139,110,0.6)] ring-2 ring-white"></div>
+<div class="absolute bottom-1/4 -left-1 w-2.5 h-2.5 rounded-full bg-[#1f4d3a]/60"></div>
+</div>
+<!-- Outer Elegant Ring with Orbiting Golden Node -->
+<div class="absolute top-8 left-1/2 -translate-x-1/2 w-[530px] h-[530px] rounded-full border border-[#3a6753]/15 animate-spin-medium">
+<div class="absolute bottom-12 left-20 w-3 h-3 rounded-full bg-[#a1d1b8] shadow-[0_0_8px_rgba(161,209,184,0.7)] ring-2 ring-white/80"></div>
+</div>
+<!-- Glowing Floating Bokeh Particles & Orbs -->
+<div class="animate-float-1 absolute top-28 left-[10%] w-4 h-4 rounded-full bg-[#1f4d3a]/35 shadow-[0_0_12px_rgba(31,77,58,0.35)] blur-[1px]"></div>
+<div class="animate-float-2 absolute top-36 right-[12%] w-5 h-5 rounded-full bg-[#4ba37c]/45 shadow-[0_0_14px_rgba(75,163,124,0.45)] blur-[1px]"></div>
+<div class="animate-float-3 absolute top-[44%] left-[5%] w-6 h-6 rounded-full bg-[#82ceaa]/45 shadow-[0_0_16px_rgba(130,206,170,0.5)] blur-[1.5px]" style="animation-delay: -2s;"></div>
+<div class="animate-float-1 absolute top-[58%] right-[8%] w-4.5 h-4.5 rounded-full bg-[#fe8b6e]/40 shadow-[0_0_14px_rgba(254,139,110,0.45)] blur-[1px]" style="animation-delay: -3.5s;"></div>
+<div class="animate-float-2 absolute bottom-28 left-[18%] w-5 h-5 rounded-full bg-[#7ec4a3]/45 shadow-[0_0_14px_rgba(126,196,163,0.45)] blur-[1px]" style="animation-delay: -1.5s;"></div>
+<div class="animate-float-3 absolute bottom-36 right-[22%] w-4 h-4 rounded-full bg-[#20553f]/30 shadow-[0_0_10px_rgba(32,85,63,0.35)] blur-[1px]" style="animation-delay: -4s;"></div>
+<!-- Dynamic Pulsing Glow Centers -->
+<div class="animate-pulse-glow absolute top-24 left-[75%] w-16 h-16 rounded-full bg-[#7fcfa7]/35 blur-xl"></div>
+<div class="animate-pulse-glow absolute top-[64%] left-[12%] w-20 h-20 rounded-full bg-[#a1d1b8]/30 blur-xl" style="animation-delay: -2.5s;"></div>
+<!-- Floating Star & Luminous Sparkle Icons -->
+<div class="animate-glow absolute top-32 left-[82%] text-[#1f4d3a]/45">
+<span class="material-symbols-outlined text-[19px]">sparkles</span>
+</div>
+<div class="animate-glow absolute top-[52%] left-[4%] text-[#2d7355]/45" style="animation-delay: -1.8s;">
+<span class="material-symbols-outlined text-[20px]">auto_awesome</span>
+</div>
+<div class="animate-glow absolute bottom-32 right-[10%] text-[#1f4d3a]/40" style="animation-delay: -1s;">
+<span class="material-symbols-outlined text-[17px]">sparkles</span>
+</div>
+<div class="animate-glow absolute top-[72%] left-[86%] text-[#9e412a]/35" style="animation-delay: -2.8s;">
+<span class="material-symbols-outlined text-[16px]">star</span>
+</div></div>
+<!-- Content Area -->
+<div class="flex flex-col w-full relative min-w-0 z-10">
+<div class="px-gutter pt-space-md pb-space-xl flex flex-col w-full">
+<!-- Top Identity & Header Block -->
+<div class="flex flex-col items-center text-center mb-space-lg relative">
+<!-- Animated Radial Ripple Accent behind Emblem -->
+<div class="relative flex items-center justify-center mb-space-md">
+<div class="animate-ripple absolute inset-0 -m-3 rounded-3xl bg-[#7fcfa7]/30 blur-md pointer-events-none"></div>
+<div class="animate-spin-slow absolute inset-0 -m-2 rounded-3xl border border-dashed border-[#1f4d3a]/25 pointer-events-none"></div>
+<div class="w-20 h-20 rounded-2xl bg-white/95 backdrop-blur-md shadow-[0_8px_20px_rgba(2,54,37,0.08)] ring-1 ring-[#1f4d3a]/10 flex items-center justify-center p-space-sm relative z-10">
+<img alt="SahkarSeva Brand Emblem" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VdqAFRnbhaFEr1Gif7u6tlf7Nm74I-Hcoha51OdEEsi-rZj6ffFdjNyXlHfbx_t8sAMs6AkX28PO90WVW6taqhRGZ5OIzUt0wLSUN_-eV8QT9U3Y6X1UiEov26tXESidqad-p0kRlWdIluVOO0-X8WngDSBoyGO6olH11ZScevc12uDvvMJGT29Xm4uNuXDHjRLiZBB_z0MwSRcwG8XTV8QdfP4j5PkGyZIk0d_18CjQ6K4PlbkOLF1Zo"/>
+<div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md ring-2 ring-white">
+<span class="material-symbols-outlined text-[15px]">translate</span>
+</div>
+</div>
+</div>
+<div class="inline-flex items-center gap-space-xs px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-[#c1e5ce] text-[#023625] shadow-sm mb-space-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">volunteer_activism</span>
+<span class="font-label-sm text-label-sm font-semibold tracking-wide">Worker Owned Cooperative</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-[#0b2419] font-bold tracking-tight">
+            Choose your language
+          </h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 max-w-[290px]">
+            Select your preferred language for bookings and support <span class="block text-primary font-semibold mt-0.5">अपनी भाषा चुनें</span>
+</p>
+</div>
+<!-- Interactive Balanced 6-Language Grid (Clean White/Glassmorphism surfaces) -->
+<div aria-label="Language selection" class="grid grid-cols-2 gap-3 w-full mb-space-lg" id="languageGrid" role="radiogroup">
+<!-- Option 1: English (Selected Default: deep cooperative green #1f4d3a) -->
+<button aria-checked="true" class="language-card text-left p-4 rounded-2xl bg-[#1f4d3a] text-white shadow-[0_8px_18px_rgba(31,77,58,0.22)] ring-2 ring-[#1f4d3a] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group" data-lang="en" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-[11px] font-semibold tracking-wider text-emerald-100 uppercase">Primary</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px] text-white">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-white">English</span>
+<span class="lang-sub font-body-sm text-body-sm text-emerald-100/90 block">English</span>
+</div>
+</button>
+<!-- Option 2: Hindi -->
+<button aria-checked="false" class="language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md" data-lang="hi" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-label-sm text-on-surface-variant font-medium">हिंदी</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#1f4d3a]">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface">हिन्दी</span>
+<span class="lang-sub font-body-sm text-body-sm text-on-surface-variant block">Hindi</span>
+</div>
+</button>
+<!-- Option 3: Marathi -->
+<button aria-checked="false" class="language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md" data-lang="mr" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-label-sm text-on-surface-variant font-medium">महाराष्ट्र</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#1f4d3a]">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface">मराठी</span>
+<span class="lang-sub font-body-sm text-body-sm text-on-surface-variant block">Marathi</span>
+</div>
+</button>
+<!-- Option 4: Bengali -->
+<button aria-checked="false" class="language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md" data-lang="bn" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-label-sm text-on-surface-variant font-medium">বাংলা</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#1f4d3a]">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface">বাংলা</span>
+<span class="lang-sub font-body-sm text-body-sm text-on-surface-variant block">Bengali</span>
+</div>
+</button>
+<!-- Option 5: Tamil -->
+<button aria-checked="false" class="language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md" data-lang="ta" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-label-sm text-on-surface-variant font-medium">தமிழ்நாடு</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#1f4d3a]">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface">தமிழ்</span>
+<span class="lang-sub font-body-sm text-body-sm text-on-surface-variant block">Tamil</span>
+</div>
+</button>
+<!-- Option 6: Telugu -->
+<button aria-checked="false" class="language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md" data-lang="te" role="radio" type="button">
+<div class="flex items-center justify-between w-full">
+<span class="lang-top font-label-sm text-label-sm text-on-surface-variant font-medium">తెలుగు</span>
+<span class="indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity">
+<span class="material-symbols-outlined text-[16px] text-[#1f4d3a]">check</span>
+</span>
+</div>
+<div>
+<span class="lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface">తెలుగు</span>
+<span class="lang-sub font-body-sm text-body-sm text-on-surface-variant block">Telugu</span>
+</div>
+</button>
+</div>
+<!-- Cooperative Reassurance Note (Crisp White Glass Pill) -->
+<div class="flex items-center justify-center gap-space-xs text-on-surface-variant px-space-md py-2.5 rounded-full bg-white/80 backdrop-blur-md border border-[#cfe6d6] shadow-sm mb-space-lg mx-auto">
+<span class="material-symbols-outlined text-[18px] text-primary">info</span>
+<p class="font-body-sm text-body-sm text-center text-[#214f3c] font-medium">
+            You can change your language anytime in settings.
+          </p>
+</div>
+<!-- Bottom Action Area -->
+<div class="w-full pt-space-xs">
+<!-- Elevated Terracotta "Continue →" Button -->
+<button class="w-full h-14 bg-secondary hover:bg-on-secondary-container text-on-secondary rounded-xl font-label-lg text-label-lg shadow-[0_8px_20px_rgba(158,65,42,0.28)] flex items-center justify-center gap-space-sm active:scale-[0.98] transition-all ring-1 ring-white/20" id="confirmLanguageBtn" type="button">
+<span class="tracking-wide">Continue</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<div class="flex items-center justify-center gap-space-xs mt-3.5 opacity-80">
+<span class="material-symbols-outlined text-[15px] text-primary">verified_user</span>
+<span class="font-label-sm text-label-sm text-[#1f4d3a] font-medium">100% fair cooperative rates guaranteed</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+    (function() {
+      const cards = document.querySelectorAll('.language-card');
+      
+      const unselectedClass = 'language-card text-left p-4 rounded-2xl bg-white/95 backdrop-blur-md text-on-surface shadow-[0_2px_8px_rgba(2,54,37,0.04)] border border-[#d6ecde] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group hover:bg-white hover:border-[#a8ddbe] hover:shadow-md';
+      const selectedClass = 'language-card text-left p-4 rounded-2xl bg-[#1f4d3a] text-white shadow-[0_8px_18px_rgba(31,77,58,0.22)] ring-2 ring-[#1f4d3a] flex flex-col justify-between h-[106px] transition-all duration-200 active:scale-[0.98] relative overflow-hidden group';
+
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
+          // Reset all cards
+          cards.forEach(c => {
+            c.setAttribute('aria-checked', 'false');
+            c.className = unselectedClass;
+            
+            const iconContainer = c.querySelector('.indicator-icon');
+            if (iconContainer) {
+              iconContainer.className = 'indicator-icon w-6 h-6 rounded-full bg-[#e6f4ec] flex items-center justify-center opacity-0 group-hover:opacity-40 transition-opacity';
+              const icon = iconContainer.querySelector('span');
+              if (icon) icon.className = 'material-symbols-outlined text-[16px] text-[#1f4d3a]';
+            }
+
+            const topTag = c.querySelector('.lang-top');
+            if (topTag) {
+              topTag.className = 'lang-top font-label-sm text-label-sm text-on-surface-variant font-medium';
+            }
+
+            const title = c.querySelector('.lang-title');
+            if (title) title.className = 'lang-title font-headline-md text-headline-md font-bold block leading-tight text-on-surface';
+
+            const subtitle = c.querySelector('.lang-sub');
+            if (subtitle) subtitle.className = 'lang-sub font-body-sm text-body-sm text-on-surface-variant block';
+          });
+
+          // Set active card
+          card.setAttribute('aria-checked', 'true');
+          card.className = selectedClass;
+
+          const activeIconContainer = card.querySelector('.indicator-icon');
+          if (activeIconContainer) {
+            activeIconContainer.className = 'indicator-icon w-6 h-6 rounded-full bg-white/20 flex items-center justify-center opacity-100';
+            const icon = activeIconContainer.querySelector('span');
+            if (icon) icon.className = 'material-symbols-outlined text-[16px] text-white';
+          }
+
+          const activeTag = card.querySelector('.lang-top');
+          if (activeTag) {
+            activeTag.className = 'lang-top font-label-sm text-[11px] font-semibold tracking-wider text-emerald-100 uppercase';
+          }
+
+          const activeTitle = card.querySelector('.lang-title');
+          if (activeTitle) activeTitle.className = 'lang-title font-headline-md text-headline-md font-bold block leading-tight text-white';
+
+          const activeSub = card.querySelector('.lang-sub');
+          if (activeSub) activeSub.className = 'lang-sub font-body-sm text-body-sm text-emerald-100/90 block';
+        });
+      });
+
+      const continueBtn = document.getElementById('confirmLanguageBtn');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+          const selected = document.querySelector('.language-card[aria-checked="true"]');
+          const lang = selected ? selected.getAttribute('data-lang') : 'en';
+          continueBtn.classList.add('scale-[0.97]');
+          setTimeout(() => {
+            continueBtn.classList.remove('scale-[0.97]');
+          }, 150);
+        });
+      }
+    })();
+  </script>
+</body></html>

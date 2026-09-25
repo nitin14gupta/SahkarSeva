@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>
+  @layer base {
+    html, body {
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      background-color: #f4faf6;
+    }
+    body {
+      overscroll-behavior: none;
+    }
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    main > :first-child { margin-top: 0 !important; }
+    main > :last-child { margin-bottom: 0 !important; }
+  }
+  ::-webkit-scrollbar { display: none; }
+
+  /* Upgraded Lush 60fps Ambient & Orbital Background Animations */
+  @keyframes spinClockwise {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes spinCounterClockwise {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+  @keyframes floatGentle1 {
+    0%, 100% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(40px, -45px) scale(1.14); }
+    66% { transform: translate(-30px, 35px) scale(0.92); }
+  }
+  @keyframes floatGentle2 {
+    0%, 100% { transform: translate(0px, 0px) scale(1.05); }
+    40% { transform: translate(-45px, -30px) scale(0.9); }
+    75% { transform: translate(35px, 40px) scale(1.16); }
+  }
+  @keyframes floatGentle3 {
+    0%, 100% { transform: translate(0px, 0px) scale(0.95); }
+    50% { transform: translate(30px, 50px) scale(1.12); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.45; transform: scale(1); }
+    50% { opacity: 0.95; transform: scale(1.35); }
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0.25; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.4); }
+  }
+  @keyframes waveMorph {
+    0%, 100% { transform: translateY(0px) rotate(0deg) scaleY(1); }
+    50% { transform: translateY(-16px) rotate(2deg) scaleY(1.08); }
+  }
+  @keyframes particleRise1 {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+    20% { opacity: 0.7; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(-240px) translateX(18px); opacity: 0; }
+  }
+  @keyframes particleRise2 {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0; }
+    25% { opacity: 0.65; }
+    75% { opacity: 0.75; }
+    100% { transform: translateY(-280px) translateX(-22px); opacity: 0; }
+  }
+
+  .animate-orbit-cw-slow {
+    animation: spinClockwise 80s linear infinite;
+  }
+  .animate-orbit-ccw-slow {
+    animation: spinCounterClockwise 65s linear infinite;
+  }
+  .animate-orbit-cw-mid {
+    animation: spinClockwise 45s linear infinite;
+  }
+  .animate-float-1 {
+    animation: floatGentle1 22s ease-in-out infinite;
+  }
+  .animate-float-2 {
+    animation: floatGentle2 26s ease-in-out infinite;
+  }
+  .animate-float-3 {
+    animation: floatGentle3 19s ease-in-out infinite;
+  }
+  .animate-node-pulse {
+    animation: pulseGlow 3.6s ease-in-out infinite;
+  }
+  .animate-twinkle {
+    animation: sparkleTwinkle 3.2s ease-in-out infinite;
+  }
+  .animate-wave-morph {
+    animation: waveMorph 14s ease-in-out infinite;
+  }
+  .animate-particle-1 {
+    animation: particleRise1 9s ease-in-out infinite;
+  }
+  .animate-particle-2 {
+    animation: particleRise2 11s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-orbit-cw-slow,
+    .animate-orbit-ccw-slow,
+    .animate-orbit-cw-mid,
+    .animate-float-1,
+    .animate-float-2,
+    .animate-float-3,
+    .animate-node-pulse,
+    .animate-twinkle,
+    .animate-wave-morph,
+    .animate-particle-1,
+    .animate-particle-2 {
+      animation: none !important;
+    }
+  }
+</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-tertiary-container": "#bcb0a3", "surface-container-high": "#eae8e5", "outline-variant": "#c0c9c2", "tertiary-fixed": "#eee0d2", "surface-container-lowest": "#ffffff", "on-secondary-fixed": "#3c0800", "error": "#ba1a1a", "on-tertiary": "#ffffff", "inverse-surface": "#30312f", "secondary-fixed": "#ffdbd2", "on-tertiary-fixed-variant": "#4e453b", "secondary-container": "#fe8b6e", "on-error-container": "#93000a", "surface-dim": "#dbdad7", "on-tertiary-fixed": "#211a12", "surface-container": "#efeeeb", "tertiary": "#352d24", "secondary": "#9e412a", "surface-variant": "#e4e2df", "primary-container": "#1f4d3a", "on-secondary": "#ffffff", "on-primary": "#ffffff", "primary-fixed": "#bceed3", "on-surface-variant": "#414944", "background": "#fbf9f6", "on-secondary-container": "#75240e", "on-error": "#ffffff", "surface-tint": "#3a6753", "on-secondary-fixed-variant": "#7f2b15", "on-primary-fixed": "#002114", "tertiary-container": "#4c4339", "secondary-fixed-dim": "#ffb4a2", "primary-fixed-dim": "#a1d1b8", "surface-container-highest": "#e4e2df", "surface-bright": "#fbf9f6", "inverse-on-surface": "#f2f0ed", "inverse-primary": "#a1d1b8", "on-background": "#1b1c1a", "on-primary-container": "#8dbda4", "surface-container-low": "#f5f3f0", "on-primary-fixed-variant": "#214f3c", "on-surface": "#1b1c1a", "outline": "#717973", "primary": "#023625", "error-container": "#ffdad6", "tertiary-fixed-dim": "#d2c4b7", "surface": "#fbf9f6" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "margin": "1rem", "space-sm": "0.5rem", "gutter": "1rem", "space-lg": "1.5rem", "space-xl": "2rem", "space-md": "1rem", "margin-tablet": "2rem", "margin-desktop": "3rem", "space-xs": "0.25rem", "gutter-tablet": "1.5rem" }, fontFamily: { "body-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-lg": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"], "label-sm": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"] }, fontSize: { "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }], "headline-xl": ["36px", { lineHeight: "44px", fontWeight: "700" }], "label-lg": ["16px", { lineHeight: "20px", fontWeight: "600" }], "headline-lg": ["28px", { lineHeight: "36px", fontWeight: "600" }], "label-md": ["14px", { lineHeight: "18px", fontWeight: "600" }], "headline-md": ["20px", { lineHeight: "28px", fontWeight: "600" }], "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }], "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }], "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }], "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }], "headline-xl-mobile": ["28px", { lineHeight: "36px", fontWeight: "700" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="text-on-surface font-body-md flex flex-col min-h-screen bg-gradient-to-b from-[#fbf9f6] via-[#e8f5e9] to-[#d7ecd9] relative overflow-x-hidden"><header class="fixed top-0 w-full z-50 pt-safe bg-[#fbf9f6]/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] border-b border-white/60"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-xs"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container active:bg-surface-container-high transition-colors -ml-space-xs" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Brand logo. - Primary color: #1f4d3a
+- Font: plusJakartaSans
+- Mode: light
+- Roundness: rounded-md
+" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1VdqAFRnbhaFEr1Gif7u6tlf7Nm74I-Hcoha51OdEEsi-rZj6ffFdjNyXlHfbx_t8sAMs6AkX28PO90WVW6taqhRGZ5OIzUt0wLSUN_-eV8QT9U3Y6X1UiEov26tXESidqad-p0kRlWdIluVOO0-X8WngDSBoyGO6olH11ZScevc12uDvvMJGT29Xm4uNuXDHjRLiZBB_z0MwSRcwG8XTV8QdfP4j5PkGyZIk0d_18CjQ6K4PlbkOLF1Zo"/><div class="flex flex-col"><span class="font-label-md text-label-md text-primary leading-none tracking-tight">SahkarSeva</span><span class="font-label-sm text-label-sm text-on-surface-variant leading-none mt-space-xs">Role Selection</span></div></div></div><div class="flex items-center gap-space-xs"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-safe min-h-screen overflow-hidden">
+<!-- UPGRADED EYE-CATCHING ANIMATED LIGHT GREEN & WARM OFF-WHITE BACKGROUND -->
+<div aria-hidden="true" class="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none">
+<!-- Flowing Radiant Gradient Orbs/Blobs -->
+<div class="absolute -top-20 -left-20 w-[420px] h-[420px] rounded-full bg-gradient-to-tr from-[#bceed3]/70 via-[#c8e6c9]/50 to-[#e0f2f1]/40 blur-3xl animate-float-1"></div>
+<div class="absolute top-[28%] -right-28 w-[440px] h-[440px] rounded-full bg-gradient-to-bl from-[#a1d1b8]/60 via-[#d7ecd9]/55 to-[#ffdbd2]/30 blur-3xl animate-float-2"></div>
+<div class="absolute bottom-6 -left-24 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-[#c8ebd7]/65 via-[#e8f5e9]/70 to-[#eee0d2]/40 blur-3xl animate-float-3"></div>
+<!-- Flowing Geometric Wave Lines in Backdrop -->
+<svg class="absolute inset-0 w-full h-full opacity-35 animate-wave-morph" fill="none" preserveaspectratio="none" viewbox="0 0 400 800" xmlns="http://www.w3.org/2000/svg">
+<path d="M-50,180 C80,120 220,240 450,160" stroke="url(#greenGrad1)" stroke-dasharray="6 6" stroke-width="1.5"></path>
+<path d="M-40,360 C120,290 260,430 460,330" stroke="url(#greenGrad2)" stroke-width="1.2"></path>
+<path d="M-60,580 C100,520 280,640 460,560" stroke="url(#greenGrad1)" stroke-dasharray="4 8" stroke-width="1.5"></path>
+<defs>
+<lineargradient id="greenGrad1" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="#3a6753" stop-opacity="0.3"></stop>
+<stop offset="50%" stop-color="#1f4d3a" stop-opacity="0.55"></stop>
+<stop offset="100%" stop-color="#a1d1b8" stop-opacity="0.2"></stop>
+</lineargradient>
+<lineargradient id="greenGrad2" x1="1" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#9e412a" stop-opacity="0.25"></stop>
+<stop offset="50%" stop-color="#3a6753" stop-opacity="0.45"></stop>
+<stop offset="100%" stop-color="#1f4d3a" stop-opacity="0.15"></stop>
+</lineargradient>
+</defs>
+</svg>
+<!-- Orbital Ring System 1 (Upper Right Focus with Concentric Trajectories) -->
+<div class="absolute -top-28 -right-32 w-[560px] h-[560px] animate-orbit-cw-slow opacity-75">
+<div class="absolute inset-0 rounded-full border border-dashed border-emerald-700/25"></div>
+<div class="absolute inset-12 rounded-full border border-emerald-600/20"></div>
+<div class="absolute inset-28 rounded-full border border-dashed border-teal-600/30"></div>
+<div class="absolute inset-44 rounded-full border border-emerald-500/15"></div>
+<!-- Orbiting Constellation Nodes -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+<span class="w-4 h-4 rounded-full bg-emerald-500/30 animate-ping absolute"></span>
+<span class="w-3 h-3 rounded-full bg-primary shadow-[0_0_12px_rgba(2,54,37,0.7)]"></span>
+</div>
+<div class="absolute bottom-1/4 right-3 flex items-center justify-center animate-twinkle">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-[0_0_8px_rgba(5,150,105,0.7)]"></span>
+</div>
+<div class="absolute top-1/3 left-3 flex items-center justify-center animate-node-pulse">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(158,65,42,0.6)]"></span>
+</div>
+<div class="absolute bottom-12 left-1/4 flex items-center justify-center animate-twinkle" style="animation-delay: 1.8s;">
+<span class="w-2 h-2 rounded-full bg-[#1f4d3a] shadow-[0_0_6px_rgba(31,77,58,0.5)]"></span>
+</div>
+</div>
+<!-- Orbital Ring System 2 (Center-Left Screen Anchor) -->
+<div class="absolute top-[44%] -left-40 w-[620px] h-[620px] animate-orbit-ccw-slow opacity-65">
+<div class="absolute inset-0 rounded-full border border-dashed border-emerald-700/25"></div>
+<div class="absolute inset-16 rounded-full border border-emerald-500/25"></div>
+<div class="absolute inset-32 rounded-full border border-dashed border-teal-600/25"></div>
+<div class="absolute inset-48 rounded-full border border-emerald-400/20"></div>
+<!-- Orbiting Nodes -->
+<div class="absolute top-14 right-1/4 flex items-center justify-center animate-twinkle">
+<span class="w-3.5 h-3.5 rounded-full bg-emerald-400/35 animate-ping absolute"></span>
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-[0_0_10px_rgba(5,150,105,0.75)]"></span>
+</div>
+<div class="absolute bottom-20 right-24 flex items-center justify-center animate-node-pulse">
+<span class="w-3 h-3 rounded-full bg-primary-container shadow-[0_0_8px_rgba(31,77,58,0.7)]"></span>
+</div>
+<div class="absolute top-1/2 left-2 flex items-center justify-center animate-twinkle" style="animation-delay: 1.2s;">
+<span class="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(158,65,42,0.6)]"></span>
+</div>
+</div>
+<!-- Floating Micro-Particles & Shimmer Particles Rising Softly -->
+<div class="absolute bottom-16 left-8 w-2 h-2 rounded-full bg-emerald-600/60 shadow-[0_0_6px_rgba(5,150,105,0.6)] animate-particle-1"></div>
+<div class="absolute bottom-24 right-14 w-1.5 h-1.5 rounded-full bg-secondary/55 shadow-[0_0_5px_rgba(158,65,42,0.5)] animate-particle-2" style="animation-delay: 2.5s;"></div>
+<div class="absolute bottom-40 left-1/3 w-2 h-2 rounded-full bg-emerald-500/50 shadow-[0_0_6px_rgba(16,185,129,0.5)] animate-particle-1" style="animation-delay: 4.8s;"></div>
+<div class="absolute bottom-8 right-1/3 w-1.5 h-1.5 rounded-full bg-[#1f4d3a]/50 shadow-[0_0_6px_rgba(31,77,58,0.5)] animate-particle-2" style="animation-delay: 6.2s;"></div>
+<!-- Delicate Sparkling Constellation Nodes -->
+<div class="absolute top-24 left-10 w-2 h-2 rounded-full bg-emerald-700/40 animate-twinkle"></div>
+<div class="absolute top-48 right-10 w-2.5 h-2.5 rounded-full bg-primary/45 animate-node-pulse" style="animation-delay: 1.5s;"></div>
+<div class="absolute top-2/3 right-6 w-2 h-2 rounded-full bg-secondary/45 animate-twinkle" style="animation-delay: 0.8s;"></div>
+<div class="absolute bottom-44 left-14 w-2.5 h-2.5 rounded-full bg-emerald-700/40 animate-node-pulse" style="animation-delay: 2.2s;"></div>
+</div>
+<div class="flex flex-col w-full pb-space-xl relative z-10">
+<!-- Ambient Cooperative Brand Motif Background Accent -->
+<div class="px-margin pt-space-md flex flex-col gap-space-lg">
+<!-- Intro / Cooperative Trust Header -->
+<div class="flex flex-col gap-space-xs">
+<div class="inline-flex items-center gap-space-xs self-start px-3 py-1 rounded-full bg-[#bceed3]/90 text-on-primary-fixed shadow-sm border border-emerald-600/15 backdrop-blur-sm">
+<span class="material-symbols-outlined text-[16px]" style='font-variation-settings: "FILL" 1;'>groups</span>
+<span class="font-label-sm text-label-sm tracking-wide uppercase font-semibold">Worker-Owned Cooperative</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background mt-space-xs leading-tight drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]">
+        How will you use SahkarSeva?
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Choose how you'd like to get started today. You can freely switch roles or register skills anytime.
+      </p>
+</div>
+<!-- Interactive Role Selection Cards Container -->
+<div class="flex flex-col gap-space-md" id="role-selection-group">
+<!-- Card 1: Customer Role (Selected by default) -->
+<div aria-checked="true" class="role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_8px_24px_rgba(2,54,37,0.08)] transition-all duration-200 ring-2 ring-primary-container bg-gradient-to-br from-white/98 via-white/95 to-primary-fixed/25 border border-emerald-900/10" id="role-customer" onclick="selectRole('customer')" role="radio" tabindex="0">
+<!-- Top Metadata & Radio Row -->
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-primary-fixed text-on-primary-fixed uppercase tracking-wider font-semibold">
+              Book Services
+            </span>
+<span class="inline-flex items-center text-primary-container">
+<span class="material-symbols-outlined text-[18px]" style='font-variation-settings: "FILL" 1;'>verified</span>
+</span>
+</div>
+<!-- Radio Indicator -->
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-on-primary shadow-sm transition-transform duration-200 scale-100" id="radio-indicator-customer">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<!-- Role Core Header -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex-1 min-w-0">
+<h2 class="font-headline-md text-headline-md text-on-surface leading-snug">
+              I need a service
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">
+              Hire cooperative-certified electricians, plumbers, carpenters, and technicians with transparent rates and zero markups.
+            </p>
+</div>
+<!-- Decorative Visual Motif -->
+<div class="w-14 h-14 rounded-xl bg-primary-fixed/40 flex items-center justify-center text-primary-container flex-shrink-0 shadow-sm border border-emerald-500/15">
+<span class="material-symbols-outlined text-[32px]">home_repair_service</span>
+</div>
+</div>
+<!-- Perks List -->
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-primary">sell</span>
+<span class="">Direct Fair Rates</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-primary">verified_user</span>
+<span class="">Certified Artisans</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-primary">security_update_good</span>
+<span class="">Co-op Warranty</span>
+</div>
+</div>
+</div>
+<!-- Card 2: Artisan / Service Provider Role -->
+<div aria-checked="false" class="role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-emerald-900/10 transition-all duration-200 hover:shadow-md" id="role-worker" onclick="selectRole('worker')" role="radio" tabindex="0">
+<!-- Top Metadata & Radio Row -->
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container-high text-on-surface-variant uppercase tracking-wider font-semibold">
+              Co-op Artisan
+            </span>
+<span class="inline-flex items-center text-secondary">
+<span class="material-symbols-outlined text-[18px]">handshake</span>
+</span>
+</div>
+<!-- Radio Indicator -->
+<div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-transparent transition-transform duration-200" id="radio-indicator-worker">
+<span class="material-symbols-outlined text-[16px] font-bold">check</span>
+</div>
+</div>
+<!-- Role Core Header -->
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex-1 min-w-0">
+<h2 class="font-headline-md text-headline-md text-on-surface leading-snug">
+              I provide a service
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-relaxed">
+              Join as an equal co-owner. Keep 100% of your earnings with zero platform commissions and full collective voting rights.
+            </p>
+</div>
+<!-- Decorative Visual Motif -->
+<div class="w-14 h-14 rounded-xl bg-secondary-fixed/50 flex items-center justify-center text-secondary flex-shrink-0 shadow-sm border border-secondary-container/20">
+<span class="material-symbols-outlined text-[32px]">engineering</span>
+</div>
+</div>
+<!-- Perks List -->
+<div class="mt-space-md pt-space-sm flex flex-wrap gap-2">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-secondary">percent</span>
+<span class="">0% Commission</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-secondary">how_to_vote</span>
+<span class="">Co-ownership Shares</span>
+</div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low/90 backdrop-blur-sm text-on-surface-variant font-label-sm text-label-sm border border-emerald-900/5">
+<span class="material-symbols-outlined text-[15px] text-secondary">payments</span>
+<span class="">Instant Direct Payouts</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Cooperative Reassurance Note -->
+<div class="flex items-center gap-space-sm p-space-sm rounded-xl bg-white/90 backdrop-blur-md text-on-surface-variant border border-emerald-900/10 shadow-sm">
+<span class="material-symbols-outlined text-[20px] text-primary flex-shrink-0">info</span>
+<p class="font-body-sm text-body-sm leading-tight">
+        You can change or add another profile in your account settings anytime without extra fees.
+      </p>
+</div>
+<!-- Bottom Action Area -->
+<div class="flex flex-col gap-space-xs mt-space-sm">
+<button class="w-full h-12 rounded-xl bg-secondary hover:bg-on-secondary-fixed-variant active:scale-[0.99] text-on-secondary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-[0_6px_20px_rgba(158,65,42,0.28)] transition-all duration-150" id="continue-button" onclick="handleContinue()" type="button">
+<span class="" id="cta-label">Continue as Customer</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+<!-- Trust Subtext Footer -->
+<div class="flex items-center justify-center gap-1.5 text-on-surface-variant/90 py-1 drop-shadow-[0_1px_1px_rgba(255,255,255,0.7)]">
+<span class="material-symbols-outlined text-[15px] text-primary">diversity_3</span>
+<span class="font-label-sm text-label-sm">
+          100% worker-owned &amp; democratically governed
+        </span>
+</div>
+</div>
+</div>
+</div>
+<script>
+  let currentRole = 'customer';
+
+  function selectRole(role) {
+    currentRole = role;
+    const customerCard = document.getElementById('role-customer');
+    const workerCard = document.getElementById('role-worker');
+    const customerRadio = document.getElementById('radio-indicator-customer');
+    const workerRadio = document.getElementById('radio-indicator-worker');
+    const ctaLabel = document.getElementById('cta-label');
+
+    if (role === 'customer') {
+      // Customer active
+      customerCard.setAttribute('aria-checked', 'true');
+      customerCard.className = 'role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_8px_24px_rgba(2,54,37,0.08)] transition-all duration-200 ring-2 ring-primary-container bg-gradient-to-br from-white/98 via-white/95 to-primary-fixed/25 border border-emerald-900/10';
+      customerRadio.className = 'w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-on-primary shadow-sm transition-transform duration-200 scale-100';
+
+      // Worker inactive
+      workerCard.setAttribute('aria-checked', 'false');
+      workerCard.className = 'role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-emerald-900/10 transition-all duration-200 hover:shadow-md';
+      workerRadio.className = 'w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-transparent transition-transform duration-200';
+
+      ctaLabel.textContent = 'Continue as Customer';
+    } else {
+      // Worker active
+      workerCard.setAttribute('aria-checked', 'true');
+      workerCard.className = 'role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_8px_24px_rgba(158,65,42,0.12)] transition-all duration-200 ring-2 ring-secondary bg-gradient-to-br from-white/98 via-white/95 to-secondary-fixed/25 border border-secondary/20';
+      workerRadio.className = 'w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-sm transition-transform duration-200 scale-100';
+
+      // Customer inactive
+      customerCard.setAttribute('aria-checked', 'false');
+      customerCard.className = 'role-card relative cursor-pointer rounded-2xl bg-white/95 backdrop-blur-md p-space-md shadow-[0_4px_16px_rgba(0,0,0,0.04)] border border-emerald-900/10 transition-all duration-200 hover:shadow-md';
+      customerRadio.className = 'w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-transparent transition-transform duration-200';
+
+      ctaLabel.textContent = 'Join Co-op as Artisan';
+    }
+  }
+
+  function handleContinue() {
+    const btn = document.getElementById('continue-button');
+    btn.classList.add('opacity-90', 'scale-[0.98]');
+    setTimeout(() => {
+      btn.classList.remove('opacity-90', 'scale-[0.98]');
+    }, 200);
+  }
+</script></main></body></html>

@@ -1,15 +1,9 @@
-import { Platform } from 'react-native'
-
-// No custom font files loaded yet — these map to the system font stack so
-// components/screens can already code against a stable FontFamily API.
-// Swap these string values for real font family names once fonts are added
-// (via expo-font) — nothing else in the app needs to change.
-const systemFont = Platform.select({ ios: 'System', android: 'sans-serif', default: 'System' })!
-const systemFontMedium = Platform.select({ ios: 'System', android: 'sans-serif-medium', default: 'System' })!
-
+// Plus Jakarta Sans font family mapping loaded via @expo-google-fonts/plus-jakarta-sans
 export const FontFamily = {
-  headingBold: systemFont,
-  bodyRegular: systemFont,
-  bodyMedium: systemFontMedium,
-  bodySemiBold: systemFontMedium,
+  headingExtraBold: 'PlusJakartaSans_800ExtraBold',
+  headingBold: 'PlusJakartaSans_700Bold',
+  headingSemiBold: 'PlusJakartaSans_600SemiBold',
+  bodySemiBold: 'PlusJakartaSans_600SemiBold',
+  bodyMedium: 'PlusJakartaSans_500Medium',
+  bodyRegular: 'PlusJakartaSans_400Regular',
 } as const
